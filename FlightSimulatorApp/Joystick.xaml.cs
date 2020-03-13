@@ -16,16 +16,18 @@ using System.Windows.Shapes;
 namespace FlightSimulatorApp
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for Joystick.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class Joystick : UserControl
     {
-        private MainWindowViewModel mViewModel = new MainWindowViewModel();
-        public MainWindow()
+        public Joystick()
         {
             InitializeComponent();
-            DataContext = mViewModel;
         }
 
+        private void centerKnob_Completed(object sender, EventArgs e)
+        {
+
+        }
     }
 }
