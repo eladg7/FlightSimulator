@@ -4,10 +4,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FlightSimulatorApp.Client;
 
 namespace FlightSimulatorApp
 {
-    interface ISimulatorModel : INotifyPropertyChanged
+    interface ISimulatorModel : INotifyPropertyChanged, ITCPClient
     {
         //  properties
         string Indicated_heading_deg { get; set; }
@@ -19,14 +20,16 @@ namespace FlightSimulatorApp
         string Attitude_indicator_internal_pitch_deg { get; set; }
         string Altimeter_indicated_altitude_ft { get; set; }
         string Dashboard { get; set; }
+        string Throttle { get; set; }
+        string Rudder { get; set; }
+        string Elevator { get; set; }
+        string Latitude_x { get; set; }
+        string Longitude_y { get; set; }
 
-        //  connection
-        bool connect(string ip, int port);
-        void disconnect();
-        string sendToSimulator(string message);
-        string SetToSimulator(string value);
+        //  server
+        string SetToSimulator(string propertyPath, string value);
         string GetFromSimulator(string message);
-        
+
         //  activate
         void move(double x, double y);
     }
