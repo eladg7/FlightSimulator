@@ -7,28 +7,35 @@ using System.Threading.Tasks;
 
 namespace FlightSimulatorApp
 {
-    class MainWindowViewModel
+    class MainWindowViewModel : INotifyPropertyChanged
     {
+        private ISimulatorModel model;
 
-        private string dash;
-        public string simDashBoard
+        public MainWindowViewModel(ISimulatorModel model)
         {
-            get { return dash; }
-
-            set
+            this.model = model;
+            model.PropertyChanged += delegate (Object sender, PropertyChangedEventArgs e)
             {
-                dash = value;
-                OnPropertyChanged("simDashBoard");
-            }
+                NotifyPropertyChanged("VM_" + e.PropertyName);
+            };
         }
 
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
+        public void NotifyPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
+
+        public string VM_dashboard
+        {
+            get
+            {
+                return model.Dashboard;
+            }
+            set { }
+        }
     }
 
 
