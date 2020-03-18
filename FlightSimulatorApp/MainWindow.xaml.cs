@@ -20,11 +20,12 @@ namespace FlightSimulatorApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MainWindowViewModel mViewModel = new MainWindowViewModel();
+        private MainWindowViewModel MainViewModel = new MainWindowViewModel(new SimulatorModel());
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = mViewModel;
+            DataContext = MainViewModel;
+
         }
 
     }
