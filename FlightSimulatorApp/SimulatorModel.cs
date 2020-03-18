@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FlightSimulatorApp
@@ -28,23 +29,25 @@ namespace FlightSimulatorApp
         //  Map
         const string LATITUDE_X = "/position/latitude-deg";
         const string LONGTITUDE_Y = "/position/longitude-deg";
-        #endregion
-
+        //  Server
         const int PORT = 5402;
         const string IP = "127.0.0.1";
+        #endregion
 
         private Dictionary<string, string> Values;
         private Socket ClientSocket;
         private string dashboard;
+        volatile bool stop;
+
         public SimulatorModel()
         {
             Values = new Dictionary<string, string>();
 
-            if (connect(IP, PORT))
+            if (Connect(IP, PORT))
             {
+                stop = false;
                 InitalizeValuesDictionary();
             }
-
         }
 
         private void InitalizeValuesDictionary()
@@ -54,22 +57,26 @@ namespace FlightSimulatorApp
             Values["elevator"] = GetFromSimulator(ELEVATOR);
             Values["latitude_x"] = GetFromSimulator(LATITUDE_X);
             Values["longitude_y"] = GetFromSimulator(LONGTITUDE_Y);
-            
-            UpdateDashboard();
+
+            UpdateDashboardThread();
         }
 
-        private void UpdateDashboard()
+        private void UpdateDashboardThread()
         {
-            Values["indicated-heading-deg"] = GetFromSimulator(HEADING);
-            Values["gps_indicated-vertical-speed"] = GetFromSimulator(VERTICAL_SPEED);
-            Values["gps_indicated-ground-speed-kt"] = GetFromSimulator(GROUND_SPEED);
-            Values["airspeed-indicator_indicated-speed-kt"] = GetFromSimulator(INDICATED_SPEED);
-            Values["gps_indicated-altitude-ft"] = GetFromSimulator(GPS_ALTITUDE);
-            Values["attitude-indicator_internal-roll-deg"] = GetFromSimulator(ROLL);
-            Values["attitude-indicator_internal-pitch-deg"] = GetFromSimulator(PITCH);
-            Values["altimeter_indicated-altitude-ft"] = GetFromSimulator(ALTIMETER_ALTITUDE);
+            new Thread(delegate ()
+            {
+                while (!stop)
+                {
+                    Values["indicated-heading-deg"] = GetFromSimulator(HEADING);
+                    Values["gps_indicated-vertical-speed"] = GetFromSimulator(VERTICAL_SPEED);
+                    Values["gps_indicated-ground-speed-kt"] = GetFromSimulator(GROUND_SPEED);
+                    Values["airspeed-indicator_indicated-speed-kt"] = GetFromSimulator(INDICATED_SPEED);
+                    Values["gps_indicated-altitude-ft"] = GetFromSimulator(GPS_ALTITUDE);
+                    Values["attitude-indicator_internal-roll-deg"] = GetFromSimulator(ROLL);
+                    Values["attitude-indicator_internal-pitch-deg"] = GetFromSimulator(PITCH);
+                    Values["altimeter_indicated-altitude-ft"] = GetFromSimulator(ALTIMETER_ALTITUDE);
 
-            Dashboard = "indicated-heading-deg = " + Values["indicated-heading-deg"] + "\n"
+                    Dashboard = "indicated-heading-deg = " + Values["indicated-heading-deg"] + "\n"
                         + "gps_indicated-vertical-speed = " + Values["gps_indicated-vertical-speed"] + "\n"
                         + "gps_indicated-ground-speed-kt = " + Values["gps_indicated-ground-speed-kt"] + "\n"
                         + "airspeed-indicator_indicated-speed-kt = " + Values["airspeed-indicator_indicated-speed-kt"] + "\n"
@@ -77,8 +84,13 @@ namespace FlightSimulatorApp
                         + "attitude-indicator_internal-roll-deg = " + Values["attitude-indicator_internal-roll-deg"] + "\n"
                         + "attitude-indicator_internal-pitch-deg = " + Values["attitude-indicator_internal-pitch-deg"] + "\n"
                         + "altimeter_indicated-altitude-ft = " + Values["altimeter_indicated-altitude-ft"];
+
+                    Thread.Sleep(250);
+                }
+            }).Start();
         }
 
+        #region Properties
         public string Dashboard
         {
             get
@@ -100,7 +112,7 @@ namespace FlightSimulatorApp
             {
                 return this.Values["Indicated_heading_deg"];
             }
-            set => throw new NotImplementedException();
+            set { }
         }
 
         public string GPS_indicated_vertical_speed
@@ -109,7 +121,7 @@ namespace FlightSimulatorApp
             {
                 return this.Values["GPS_indicated_vertical_speed"];
             }
-            set => throw new NotImplementedException();
+            set { }
         }
 
         public string GPS_indicated_ground_speed_kt
@@ -118,7 +130,7 @@ namespace FlightSimulatorApp
             {
                 return this.Values["GPS_indicated_ground_speed_kt"];
             }
-            set => throw new NotImplementedException();
+            set { }
         }
 
         public string Airspeed_indicator_indicated_speed_kt
@@ -127,7 +139,7 @@ namespace FlightSimulatorApp
             {
                 return this.Values["Airspeed_indicator_indicated_speed_kt"];
             }
-            set => throw new NotImplementedException();
+            set { }
         }
 
         public string GPS_indicated_altitude_ft
@@ -136,7 +148,7 @@ namespace FlightSimulatorApp
             {
                 return this.Values["GPS_indicated_altitude_ft"];
             }
-            set => throw new NotImplementedException();
+            set { }
         }
 
         public string Attitude_indicator_internal_roll_deg
@@ -145,7 +157,7 @@ namespace FlightSimulatorApp
             {
                 return this.Values["Attitude_indicator_internal_roll_deg"];
             }
-            set => throw new NotImplementedException();
+            set { }
         }
 
         public string Attitude_indicator_internal_pitch_deg
@@ -154,7 +166,7 @@ namespace FlightSimulatorApp
             {
                 return this.Values["Attitude_indicator_internal_pitch_deg"];
             }
-            set => throw new NotImplementedException();
+            set { }
         }
 
         public string Altimeter_indicated_altitude_ft
@@ -163,8 +175,56 @@ namespace FlightSimulatorApp
             {
                 return this.Values["Altimeter_indicated_altitude_ft"];
             }
-            set => throw new NotImplementedException();
+            set { }
         }
+
+        public string Throttle
+        {
+            get { return Values["throttle"]; }
+            set
+            {
+                if (Values["throttle"] != value)
+                {
+                    Values["throttle"] = value;
+                    SetToSimulator(THROTTLE, value);
+                }
+            }
+        }
+        public string Rudder
+        {
+            get { return Values["rudder"]; }
+            set
+            {
+                if (Values["rudder"] != value)
+                {
+                    Values["rudder"] = value;
+                    SetToSimulator(RUDDER, value);
+                }
+            }
+        }
+        public string Elevator
+        {
+            get { return Values["elevator"]; }
+            set
+            {
+                if (Values["elevator"] != value)
+                {
+                    Values["elevator"] = value;
+                    SetToSimulator(ELEVATOR, value);
+                }
+            }
+        }
+        public string Latitude_x
+        {
+            get { return Values["latitude_x"]; }
+            set { }
+        }
+        public string Longitude_y
+        {
+            get { return Values["longitude_y"]; }
+            set { }
+        }
+        #endregion
 
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
@@ -174,7 +234,7 @@ namespace FlightSimulatorApp
         }
         #endregion
 
-        public bool connect(string ip, int port)
+        public bool Connect(string ip, int port)
         {
             bool connected = false;
             try
@@ -220,10 +280,11 @@ namespace FlightSimulatorApp
             return connected;
         }
 
-        public void disconnect()
+        public void Disconnect()
         {
             if (ClientSocket != null)
             {
+                stop = true;
                 ClientSocket.Shutdown(SocketShutdown.Both);
                 ClientSocket.Close();
             }
@@ -234,7 +295,7 @@ namespace FlightSimulatorApp
             throw new NotImplementedException();
         }
 
-        public string sendToSimulator(string message)
+        public string SendToServer(string message)
         {
             string result;
             try
@@ -270,13 +331,13 @@ namespace FlightSimulatorApp
             return result;
         }
 
-        public string SetToSimulator(string value)
+        public string SetToSimulator(string propertyPath, string value)
         {
             string result = "";
-            if (!string.IsNullOrEmpty(value))
+            if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(propertyPath))
             {
-                value = "set " + value;
-                result = sendToSimulator(value);
+                value = "set " + propertyPath + " " + value;
+                result = SendToServer(value);
             }
             else
             {
@@ -291,7 +352,7 @@ namespace FlightSimulatorApp
             if (!string.IsNullOrEmpty(message))
             {
                 message = "get " + message;
-                result = sendToSimulator(message);
+                result = SendToServer(message);
             }
             else
             {
