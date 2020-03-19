@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FlightSimulatorApp"
         mc:Ignorable="d"
-        Title="Flight Simulator App" Height="900" Width="1600">
+        Title="Flight Simulator App" Height="675" Width="1200">
     <Grid x:Name="mainGrid" Margin="10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
@@ -23,11 +23,11 @@
               ScrollViewer.HorizontalScrollBarVisibility="Auto"
               ScrollViewer.VerticalScrollBarVisibility="Auto"
               ScrollViewer.CanContentScroll="True"
-              HorizontalAlignment="Stretch"  Text="{Binding VM_dashboard}" IsEnabled="False" FontSize="18" FontWeight="Bold">
+              HorizontalAlignment="Stretch" Text="{Binding VM_dashboard}" IsEnabled="False" FontSize="16" FontWeight="Bold">
             </TextBox>
-
-            <local:Joystick x:Name="Joystick" Grid.Row="1" Margin="10"/>
-
+            <Viewbox Grid.Row="1" Margin="10" Stretch="Uniform">
+                <local:Joystick x:Name="Joystick"/>
+            </Viewbox>
         </Grid>
 
     </Grid>
