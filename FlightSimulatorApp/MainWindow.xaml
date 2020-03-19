@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FlightSimulatorApp"
-        xmlns:m="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
         mc:Ignorable="d"
         Title="Flight Simulator App" Height="675" Width="1200">
     <Grid x:Name="mainGrid" Margin="10">
@@ -12,9 +11,7 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Viewbox x:Name="MapViewBox" Grid.Column="0" Margin="10">
-            <m:Map x:Name="MainMap" CredentialsProvider="uzfuvEijN48dna0AGQt8~oZ5jv3pocuIrYqaHAo1pyA~Ao-U6b4el9dAS0cCNA7Imi3qk5CrXm8jZjOFdI4vFmo1ZlPdgjjovNjcIz_uAfMj" Mode="Aerial"/>
-        </Viewbox>
+
         <Grid x:Name="SeconderyGrid" Grid.Column="1" Margin="10"  >
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
@@ -27,10 +24,15 @@
               ScrollViewer.CanContentScroll="True"
               HorizontalAlignment="Stretch" Text="{Binding VM_dashboard}" IsEnabled="False" FontSize="16" FontWeight="Bold">
             </TextBox>
+
             <Viewbox x:Name="JoystickViewBox" Grid.Row="1" Margin="10" Stretch="Uniform">
                 <local:Joystick x:Name="Joystick"/>
             </Viewbox>
         </Grid>
+
+        <Viewbox x:Name="mapViewBox" Grid.Column="0"  Stretch="Uniform">
+        <local:BingMap x:Name="myMap" />
+        </Viewbox>
 
     </Grid>
 </Window>

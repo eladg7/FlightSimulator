@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="FlightSimulatorApp.BingMap"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:m="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
+        xmlns:local="clr-namespace:FlightSimulatorApp"
+        mc:Ignorable="d"
+        Width="1024" Height="768">
+    <Grid>
+    <m:Map x:Name="myMap" 
+               CredentialsProvider="uzfuvEijN48dna0AGQt8~oZ5jv3pocuIrYqaHAo1pyA~Ao-U6b4el9dAS0cCNA7Imi3qk5CrXm8jZjOFdI4vFmo1ZlPdgjjovNjcIz_uAfMj" Mode="Aerial"/>
+    </Grid>
+
+</UserControl>
