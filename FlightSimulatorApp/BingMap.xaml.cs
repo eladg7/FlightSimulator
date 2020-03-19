@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Maps.MapControl.WPF;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,23 +11,22 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace FlightSimulatorApp
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for BingMap.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class BingMap : UserControl
     {
-        private MainWindowViewModel MainViewModel = new MainWindowViewModel(new SimulatorModel());
-        public MainWindow()
+        public BingMap()
         {
             InitializeComponent();
-            DataContext = MainViewModel;
-           
-        }
+            myMap.Focus();
+            //Set map to Aerial mode with labels
+            myMap.Mode = new AerialMode(true);
 
+        }
     }
 }
