@@ -1,4 +1,5 @@
-﻿using Microsoft.Maps.MapControl.WPF;
+﻿using FlightSimulatorApp.Maps;
+using Microsoft.Maps.MapControl.WPF;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,7 @@ namespace FlightSimulatorApp
         public BingMap()
         {
             InitializeComponent();
+
             myMap.Focus();
             //Set map to Aerial mode with labels
             myMap.Mode = new AerialMode(true);

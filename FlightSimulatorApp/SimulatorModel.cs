@@ -55,10 +55,25 @@ namespace FlightSimulatorApp
             Values["throttle"] = GetFromSimulator(THROTTLE);
             Values["rudder"] = GetFromSimulator(RUDDER);
             Values["elevator"] = GetFromSimulator(ELEVATOR);
-            Values["latitude_x"] = GetFromSimulator(LATITUDE_X);
-            Values["longitude_y"] = GetFromSimulator(LONGTITUDE_Y);
+            //Values["latitude_x"] = GetFromSimulator(LATITUDE_X);
+            //Values["longitude_y"] = GetFromSimulator(LONGTITUDE_Y);
 
             UpdateDashboardThread();
+            UpdateMapCoordinatesThread();
+        }
+        private void UpdateMapCoordinatesThread()
+        {
+            new Thread(delegate ()
+            {
+                while (!stop)
+                {
+
+                    Latitude_x = GetFromSimulator(LATITUDE_X);
+                    Longitude_y = GetFromSimulator(LONGTITUDE_Y);
+
+                    Thread.Sleep(250);
+                }
+            }).Start();
         }
 
         private void UpdateDashboardThread()
@@ -67,6 +82,7 @@ namespace FlightSimulatorApp
             {
                 while (!stop)
                 {
+
                     Values["indicated-heading-deg"] = GetFromSimulator(HEADING);
                     Values["gps_indicated-vertical-speed"] = GetFromSimulator(VERTICAL_SPEED);
                     Values["gps_indicated-ground-speed-kt"] = GetFromSimulator(GROUND_SPEED);
@@ -217,12 +233,24 @@ namespace FlightSimulatorApp
         public string Latitude_x
         {
             get { return Values["latitude_x"]; }
-            set { }
+            set
+            {
+                if (value != Values["latitude_x"])
+                {
+                    Values["latitude_x"] = value;
+                }
+            }
         }
         public string Longitude_y
         {
             get { return Values["longitude_y"]; }
-            set { }
+            set
+            {
+                if (value != Values["longitude_y"])
+                {
+                    Values["longitude_y"] = value;
+                }
+            }
         }
         #endregion
 
