@@ -1,6 +1,7 @@
 ﻿using FlightSimulatorApp.Maps;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,11 +32,12 @@ namespace FlightSimulatorApp
             DataContext = mainViewModel;
 
             myMap.DataContext = new BingMapViewModel(model);
-            
+            Closing += OnWindowClosing;
+        }
 
-
-
-
+        public void OnWindowClosing(object sender, CancelEventArgs e)
+        {
+            model.Disconnect();
         }
 
     }
