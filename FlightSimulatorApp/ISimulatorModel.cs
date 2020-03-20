@@ -8,23 +8,15 @@ using FlightSimulatorApp.Client;
 
 namespace FlightSimulatorApp
 {
-    interface ISimulatorModel : INotifyPropertyChanged, ITCPClient
+    public interface ISimulatorModel : INotifyPropertyChanged, ITCPClient
     {
         //  properties
-        string Indicated_heading_deg { get; set; }
-        string GPS_indicated_vertical_speed { get; set; }
-        string GPS_indicated_ground_speed_kt { get; set; }
-        string Airspeed_indicator_indicated_speed_kt { get; set; }
-        string GPS_indicated_altitude_ft { get; set; }
-        string Attitude_indicator_internal_roll_deg { get; set; }
-        string Attitude_indicator_internal_pitch_deg { get; set; }
-        string Altimeter_indicated_altitude_ft { get; set; }
+   
         string Dashboard { get; set; }
         string Throttle { get; set; }
         string Rudder { get; set; }
         string Elevator { get; set; }
-        string Latitude_x { get; set; }
-        string Longitude_y { get; set; }
+        string LocationByString { get; set; }
 
         //  server
         string SetToSimulator(string propertyPath, string value);

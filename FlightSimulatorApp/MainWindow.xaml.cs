@@ -24,20 +24,23 @@ namespace FlightSimulatorApp
     {
         private MainWindowViewModel mainViewModel;
 
-        ISimulatorModel model = new SimulatorModel();
+        ISimulatorModel _model = new SimulatorModel();
         public MainWindow()
         {
             InitializeComponent();
-            mainViewModel = new MainWindowViewModel(model);
+            mainViewModel = new MainWindowViewModel();
+            mainViewModel.Model = _model;
             DataContext = mainViewModel;
 
-            myMap.DataContext = new BingMapViewModel(model);
+
+            myMap.SetModel(_model);
+
             Closing += OnWindowClosing;
         }
 
         public void OnWindowClosing(object sender, CancelEventArgs e)
         {
-            model.Disconnect();
+            _model.Disconnect();
         }
 
     }

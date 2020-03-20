@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FlightSimulatorApp.Client
 {
-    interface ITCPClient
+    public interface ITCPClient
     {
         bool Connect(string ip, int port);
         
