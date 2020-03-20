@@ -8,8 +8,15 @@
         mc:Ignorable="d"
         Width="1024" Height="768">
     <Grid>
-    <m:Map x:Name="myMap" 
-               CredentialsProvider="uzfuvEijN48dna0AGQt8~oZ5jv3pocuIrYqaHAo1pyA~Ao-U6b4el9dAS0cCNA7Imi3qk5CrXm8jZjOFdI4vFmo1ZlPdgjjovNjcIz_uAfMj" Mode="Aerial"/>
+        <m:Map x:Name="myMap" 
+               CredentialsProvider="uzfuvEijN48dna0AGQt8~oZ5jv3pocuIrYqaHAo1pyA~Ao-U6b4el9dAS0cCNA7Imi3qk5CrXm8jZjOFdI4vFmo1ZlPdgjjovNjcIz_uAfMj" 
+               Mode="Aerial"  Center="{Binding VM_airPlainPosition}"
+               ZoomLevel="10" >
+            <!--"37.1481402218342,-119.644248783588"-->
+
+        </m:Map>
+ 
+   
     </Grid>
 
 </UserControl>

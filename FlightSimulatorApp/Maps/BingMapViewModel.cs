@@ -1,18 +1,16 @@
-﻿using FlightSimulatorApp.Maps;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FlightSimulatorApp
+namespace FlightSimulatorApp.Maps
 {
-    class MainWindowViewModel : INotifyPropertyChanged
+    class BingMapViewModel
     {
         private ISimulatorModel model;
-        
-        public MainWindowViewModel(ISimulatorModel model)
+        public BingMapViewModel(ISimulatorModel model)
         {
             this.model = model;
             model.PropertyChanged += delegate (Object sender, PropertyChangedEventArgs e)
@@ -29,16 +27,20 @@ namespace FlightSimulatorApp
         }
         #endregion
 
-        public string VM_dashboard
+
+        //properties
+
+        public string VM_airPlainPosition
         {
             get
             {
-                return model.Dashboard;
+                string longitude = model.Longitude_y;
+                string latitude = model.Latitude_x;
+                return latitude + ", " + longitude;
+
             }
             set { }
         }
+
     }
-
-
 }
-

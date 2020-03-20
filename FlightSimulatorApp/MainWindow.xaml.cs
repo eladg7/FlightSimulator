@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FlightSimulatorApp.Maps;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,12 +21,21 @@ namespace FlightSimulatorApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MainWindowViewModel MainViewModel = new MainWindowViewModel(new SimulatorModel());
+        private MainWindowViewModel mainViewModel;
+
+        ISimulatorModel model = new SimulatorModel();
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = MainViewModel;
-           
+            mainViewModel = new MainWindowViewModel(model);
+            DataContext = mainViewModel;
+
+            myMap.DataContext = new BingMapViewModel(model);
+            
+
+
+
+
         }
 
     }

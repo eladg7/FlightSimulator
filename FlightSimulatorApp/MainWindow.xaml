@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FlightSimulatorApp"
         mc:Ignorable="d"
-        Title="Flight Simulator App" Height="675" Width="1200">
-    <Grid x:Name="mainGrid" Margin="10">
+        Title="Flight Simulator App" Height="450" Width="800">
+    <Grid x:Name="mainGrid" Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid x:Name="SeconderyGrid" Grid.Column="1" Margin="10"  >
+        <Grid x:Name="SeconderyGrid" Grid.Column="1" Margin="5"  >
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
@@ -25,7 +25,7 @@
               HorizontalAlignment="Stretch" Text="{Binding VM_dashboard}" IsReadOnly="True" FontSize="16" FontWeight="Bold">
             </TextBox>
 
-            <Viewbox x:Name="JoystickViewBox" Grid.Row="1" Margin="10" Stretch="Uniform">
+            <Viewbox x:Name="JoystickViewBox" Grid.Row="1" Margin="5" Stretch="Uniform">
                 <local:Joystick x:Name="Joystick"/>
             </Viewbox>
         </Grid>
