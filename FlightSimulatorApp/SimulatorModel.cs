@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,8 +56,8 @@ namespace FlightSimulatorApp
             Values["throttle"] = GetFromSimulator(THROTTLE);
             Values["rudder"] = GetFromSimulator(RUDDER);
             Values["elevator"] = GetFromSimulator(ELEVATOR);
-            //Values["latitude_x"] = GetFromSimulator(LATITUDE_X);
-            //Values["longitude_y"] = GetFromSimulator(LONGTITUDE_Y);
+            Values["latitude_x"] = GetFromSimulator(LATITUDE_X);
+            Values["longitude_y"] = GetFromSimulator(LONGITUDE_Y);
 
             UpdateDashboardThread();
             UpdateMapCoordinatesThread();
@@ -69,7 +70,7 @@ namespace FlightSimulatorApp
                 {
 
                     Latitude_x = GetFromSimulator(LATITUDE_X);
-                    Longitude_y = GetFromSimulator(LONGTITUDE_Y);
+                    Longitude_y = GetFromSimulator(LONGITUDE_Y);
 
                     Thread.Sleep(250);
                 }
@@ -92,13 +93,13 @@ namespace FlightSimulatorApp
                     Values["attitude-indicator_internal-pitch-deg"] = GetFromSimulator(PITCH);
                     Values["altimeter_indicated-altitude-ft"] = GetFromSimulator(ALTIMETER_ALTITUDE);
 
-                    Dashboard = "indicated-heading-deg = " + Values["indicated-heading-deg"]
-                        + "gps_indicated-vertical-speed = " + Values["gps_indicated-vertical-speed"]
-                        + "gps_indicated-ground-speed-kt = " + Values["gps_indicated-ground-speed-kt"]
-                        + "airspeed-indicator_indicated-speed-kt = " + Values["airspeed-indicator_indicated-speed-kt"]
-                        + "gps_indicated-altitude-ft = " + Values["gps_indicated-altitude-ft"]
-                        + "attitude-indicator_internal-roll-deg = " + Values["attitude-indicator_internal-roll-deg"]
-                        + "attitude-indicator_internal-pitch-deg = " + Values["attitude-indicator_internal-pitch-deg"]
+                    Dashboard = "indicated-heading-deg = " + Values["indicated-heading-deg"] + "\n"
+                        + "gps_indicated-vertical-speed = " + Values["gps_indicated-vertical-speed"] + "\n"
+                        + "gps_indicated-ground-speed-kt = " + Values["gps_indicated-ground-speed-kt"] + "\n"
+                        + "airspeed-indicator_indicated-speed-kt = " + Values["airspeed-indicator_indicated-speed-kt"] + "\n"
+                        + "gps_indicated-altitude-ft = " + Values["gps_indicated-altitude-ft"] + "\n"
+                        + "attitude-indicator_internal-roll-deg = " + Values["attitude-indicator_internal-roll-deg"] + "\n"
+                        + "attitude-indicator_internal-pitch-deg = " + Values["attitude-indicator_internal-pitch-deg"] + "\n"
                         + "altimeter_indicated-altitude-ft = " + Values["altimeter_indicated-altitude-ft"];
 
                     Thread.Sleep(250);
@@ -386,7 +387,8 @@ namespace FlightSimulatorApp
             {
                 Console.WriteLine("Could not get empty value.");
             }
-            return result;
+            //  Remove \n
+            return Regex.Replace(result, @"\t|\n|\r", ""); ;
         }
     }
 }
