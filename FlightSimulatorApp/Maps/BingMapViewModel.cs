@@ -1,46 +1,66 @@
-﻿using System;
+﻿using Microsoft.Maps.MapControl.WPF;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace FlightSimulatorApp.Maps
 {
-    class BingMapViewModel
+    public class BingMapViewModel : BaseViewModel
     {
-        private ISimulatorModel model;
-        public BingMapViewModel(ISimulatorModel model)
+        private Location _location = new Location() { Latitude = 31.771959, Longitude = 35.217018 };
+        public BingMapViewModel()
         {
-            this.model = model;
-            model.PropertyChanged += delegate (Object sender, PropertyChangedEventArgs e)
-            {
-                NotifyPropertyChanged("VM_" + e.PropertyName);
-            };
+            CreateBitmap();
+        }
+        private void CreateBitmap()
+        {
+            myBitmapImage.BeginInit();
+            string path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+
+            myBitmapImage.UriSource = new Uri(
+            System.IO.Path.Combine(path, "Plane.png"));
+            // To save significant application memory, set the DecodePixelWidth or  
+            // DecodePixelHeight of the BitmapImage value of the image source to the desired 
+            // height or width of the rendered image. If you don't do this, the application will 
+            // cache the image as though it were rendered as its normal size rather then just 
+            // the size that is displayed.
+            // Note: In order to preserve aspect ratio, set DecodePixelWidth
+            // or DecodePixelHeight but not both.
+            //Define the image display properties
+            myBitmapImage.DecodePixelHeight = 150;
+            myBitmapImage.EndInit();
+
         }
 
-        #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
-
-
-        //properties
-
-        public string VM_airPlainPosition
+        //properties 
+        BitmapImage myBitmapImage = new BitmapImage();
+        public BitmapImage PlaneImage
         {
             get
             {
-                string longitude = model.Longitude_y;
-                string latitude = model.Latitude_x;
-                return latitude + ", " + longitude;
+                return myBitmapImage;
+            }
+
+
+        }
+
+        public string VM_LocationByString
+        {
+            get
+            {
+                return Model.LocationByString;
 
             }
-            set { }
         }
+
+
 
     }
 }

@@ -35,29 +35,32 @@ namespace FlightSimulatorApp
         const string IP = "127.0.0.1";
         #endregion
 
-        private Dictionary<string, string> Values;
-        private Socket ClientSocket;
-        private string dashboard;
-        volatile bool stop;
+        private Dictionary<string, string> _values;
+        private Socket _clientSocket;
+        private string _dashboard;
+        private string _location = "0, 0";
+        volatile bool _stop;
 
         public SimulatorModel()
         {
-            Values = new Dictionary<string, string>();
+            _values = new Dictionary<string, string>();
 
             if (Connect(IP, PORT))
             {
-                stop = false;
+                _stop = false;
                 InitalizeValuesDictionary();
             }
         }
 
         private void InitalizeValuesDictionary()
         {
-            Values["throttle"] = GetFromSimulator(THROTTLE);
-            Values["rudder"] = GetFromSimulator(RUDDER);
-            Values["elevator"] = GetFromSimulator(ELEVATOR);
-            Values["latitude_x"] = GetFromSimulator(LATITUDE_X);
-            Values["longitude_y"] = GetFromSimulator(LONGITUDE_Y);
+            _values["throttle"] = GetFromSimulator(THROTTLE);
+            _values["rudder"] = GetFromSimulator(RUDDER);
+            _values["elevator"] = GetFromSimulator(ELEVATOR);
+            _values["latitude_x"] = GetFromSimulator(LATITUDE_X);
+            _values["longitude_y"] = GetFromSimulator(LONGITUDE_Y);
+
+            _location = _values["latitude_x"] + ", " + _values["longitude_y"];
 
             UpdateDashboardThread();
             UpdateMapCoordinatesThread();
@@ -66,7 +69,7 @@ namespace FlightSimulatorApp
         {
             new Thread(delegate ()
             {
-                while (!stop)
+                while (!_stop)
                 {
 
                     Latitude_x = GetFromSimulator(LATITUDE_X);
@@ -81,26 +84,26 @@ namespace FlightSimulatorApp
         {
             new Thread(delegate ()
             {
-                while (!stop)
+                while (!_stop)
                 {
 
-                    Values["indicated-heading-deg"] = GetFromSimulator(HEADING);
-                    Values["gps_indicated-vertical-speed"] = GetFromSimulator(VERTICAL_SPEED);
-                    Values["gps_indicated-ground-speed-kt"] = GetFromSimulator(GROUND_SPEED);
-                    Values["airspeed-indicator_indicated-speed-kt"] = GetFromSimulator(INDICATED_SPEED);
-                    Values["gps_indicated-altitude-ft"] = GetFromSimulator(GPS_ALTITUDE);
-                    Values["attitude-indicator_internal-roll-deg"] = GetFromSimulator(ROLL);
-                    Values["attitude-indicator_internal-pitch-deg"] = GetFromSimulator(PITCH);
-                    Values["altimeter_indicated-altitude-ft"] = GetFromSimulator(ALTIMETER_ALTITUDE);
+                    _values["indicated-heading-deg"] = GetFromSimulator(HEADING);
+                    _values["gps_indicated-vertical-speed"] = GetFromSimulator(VERTICAL_SPEED);
+                    _values["gps_indicated-ground-speed-kt"] = GetFromSimulator(GROUND_SPEED);
+                    _values["airspeed-indicator_indicated-speed-kt"] = GetFromSimulator(INDICATED_SPEED);
+                    _values["gps_indicated-altitude-ft"] = GetFromSimulator(GPS_ALTITUDE);
+                    _values["attitude-indicator_internal-roll-deg"] = GetFromSimulator(ROLL);
+                    _values["attitude-indicator_internal-pitch-deg"] = GetFromSimulator(PITCH);
+                    _values["altimeter_indicated-altitude-ft"] = GetFromSimulator(ALTIMETER_ALTITUDE);
 
-                    Dashboard = "indicated-heading-deg = " + Values["indicated-heading-deg"] + "\n"
-                        + "gps_indicated-vertical-speed = " + Values["gps_indicated-vertical-speed"] + "\n"
-                        + "gps_indicated-ground-speed-kt = " + Values["gps_indicated-ground-speed-kt"] + "\n"
-                        + "airspeed-indicator_indicated-speed-kt = " + Values["airspeed-indicator_indicated-speed-kt"] + "\n"
-                        + "gps_indicated-altitude-ft = " + Values["gps_indicated-altitude-ft"] + "\n"
-                        + "attitude-indicator_internal-roll-deg = " + Values["attitude-indicator_internal-roll-deg"] + "\n"
-                        + "attitude-indicator_internal-pitch-deg = " + Values["attitude-indicator_internal-pitch-deg"] + "\n"
-                        + "altimeter_indicated-altitude-ft = " + Values["altimeter_indicated-altitude-ft"];
+                    Dashboard = "indicated-heading-deg = " + _values["indicated-heading-deg"] + "\n"
+                        + "gps_indicated-vertical-speed = " + _values["gps_indicated-vertical-speed"] + "\n"
+                        + "gps_indicated-ground-speed-kt = " + _values["gps_indicated-ground-speed-kt"] + "\n"
+                        + "airspeed-indicator_indicated-speed-kt = " + _values["airspeed-indicator_indicated-speed-kt"] + "\n"
+                        + "gps_indicated-altitude-ft = " + _values["gps_indicated-altitude-ft"] + "\n"
+                        + "attitude-indicator_internal-roll-deg = " + _values["attitude-indicator_internal-roll-deg"] + "\n"
+                        + "attitude-indicator_internal-pitch-deg = " + _values["attitude-indicator_internal-pitch-deg"] + "\n"
+                        + "altimeter_indicated-altitude-ft = " + _values["altimeter_indicated-altitude-ft"];
 
                     Thread.Sleep(250);
                 }
@@ -112,147 +115,172 @@ namespace FlightSimulatorApp
         {
             get
             {
-                return dashboard;
+                return _dashboard;
             }
             set
             {
-                if (dashboard != value)
+                if (_dashboard != value)
                 {
-                    dashboard = value;
+                    _dashboard = value;
                     NotifyPropertyChanged("Dashboard");
                 }
             }
         }
-        public string Indicated_heading_deg
-        {
-            get
-            {
-                return this.Values["Indicated_heading_deg"];
-            }
-            set { }
-        }
+        //public string Indicated_heading_deg
+        //{
+        //    get
+        //    {
+        //        return this._values["Indicated_heading_deg"];
+        //    }
+        //    set { }
+        //}
 
-        public string GPS_indicated_vertical_speed
-        {
-            get
-            {
-                return this.Values["GPS_indicated_vertical_speed"];
-            }
-            set { }
-        }
+        //public string GPS_indicated_vertical_speed
+        //{
+        //    get
+        //    {
+        //        return this._values["GPS_indicated_vertical_speed"];
+        //    }
+        //    set { }
+        //}
 
-        public string GPS_indicated_ground_speed_kt
-        {
-            get
-            {
-                return this.Values["GPS_indicated_ground_speed_kt"];
-            }
-            set { }
-        }
+        //public string GPS_indicated_ground_speed_kt
+        //{
+        //    get
+        //    {
+        //        return this._values["GPS_indicated_ground_speed_kt"];
+        //    }
+        //    set { }
+        //}
 
-        public string Airspeed_indicator_indicated_speed_kt
-        {
-            get
-            {
-                return this.Values["Airspeed_indicator_indicated_speed_kt"];
-            }
-            set { }
-        }
+        //public string Airspeed_indicator_indicated_speed_kt
+        //{
+        //    get
+        //    {
+        //        return this._values["Airspeed_indicator_indicated_speed_kt"];
+        //    }
+        //    set { }
+        //}
 
-        public string GPS_indicated_altitude_ft
-        {
-            get
-            {
-                return this.Values["GPS_indicated_altitude_ft"];
-            }
-            set { }
-        }
+        //public string GPS_indicated_altitude_ft
+        //{
+        //    get
+        //    {
+        //        return this._values["GPS_indicated_altitude_ft"];
+        //    }
+        //    set { }
+        //}
 
-        public string Attitude_indicator_internal_roll_deg
-        {
-            get
-            {
-                return this.Values["Attitude_indicator_internal_roll_deg"];
-            }
-            set { }
-        }
+        //public string Attitude_indicator_internal_roll_deg
+        //{
+        //    get
+        //    {
+        //        return this._values["Attitude_indicator_internal_roll_deg"];
+        //    }
+        //    set { }
+        //}
 
-        public string Attitude_indicator_internal_pitch_deg
-        {
-            get
-            {
-                return this.Values["Attitude_indicator_internal_pitch_deg"];
-            }
-            set { }
-        }
+        //public string Attitude_indicator_internal_pitch_deg
+        //{
+        //    get
+        //    {
+        //        return this._values["Attitude_indicator_internal_pitch_deg"];
+        //    }
+        //    set { }
+        //}
 
-        public string Altimeter_indicated_altitude_ft
-        {
-            get
-            {
-                return this.Values["Altimeter_indicated_altitude_ft"];
-            }
-            set { }
-        }
+        //public string Altimeter_indicated_altitude_ft
+        //{
+        //    get
+        //    {
+        //        return this._values["Altimeter_indicated_altitude_ft"];
+        //    }
+        //    set { }
+        //}
 
         public string Throttle
         {
-            get { return Values["throttle"]; }
+            get { return _values["throttle"]; }
             set
             {
-                if (Values["throttle"] != value)
+                if (_values["throttle"] != value)
                 {
-                    Values["throttle"] = value;
+                    _values["throttle"] = value;
                     SetToSimulator(THROTTLE, value);
                 }
             }
         }
         public string Rudder
         {
-            get { return Values["rudder"]; }
+            get { return _values["rudder"]; }
             set
             {
-                if (Values["rudder"] != value)
+                if (_values["rudder"] != value)
                 {
-                    Values["rudder"] = value;
+                    _values["rudder"] = value;
                     SetToSimulator(RUDDER, value);
+
                 }
             }
         }
         public string Elevator
         {
-            get { return Values["elevator"]; }
+            get { return _values["elevator"]; }
             set
             {
-                if (Values["elevator"] != value)
+                if (_values["elevator"] != value)
                 {
-                    Values["elevator"] = value;
+                    _values["elevator"] = value;
                     SetToSimulator(ELEVATOR, value);
                 }
             }
         }
         public string Latitude_x
         {
-            get { return Values["latitude_x"]; }
+            get { return _values["latitude_x"]; }
             set
             {
-                if (value != Values["latitude_x"])
+                if (value != _values["latitude_x"])
                 {
-                    Values["latitude_x"] = value;
+                    _values["latitude_x"] = value;
+                    string str = value + ", " + Longitude_y;
+                    LocationByString = str;
                 }
             }
         }
+        public string LocationByString
+        {
+            get
+            {
+                return _location;
+            }
+            set
+            {
+                if (_location != value)
+                {
+                    _location = value;
+                    NotifyPropertyChanged("LocationByString");
+                }
+            }
+        }
+
         public string Longitude_y
         {
-            get { return Values["longitude_y"]; }
+            get { return _values["longitude_y"]; }
             set
             {
-                if (value != Values["longitude_y"])
+                if (value != _values["longitude_y"])
                 {
-                    Values["longitude_y"] = value;
+                    _values["longitude_y"] = value;
+                    string str = Latitude_x + ", " + value;
+                    LocationByString = str;
                 }
             }
         }
+
+        
+
+
         #endregion
 
         #region INotifyPropertyChanged
@@ -277,17 +305,17 @@ namespace FlightSimulatorApp
 
                 // Creation TCP/IP Socket using  
                 // Socket Class Costructor 
-                this.ClientSocket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                this._clientSocket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 try
                 {
                     // Connect Socket to the remote  
                     // endpoint using method Connect() 
-                    this.ClientSocket.Connect(localEndPoint);
+                    this._clientSocket.Connect(localEndPoint);
 
                     // We print EndPoint information  
                     // that we are connected 
                     Console.WriteLine("Socket connected to -> {0} ",
-                                  this.ClientSocket.RemoteEndPoint.ToString());
+                                  this._clientSocket.RemoteEndPoint.ToString());
                     connected = true;
                 }
                 // Manage of Socket's Exceptions 
@@ -311,11 +339,15 @@ namespace FlightSimulatorApp
 
         public void Disconnect()
         {
-            if (ClientSocket != null)
+            if (_clientSocket != null)
             {
-                stop = true;
-                ClientSocket.Shutdown(SocketShutdown.Both);
-                ClientSocket.Close();
+                _stop = true;
+                if(_clientSocket != null && _clientSocket.Connected)
+                {
+                    _clientSocket.Shutdown(SocketShutdown.Both);
+                    _clientSocket.Close();
+                }
+               
             }
         }
 
@@ -335,10 +367,10 @@ namespace FlightSimulatorApp
                 byte[] msg = Encoding.ASCII.GetBytes(message);
 
                 // Send the data through the socket.
-                int bytesSent = this.ClientSocket.Send(msg);
+                int bytesSent = this._clientSocket.Send(msg);
 
                 // Receive the response from the remote device.
-                int bytesRec = this.ClientSocket.Receive(bytes);
+                int bytesRec = this._clientSocket.Receive(bytes);
                 result = Encoding.ASCII.GetString(bytes, 0, bytesRec);
             }
             catch (ArgumentNullException ane)

@@ -8,34 +8,21 @@ using System.Threading.Tasks;
 
 namespace FlightSimulatorApp
 {
-    class MainWindowViewModel : INotifyPropertyChanged
+    class MainWindowViewModel : BaseViewModel
     {
-        private ISimulatorModel model;
         
-        public MainWindowViewModel(ISimulatorModel model)
-        {
-            this.model = model;
-            model.PropertyChanged += delegate (Object sender, PropertyChangedEventArgs e)
-            {
-                NotifyPropertyChanged("VM_" + e.PropertyName);
-            };
-        }
+        public MainWindowViewModel()
+        { }
 
-        #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
 
-        public string VM_dashboard
+        public string VM_Dashboard
         {
             get
             {
-                return model.Dashboard;
+                return Model.Dashboard;
             }
             set { }
+            
         }
     }
 
