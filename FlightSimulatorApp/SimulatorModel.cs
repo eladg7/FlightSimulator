@@ -35,6 +35,7 @@ namespace FlightSimulatorApp
         const string IP = "127.0.0.1";
         #endregion
 
+        private readonly Mutex simulatorMutex = new Mutex();
         private Dictionary<string, string> _values;
         private Socket _clientSocket;
         private string _dashboard;
@@ -278,9 +279,6 @@ namespace FlightSimulatorApp
             }
         }
 
-        
-
-
         #endregion
 
         #region INotifyPropertyChanged
@@ -342,12 +340,12 @@ namespace FlightSimulatorApp
             if (_clientSocket != null)
             {
                 _stop = true;
-                if(_clientSocket != null && _clientSocket.Connected)
+                if (_clientSocket != null && _clientSocket.Connected)
                 {
                     _clientSocket.Shutdown(SocketShutdown.Both);
                     _clientSocket.Close();
                 }
-               
+
             }
         }
 
@@ -366,11 +364,14 @@ namespace FlightSimulatorApp
                 message += "\n";
                 byte[] msg = Encoding.ASCII.GetBytes(message);
 
+                simulatorMutex.WaitOne();
                 // Send the data through the socket.
                 int bytesSent = this._clientSocket.Send(msg);
 
                 // Receive the response from the remote device.
                 int bytesRec = this._clientSocket.Receive(bytes);
+                simulatorMutex.ReleaseMutex();
+
                 result = Encoding.ASCII.GetString(bytes, 0, bytesRec);
             }
             catch (ArgumentNullException ane)
