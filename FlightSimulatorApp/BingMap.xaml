@@ -10,7 +10,7 @@
     <Grid>
         <m:Map x:Name="myMap" 
                CredentialsProvider="uzfuvEijN48dna0AGQt8~oZ5jv3pocuIrYqaHAo1pyA~Ao-U6b4el9dAS0cCNA7Imi3qk5CrXm8jZjOFdI4vFmo1ZlPdgjjovNjcIz_uAfMj" 
-               Mode="Aerial"  
+               Mode="Aerial"  Center="{Binding VM_InitialLocation}"
                ZoomLevel="10" >
             
             <Canvas
