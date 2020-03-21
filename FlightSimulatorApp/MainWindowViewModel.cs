@@ -10,9 +10,10 @@ namespace FlightSimulatorApp
 {
     class MainWindowViewModel : BaseViewModel
     {
-        
-        public MainWindowViewModel()
-        { }
+        public MainWindowViewModel(ISimulatorModel model)
+        {
+            Model = model;
+        }
 
 
         public string VM_Dashboard
@@ -22,7 +23,7 @@ namespace FlightSimulatorApp
                 return Model.Dashboard;
             }
             set { }
-            
+
         }
     }
 

@@ -23,17 +23,19 @@ namespace FlightSimulatorApp
     public partial class MainWindow : Window
     {
         private MainWindowViewModel mainViewModel;
+        private BingMapViewModel mapViewModel;
 
         ISimulatorModel _model = new SimulatorModel();
         public MainWindow()
         {
+            mainViewModel = new MainWindowViewModel(_model);
+            mapViewModel = new BingMapViewModel(_model);
+
             InitializeComponent();
-            mainViewModel = new MainWindowViewModel();
-            mainViewModel.Model = _model;
             DataContext = mainViewModel;
 
-
-            myMap.SetModel(_model);
+            myMap.DataContext = mapViewModel;
+            myMap.SetViewModel(mapViewModel);
 
             Closing += OnWindowClosing;
         }

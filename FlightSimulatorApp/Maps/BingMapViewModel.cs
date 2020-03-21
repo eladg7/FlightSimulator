@@ -14,11 +14,14 @@ namespace FlightSimulatorApp.Maps
 {
     public class BingMapViewModel : BaseViewModel
     {
+       
         private Location _location = new Location() { Latitude = 31.771959, Longitude = 35.217018 };
-        public BingMapViewModel()
+        public BingMapViewModel(ISimulatorModel model)
         {
+            Model = model;
             CreateBitmap();
         }
+
         private void CreateBitmap()
         {
             myBitmapImage.BeginInit();
