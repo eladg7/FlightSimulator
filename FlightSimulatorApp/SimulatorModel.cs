@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Maps.MapControl.WPF;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -35,10 +36,12 @@ namespace FlightSimulatorApp
         const string IP = "127.0.0.1";
         #endregion
 
+        private static readonly Object obj = new Object();
+
         private Dictionary<string, string> _values;
         private Socket _clientSocket;
         private string _dashboard;
-        private string _location = "0, 0";
+        private string _location;
         volatile bool _stop;
 
         public SimulatorModel()
@@ -260,9 +263,11 @@ namespace FlightSimulatorApp
                 {
                     _location = value;
                     NotifyPropertyChanged("LocationByString");
+                    NotifyPropertyChanged("InitialLocation");
                 }
             }
         }
+
 
         public string Longitude_y
         {
@@ -278,7 +283,7 @@ namespace FlightSimulatorApp
             }
         }
 
-        
+
 
 
         #endregion
@@ -342,12 +347,12 @@ namespace FlightSimulatorApp
             if (_clientSocket != null)
             {
                 _stop = true;
-                if(_clientSocket != null && _clientSocket.Connected)
+                if (_clientSocket != null && _clientSocket.Connected)
                 {
                     _clientSocket.Shutdown(SocketShutdown.Both);
                     _clientSocket.Close();
                 }
-               
+
             }
         }
 
@@ -361,17 +366,25 @@ namespace FlightSimulatorApp
             string result;
             try
             {
-                byte[] bytes = new byte[1024];
-                // Encode the data string into a byte array.
-                message += "\n";
-                byte[] msg = Encoding.ASCII.GetBytes(message);
+                lock (obj)
+                {
+                    byte[] bytes = new byte[1024];
+                    // Encode the data string into a byte array.
+                    message += "\n";
+                    byte[] msg = Encoding.ASCII.GetBytes(message);
+                    int bytesRec = 0;
 
-                // Send the data through the socket.
-                int bytesSent = this._clientSocket.Send(msg);
 
-                // Receive the response from the remote device.
-                int bytesRec = this._clientSocket.Receive(bytes);
-                result = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                    // Send the data through the socket.
+                    int bytesSent = this._clientSocket.Send(msg);
+
+                    // Receive the response from the remote device.
+                    bytesRec = this._clientSocket.Receive(bytes);
+
+
+
+                    result = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                }
             }
             catch (ArgumentNullException ane)
             {
