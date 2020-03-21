@@ -38,6 +38,7 @@ namespace FlightSimulatorApp
 
         private static readonly Object obj = new Object();
 
+
         private Dictionary<string, string> _values;
         private Socket _clientSocket;
         private string _dashboard;
@@ -284,8 +285,6 @@ namespace FlightSimulatorApp
         }
 
 
-
-
         #endregion
 
         #region INotifyPropertyChanged
@@ -373,7 +372,6 @@ namespace FlightSimulatorApp
                     message += "\n";
                     byte[] msg = Encoding.ASCII.GetBytes(message);
                     int bytesRec = 0;
-
 
                     // Send the data through the socket.
                     int bytesSent = this._clientSocket.Send(msg);
