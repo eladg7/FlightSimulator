@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,21 +25,28 @@ namespace FlightSimulatorApp
     /// </summary>
     public partial class BingMap : UserControl
     {
-        BingMapViewModel _vm = new BingMapViewModel();
+        BingMapViewModel _vm;
         public BingMap()
         {
             InitializeComponent();
-            DataContext = _vm;
 
             myMap.Focus();
             //Set map to Aerial mode with labels
             myMap.Mode = new AerialMode(true);
 
+
+
         }
 
-        public void SetModel(ISimulatorModel m)
+        public void SetViewModel(BingMapViewModel vm)
         {
-            _vm.Model = m;
+            _vm = vm;
+            string[] str = Regex.Split(_vm.VM_LocationByString, ", ");
+            myMap.Center = new Location()
+            {
+                Altitude = Convert.ToDouble(str[0]),
+                Longitude = Convert.ToDouble(str[1])
+            };
         }
 
       }
