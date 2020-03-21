@@ -73,13 +73,20 @@ namespace FlightSimulatorApp.Maps
                     string[] str = Regex.Split(VM_LocationByString, ", ");
                     _InitialLocation = new Location()
                     {
-                        Altitude = Convert.ToDouble(str[0]),
+                        Latitude = Convert.ToDouble(str[0]),
                         Longitude = Convert.ToDouble(str[1])
                     };
+
+                    IsInitial = false;
                 }
                 return _InitialLocation;
 
             }
+            set { }
+
+
         }
+
+
     }
 }
