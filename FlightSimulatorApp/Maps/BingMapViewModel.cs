@@ -14,6 +14,7 @@ namespace FlightSimulatorApp.Maps
 {
     public class BingMapViewModel : BaseViewModel
     {
+
         bool IsInitial = true;
         Location _InitialLocation;
         public BingMapViewModel(ISimulatorModel model)
@@ -59,10 +60,9 @@ namespace FlightSimulatorApp.Maps
             get
             {
                 return Model.LocationByString;
-
             }
         }
-
+        
         public Location VM_InitialLocation
         {
             get
@@ -81,8 +81,5 @@ namespace FlightSimulatorApp.Maps
 
             }
         }
-
-
-
     }
 }
