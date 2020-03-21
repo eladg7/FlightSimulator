@@ -34,8 +34,8 @@ namespace FlightSimulatorApp
             InitializeComponent();
             DataContext = mainViewModel;
 
-            myMap.DataContext = mapViewModel;
             myMap.SetViewModel(mapViewModel);
+            //myMap.DataContext = mapViewModel;
 
             Closing += OnWindowClosing;
         }
@@ -43,6 +43,7 @@ namespace FlightSimulatorApp
         public void OnWindowClosing(object sender, CancelEventArgs e)
         {
             _model.Disconnect();
+            
         }
 
     }
