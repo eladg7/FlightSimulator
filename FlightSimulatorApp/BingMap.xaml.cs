@@ -33,21 +33,15 @@ namespace FlightSimulatorApp
             myMap.Focus();
             //Set map to Aerial mode with labels
             myMap.Mode = new AerialMode(true);
-
-
-
+            
         }
 
         public void SetViewModel(BingMapViewModel vm)
         {
             _vm = vm;
-            string[] str = Regex.Split(_vm.VM_LocationByString, ", ");
-            myMap.Center = new Location()
-            {
-                Altitude = Convert.ToDouble(str[0]),
-                Longitude = Convert.ToDouble(str[1])
-            };
+            DataContext = _vm;
+           
         }
 
-      }
+    }
 }
