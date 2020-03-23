@@ -1,4 +1,5 @@
-﻿using FlightSimulatorApp.Maps;
+﻿using FlightSimulatorApp.JoyStick_files;
+using FlightSimulatorApp.Maps;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,18 +25,21 @@ namespace FlightSimulatorApp
     {
         private MainWindowViewModel mainViewModel;
         private BingMapViewModel mapViewModel;
+        private JoystickViewModel joystickView;
 
         ISimulatorModel _model = new SimulatorModel();
         public MainWindow()
         {
             mainViewModel = new MainWindowViewModel(_model);
             mapViewModel = new BingMapViewModel(_model);
+            joystickView = new JoystickViewModel(_model);
+
 
             InitializeComponent();
             DataContext = mainViewModel;
 
             myMap.SetViewModel(mapViewModel);
-            //myMap.DataContext = mapViewModel;
+            Joystick.SetViewModel(joystickView);
 
             Closing += OnWindowClosing;
         }

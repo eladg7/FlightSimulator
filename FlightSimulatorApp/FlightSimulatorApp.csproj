@@ -67,6 +67,7 @@
     <Compile Include="Joystick.xaml.cs">
       <DependentUpon>Joystick.xaml</DependentUpon>
     </Compile>
+    <Compile Include="JoyStick_files\JoystickViewModel.cs" />
     <Compile Include="Maps\BingMapViewModel.cs" />
     <Compile Include="SimulatorModel.cs" />
     <Page Include="BingMap.xaml">
