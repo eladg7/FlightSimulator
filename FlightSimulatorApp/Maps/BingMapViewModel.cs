@@ -59,6 +59,10 @@ namespace FlightSimulatorApp.Maps
         {
             get
             {
+                if(Model.LocationByString == null)
+                {
+                    return "0, 0";
+                }
                 return Model.LocationByString;
             }
         }
@@ -67,18 +71,29 @@ namespace FlightSimulatorApp.Maps
         {
             get
             {
-
-                if (IsInitial)
+                try
                 {
-                    string[] str = Regex.Split(VM_LocationByString, ", ");
-                    _InitialLocation = new Location()
+                    if (IsInitial)
                     {
-                        Latitude = Convert.ToDouble(str[0]),
-                        Longitude = Convert.ToDouble(str[1])
-                    };
 
-                    IsInitial = false;
+                        string[] str = Regex.Split(VM_LocationByString, ", ");
+                        _InitialLocation = new Location()
+                        {
+                            Latitude = Convert.ToDouble(str[0]),
+                            Longitude = Convert.ToDouble(str[1])
+                        };
+
+                        IsInitial = false;
+                    }
+                }catch(ArgumentNullException)
+                {
+                    _InitialLocation = _InitialLocation = new Location()
+                    {
+                        Latitude = 0,
+                        Longitude = 0
+                    };
                 }
+                
                 return _InitialLocation;
 
             }

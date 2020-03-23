@@ -11,6 +11,11 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
         <Grid x:Name="SeconderyGrid" Grid.Column="1" Margin="5"  >
             <Grid.RowDefinitions>
@@ -33,6 +38,6 @@
         <Viewbox x:Name="mapViewBox" Grid.Column="0"  Stretch="Uniform">
         <local:BingMap x:Name="myMap"/>
         </Viewbox>
-
+        
     </Grid>
 </Window>
