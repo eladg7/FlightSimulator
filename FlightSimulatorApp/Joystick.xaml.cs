@@ -105,6 +105,8 @@ namespace FlightSimulatorApp
             (Knob).ReleaseMouseCapture();
             _isMouseDown = false;
             _knobAnimation.Begin();
+            _vm.VM_knobX = 0;
+            _vm.VM_knobY = 0;
 
         }
     }
