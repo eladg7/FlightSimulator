@@ -118,7 +118,7 @@
                 </Canvas.RenderTransform>
                 <Canvas.Resources>
 
-                    <Storyboard x:Key="CenterKnob" x:Name="_knobAnimation" Completed="centerKnob_Completed">
+                    <Storyboard x:Key="CenterKnob" x:Name="_knobAnimation" Completed="CenterKnob_Completed">
                         <DoubleAnimation Storyboard.TargetName="knobPosition"
                              Storyboard.TargetProperty="X" To="0" Duration="0:0:0.2">
                             <DoubleAnimation.EasingFunction>

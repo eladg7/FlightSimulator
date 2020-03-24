@@ -19,7 +19,11 @@ namespace FlightSimulatorApp
         }
         #endregion
 
-    
+        public bool IsModelConnected()
+        {
+            //  TODO handle errors bar
+            return _model.IsConnected();
+        }
 
         public ISimulatorModel Model
         {

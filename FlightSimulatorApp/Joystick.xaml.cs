@@ -42,22 +42,21 @@ namespace FlightSimulatorApp
         {
             _vm = vm;
             DataContext = _vm;
-
         }
 
-        private void centerKnob_Completed(object sender, EventArgs e)
-        {
-
-        }
+        private void CenterKnob_Completed(object sender, EventArgs e) { }
 
         private void Knob_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            _knobAnimation.Stop();
-            (Knob).CaptureMouse();
-            _isMouseDown = true;
-            _baseHeight = Base.ActualHeight;
-            _baseWidth = Base.ActualWidth;
-            _knobRadius = KnobBase.ActualHeight / 2;
+            if (_vm.IsModelConnected())
+            {
+                _knobAnimation.Stop();
+                (Knob).CaptureMouse();
+                _isMouseDown = true;
+                _baseHeight = Base.ActualHeight;
+                _baseWidth = Base.ActualWidth;
+                _knobRadius = KnobBase.ActualHeight / 2;
+            }
         }
 
         private void Knob_MouseMove(object sender, MouseEventArgs e)
@@ -70,12 +69,28 @@ namespace FlightSimulatorApp
 
         }
 
+        private void UpdateAirplaneAngle(Point pt1)
+        {
+            double dx = _positionBaseRelative.X - pt1.X;
+            double dy = _positionBaseRelative.Y - pt1.Y;
+
+            int deg = Convert.ToInt32(Math.Atan2(dy, dx) * (180 / Math.PI));
+            if (deg < 0)
+            {
+                deg += 360;
+            }
+
+            //  our plane points left, so we need to start from there (add 180 degrees)
+            _vm.VM_JoystickAngle = (deg + 180) % 360;
+        }
+
         private void UpdateKnobPosition()
         {
             // calculate distance between two points
             double radiusBase = _baseHeight / 2;
             Point centerKnob = new Point(_baseHeight / 2, _baseHeight / 2);
             double permitedRange = radiusBase - _knobRadius;
+            _vm.VM_premittedRange = permitedRange;
             double distanceSquared = Math.Sqrt(Math.Pow((centerKnob.X - _positionBaseRelative.X), 2)
                 + Math.Pow((centerKnob.Y - _positionBaseRelative.Y), 2));
 
@@ -85,19 +100,30 @@ namespace FlightSimulatorApp
                 // math equation for a point between two points.
                 double disMinuspre = distanceSquared - permitedRange;
                 _positionBaseRelative.X = (disMinuspre * centerKnob.X + permitedRange * _positionBaseRelative.X)
-                    /(permitedRange+disMinuspre);
+                    / (permitedRange + disMinuspre);
                 _positionBaseRelative.Y = (disMinuspre * centerKnob.Y + permitedRange * _positionBaseRelative.Y)
                     / (permitedRange + disMinuspre);
             }
-            
-       
+
+            UpdateThrottle(distanceSquared, permitedRange);
+            UpdateAirplaneAngle(centerKnob);
+
             //xaml position transfer
             _positionBaseRelative.X -= _baseWidth / 2;
             _positionBaseRelative.Y -= _baseHeight / 2;
 
             _vm.VM_knobX = _positionBaseRelative.X;
             _vm.VM_knobY = _positionBaseRelative.Y;
+        }
 
+        private void UpdateThrottle(double distanceSquared, double permitedRange)
+        {
+            double tempThrottle = distanceSquared / permitedRange;
+            if (tempThrottle > 1)
+            {
+                tempThrottle = 1;
+            }
+            _vm.VM_Throttle = tempThrottle;
         }
 
         private void Knob_MouseUp(object sender, MouseButtonEventArgs e)
@@ -107,7 +133,7 @@ namespace FlightSimulatorApp
             _knobAnimation.Begin();
             _vm.VM_knobX = 0;
             _vm.VM_knobY = 0;
-
+            _vm.VM_Throttle = 0;
         }
     }
 }

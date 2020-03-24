@@ -38,12 +38,12 @@ namespace FlightSimulatorApp
 
         private static readonly Object obj = new Object();
 
-
         private Dictionary<string, string> _values;
         private Socket _clientSocket;
         private string _dashboard;
         private string _location;
-        volatile bool _stop;
+        volatile bool _stop = true;
+        private int _airPlaneAngle;
 
         public SimulatorModel()
         {
@@ -67,21 +67,13 @@ namespace FlightSimulatorApp
             _location = _values["latitude_x"] + ", " + _values["longitude_y"];
 
             UpdateDashboardThread();
-            UpdateMapCoordinatesThread();
+            UpdateMapCoordinates();
         }
-        private void UpdateMapCoordinatesThread()
+
+        private void UpdateMapCoordinates()
         {
-            new Thread(delegate ()
-            {
-                while (!_stop)
-                {
-
-                    Latitude_x = GetFromSimulator(LATITUDE_X);
-                    Longitude_y = GetFromSimulator(LONGITUDE_Y);
-
-                    Thread.Sleep(250);
-                }
-            }).Start();
+            Latitude_x = GetFromSimulator(LATITUDE_X);
+            Longitude_y = GetFromSimulator(LONGITUDE_Y);
         }
 
         private void UpdateDashboardThread()
@@ -90,31 +82,50 @@ namespace FlightSimulatorApp
             {
                 while (!_stop)
                 {
-
-                    _values["indicated-heading-deg"] = GetFromSimulator(HEADING);
-                    _values["gps_indicated-vertical-speed"] = GetFromSimulator(VERTICAL_SPEED);
-                    _values["gps_indicated-ground-speed-kt"] = GetFromSimulator(GROUND_SPEED);
-                    _values["airspeed-indicator_indicated-speed-kt"] = GetFromSimulator(INDICATED_SPEED);
-                    _values["gps_indicated-altitude-ft"] = GetFromSimulator(GPS_ALTITUDE);
-                    _values["attitude-indicator_internal-roll-deg"] = GetFromSimulator(ROLL);
-                    _values["attitude-indicator_internal-pitch-deg"] = GetFromSimulator(PITCH);
-                    _values["altimeter_indicated-altitude-ft"] = GetFromSimulator(ALTIMETER_ALTITUDE);
-
-                    Dashboard = "indicated-heading-deg = " + _values["indicated-heading-deg"] + "\n"
-                        + "gps_indicated-vertical-speed = " + _values["gps_indicated-vertical-speed"] + "\n"
-                        + "gps_indicated-ground-speed-kt = " + _values["gps_indicated-ground-speed-kt"] + "\n"
-                        + "airspeed-indicator_indicated-speed-kt = " + _values["airspeed-indicator_indicated-speed-kt"] + "\n"
-                        + "gps_indicated-altitude-ft = " + _values["gps_indicated-altitude-ft"] + "\n"
-                        + "attitude-indicator_internal-roll-deg = " + _values["attitude-indicator_internal-roll-deg"] + "\n"
-                        + "attitude-indicator_internal-pitch-deg = " + _values["attitude-indicator_internal-pitch-deg"] + "\n"
-                        + "altimeter_indicated-altitude-ft = " + _values["altimeter_indicated-altitude-ft"];
-
+                    UpdateDashBoardAndData();
                     Thread.Sleep(250);
                 }
             }).Start();
         }
 
+        private void UpdateDashBoardAndData()
+        {
+            _values["indicated-heading-deg"] = GetFromSimulator(HEADING);
+            _values["gps_indicated-vertical-speed"] = GetFromSimulator(VERTICAL_SPEED);
+            _values["gps_indicated-ground-speed-kt"] = GetFromSimulator(GROUND_SPEED);
+            _values["airspeed-indicator_indicated-speed-kt"] = GetFromSimulator(INDICATED_SPEED);
+            _values["gps_indicated-altitude-ft"] = GetFromSimulator(GPS_ALTITUDE);
+            _values["attitude-indicator_internal-roll-deg"] = GetFromSimulator(ROLL);
+            _values["attitude-indicator_internal-pitch-deg"] = GetFromSimulator(PITCH);
+            _values["altimeter_indicated-altitude-ft"] = GetFromSimulator(ALTIMETER_ALTITUDE);
+
+            Dashboard = "indicated-heading-deg = " + _values["indicated-heading-deg"] + "\n"
+                + "gps_indicated-vertical-speed = " + _values["gps_indicated-vertical-speed"] + "\n"
+                + "gps_indicated-ground-speed-kt = " + _values["gps_indicated-ground-speed-kt"] + "\n"
+                + "airspeed-indicator_indicated-speed-kt = " + _values["airspeed-indicator_indicated-speed-kt"] + "\n"
+                + "gps_indicated-altitude-ft = " + _values["gps_indicated-altitude-ft"] + "\n"
+                + "attitude-indicator_internal-roll-deg = " + _values["attitude-indicator_internal-roll-deg"] + "\n"
+                + "attitude-indicator_internal-pitch-deg = " + _values["attitude-indicator_internal-pitch-deg"] + "\n"
+                + "altimeter_indicated-altitude-ft = " + _values["altimeter_indicated-altitude-ft"];
+        }
+
         #region Properties
+        public int AirplaneAngle
+        {
+            get
+            {
+                return _airPlaneAngle;
+            }
+            set
+            {
+                if (value != _airPlaneAngle)
+                {
+                    _airPlaneAngle = value;
+                    NotifyPropertyChanged("AirplaneAngle");
+                }
+            }
+        }
+
         public string Dashboard
         {
             get
@@ -130,6 +141,7 @@ namespace FlightSimulatorApp
                 }
             }
         }
+
         //public string Indicated_heading_deg
         //{
         //    get
@@ -210,10 +222,12 @@ namespace FlightSimulatorApp
                 if (_values["throttle"] != value)
                 {
                     _values["throttle"] = value;
+                    Console.WriteLine("Throttle: " + value);
                     SetToSimulator(THROTTLE, value);
                 }
             }
         }
+
         public string Rudder
         {
             get { return _values["rudder"]; }
@@ -222,23 +236,30 @@ namespace FlightSimulatorApp
                 if (_values["rudder"] != value)
                 {
                     _values["rudder"] = value;
+                    Console.WriteLine("Rudder: " + value);
                     SetToSimulator(RUDDER, value);
-
+                    UpdateMapCoordinates();
                 }
             }
         }
+
         public string Elevator
         {
             get { return _values["elevator"]; }
             set
             {
-                if (_values["elevator"] != value)
+                string tempVal = (-1 * Convert.ToDouble(value)).ToString();
+
+                if (_values["elevator"] != tempVal)
                 {
-                    _values["elevator"] = value;
-                    SetToSimulator(ELEVATOR, value);
+                    _values["elevator"] = tempVal;
+                    Console.WriteLine("Elevator: " + tempVal);
+                    SetToSimulator(ELEVATOR, tempVal);
+                    UpdateMapCoordinates();
                 }
             }
         }
+
         public string Latitude_x
         {
             get { return _values["latitude_x"]; }
@@ -355,7 +376,7 @@ namespace FlightSimulatorApp
             }
         }
 
-        public void move(double x, double y)
+        public void Move(double x, double y)
         {
             throw new NotImplementedException();
         }
@@ -431,7 +452,11 @@ namespace FlightSimulatorApp
                 Console.WriteLine("Could not get empty value.");
             }
             //  Remove \n
-            return Regex.Replace(result, @"\t|\n|\r", ""); ;
+            return Regex.Replace(result, @"\t|\n|\r", "");
+        }
+        public bool IsConnected()
+        {
+            return !_stop;
         }
     }
 }

@@ -9,9 +9,11 @@ namespace FlightSimulatorApp.Client
     public interface ITCPClient
     {
         bool Connect(string ip, int port);
-        
+
+        bool IsConnected();
+
         void Disconnect();
-        
+
         string SendToServer(string message);
     }
 }
