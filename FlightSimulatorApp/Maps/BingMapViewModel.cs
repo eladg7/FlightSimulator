@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,7 @@ namespace FlightSimulatorApp.Maps
 
         bool IsInitial = true;
         Location _InitialLocation;
+        BitmapImage myBitmapImage = new BitmapImage();
         public BingMapViewModel(ISimulatorModel model)
         {
             Model = model;
@@ -44,38 +46,47 @@ namespace FlightSimulatorApp.Maps
         }
 
         //properties 
-        BitmapImage myBitmapImage = new BitmapImage();
+
+        public int VM_AirplaneAngle
+        {
+            get
+            {
+                return Model.AirplaneAngle;
+            }
+            set
+            {
+                NotifyPropertyChanged("VM_AirplaneAngle");
+            }
+        }
+
         public BitmapImage PlaneImage
         {
             get
             {
                 return myBitmapImage;
             }
-
-
         }
 
         public string VM_LocationByString
         {
             get
             {
-                if(Model.LocationByString == null)
+                if (Model.LocationByString == null)
                 {
                     return "0, 0";
                 }
                 return Model.LocationByString;
             }
         }
-        
+
         public Location VM_InitialLocation
         {
             get
             {
-                try
+                if (IsModelConnected())
                 {
                     if (IsInitial)
                     {
-
                         string[] str = Regex.Split(VM_LocationByString, ", ");
                         _InitialLocation = new Location()
                         {
@@ -85,20 +96,20 @@ namespace FlightSimulatorApp.Maps
 
                         IsInitial = false;
                     }
-                }catch(ArgumentNullException)
+                }
+                else
                 {
+                    //  Could not parse location - set it to (0, 0)
                     _InitialLocation = _InitialLocation = new Location()
                     {
                         Latitude = 0,
                         Longitude = 0
                     };
                 }
-                
-                return _InitialLocation;
 
+                return _InitialLocation;
             }
             set { }
-
 
         }
 
