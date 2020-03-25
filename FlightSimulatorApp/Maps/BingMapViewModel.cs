@@ -16,8 +16,13 @@ namespace FlightSimulatorApp.Maps
     public class BingMapViewModel : BaseViewModel
     {
 
-        Location _InitialLocation;
-         BitmapImage myBitmapImage = new BitmapImage();
+        Location _InitialLocation = new Location()
+        {
+            Latitude = 0,
+            Longitude = 0
+        };
+
+        BitmapImage myBitmapImage = new BitmapImage();
         public BingMapViewModel(ISimulatorModel model)
         {
             Model = model;
@@ -66,15 +71,22 @@ namespace FlightSimulatorApp.Maps
             }
         }
 
-        public string VM_LocationByString
+        public string VM_PlaneLocationByString
         {
             get
             {
-                if (Model.LocationByString == null)
+
+                if (Model.IsInitialRun) // inital center map location
                 {
-                    return "0, 0";
+                    string[] str = Regex.Split(Model.PlaneLocationByString, ", ");
+                    VM_InitialLocation = new Location()
+                    {
+                        Latitude = Convert.ToDouble(str[0]),
+                        Longitude = Convert.ToDouble(str[1])
+                    };
+                    Model.IsInitialRun = false;
                 }
-                return Model.LocationByString;
+                return Model.PlaneLocationByString;
             }
         }
 
@@ -82,33 +94,17 @@ namespace FlightSimulatorApp.Maps
         {
             get
             {
-                if (IsModelConnected())
-                {
-                    if (Model.IsInitialRun) // inital plain location
-                    {
-                        string[] str = Regex.Split(VM_LocationByString, ", ");
-                        _InitialLocation = new Location()
-                        {
-                            Latitude = Convert.ToDouble(str[0]),
-                            Longitude = Convert.ToDouble(str[1])
-                        };
-                        NotifyPropertyChanged("VM_LocationByString");
-                        Model.IsInitialRun = false;
-                    }
-                }
-                else
-                {
-                    //  Could not parse location - set it to (0, 0)
-                    _InitialLocation = _InitialLocation = new Location()
-                    {
-                        Latitude = 0,
-                        Longitude = 0
-                    };
-                }
-
                 return _InitialLocation;
             }
-            set { }
+            set
+            {
+                if (value != _InitialLocation)
+                {
+                    _InitialLocation = value;
+                    NotifyPropertyChanged("VM_InitialLocation");
+                }
+
+            }
 
         }
 

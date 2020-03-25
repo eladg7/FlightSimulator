@@ -16,6 +16,14 @@ namespace FlightSimulatorApp
         }
 
 
+        public string VM_Warning
+        {
+            get
+            {
+                return Model.Warning;
+            }
+            set { }
+        }
         public string VM_Dashboard
         {
             get

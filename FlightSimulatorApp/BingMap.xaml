@@ -15,7 +15,7 @@
                       ZoomLevel="6" >
 
             <Canvas
-              m:MapLayer.Position="{Binding VM_LocationByString}"
+              m:MapLayer.Position="{Binding VM_PlaneLocationByString}"
               m:MapLayer.PositionOrigin="BottomLeft" >
                 <Image x:Name="AirPlanePicture" Height="95" Stretch="None" 
                        Source="{Binding PlaneImage}">

@@ -56,6 +56,7 @@ namespace FlightSimulatorApp
             _model.Disconnect();
         }
 
+        #region connectArea
         private void TestTextBox(TextBox textBox, TextBoxFunc testFunc)
         {
             if (!testFunc())
@@ -109,5 +110,8 @@ namespace FlightSimulatorApp
                 _model.TryingToConnect = false;
             }
         }
+
+        #endregion
+
     }
 }
