@@ -12,12 +12,12 @@
                CredentialsProvider="uzfuvEijN48dna0AGQt8~oZ5jv3pocuIrYqaHAo1pyA~Ao-U6b4el9dAS0cCNA7Imi3qk5CrXm8jZjOFdI4vFmo1ZlPdgjjovNjcIz_uAfMj" 
                Mode="Aerial"  
                Center="{Binding VM_InitialLocation, Mode=TwoWay, UpdateSourceTrigger=Explicit}"
-                      ZoomLevel="4" >
+                      ZoomLevel="6" >
 
             <Canvas
               m:MapLayer.Position="{Binding VM_LocationByString}"
               m:MapLayer.PositionOrigin="BottomLeft" >
-                <Image x:Name="airPlanePicture" Height="100" Stretch="None" 
+                <Image x:Name="airPlanePicture" Height="95" Stretch="None" 
                        Source="{Binding PlaneImage}">
                     <Image.LayoutTransform>
                         <TransformGroup>
