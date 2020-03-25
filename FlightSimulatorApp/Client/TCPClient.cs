@@ -8,6 +8,14 @@ namespace FlightSimulatorApp.Client
 {
     public interface ITCPClient
     {
+        string IP { get; set; }
+
+        int Port { get; set; }
+
+        bool ConnectedToServer { get; set; }
+
+        bool TryingToConnect { get; set; }
+
         bool Connect(string ip, int port);
 
         bool IsConnected();
@@ -15,5 +23,7 @@ namespace FlightSimulatorApp.Client
         void Disconnect();
 
         string SendToServer(string message);
+
+        void ConnectToNewServer(string ip, int port);
     }
 }

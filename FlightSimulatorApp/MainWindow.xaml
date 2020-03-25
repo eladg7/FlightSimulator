@@ -6,15 +6,16 @@
         xmlns:local="clr-namespace:FlightSimulatorApp"
         mc:Ignorable="d"
         Title="Flight Simulator App" Height="675" Width="1200">
+
     <Grid x:Name="mainGrid" Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="20*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
 
         <Grid x:Name="SeconderyGrid" Grid.Column="1" Margin="5"  >
@@ -36,8 +37,21 @@
         </Grid>
 
         <Viewbox x:Name="mapViewBox" Grid.Column="0"  Stretch="Uniform">
-        <local:BingMap x:Name="myMap"/>
+            <local:BingMap x:Name="myMap"/>
         </Viewbox>
-        
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
+            <Label x:Name="simIPLabel" Content="IP:" Margin="5 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBox x:Name="simIPTextBox" VerticalAlignment="Center" Text="{Binding VM_simIP}"
+                     MinWidth="110" MaxWidth="150" IsEnabled="{Binding VM_simConnectEnabled}" TextChanged="SimIPTextBox_TextChanged"/>
+
+            <Label x:Name="simPortLabel" Content="Port:" Margin="5 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBox x:Name="simPortTextBox" VerticalAlignment="Center" Text="{Binding VM_simPort}" MinWidth="60"  MaxWidth="100"
+                     IsEnabled="{Binding VM_simConnectEnabled}" TextChanged="SimPortTextBox_TextChanged" />
+
+            <Button x:Name="simConnectToServerButton" Content="{Binding VM_simConnectButton}" Margin="10" FontSize="16" Padding="5, 2"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" Click="SimConnectToServerButton_Click" Cursor="Hand"/>
+            <!--IsEnabled="{Binding VM_simConnectButtonEnabled}"-->
+
+        </StackPanel>
     </Grid>
 </Window>

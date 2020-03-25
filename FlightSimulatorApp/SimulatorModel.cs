@@ -1,4 +1,5 @@
-﻿using Microsoft.Maps.MapControl.WPF;
+﻿using FlightSimulatorApp.Client;
+using Microsoft.Maps.MapControl.WPF;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,8 +33,8 @@ namespace FlightSimulatorApp
         const string LATITUDE_X = "/position/latitude-deg";
         const string LONGITUDE_Y = "/position/longitude-deg";
         //  Server
-        const int PORT = 5402;
-        const string IP = "127.0.0.1";
+        int _currentPort = 5402;
+        string _currentIP = "127.0.0.1";
         #endregion
 
         private static readonly Object obj = new Object();
@@ -42,18 +43,22 @@ namespace FlightSimulatorApp
         private Socket _clientSocket;
         private string _dashboard;
         private string _location;
-        volatile bool _stop = true;
+        volatile bool _connected = false;
         private int _airPlaneAngle;
+        volatile bool _tryToConnect = false;
 
         public SimulatorModel()
         {
             _values = new Dictionary<string, string>();
 
-            if (Connect(IP, PORT))
-            {
-                _stop = false;
-                InitalizeValuesDictionary();
-            }
+            TryingToConnect = true;
+            ConnectToNewServer(_currentIP, _currentPort);
+
+            //if (Connect(_currentIP, _currentPort))
+            //{
+            //    _stop = false;
+            //    InitalizeValuesDictionary();
+            //}
         }
 
         private void InitalizeValuesDictionary()
@@ -80,7 +85,7 @@ namespace FlightSimulatorApp
         {
             new Thread(delegate ()
             {
-                while (!_stop)
+                while (ConnectedToServer)
                 {
                     UpdateDashBoardAndData();
                     Thread.Sleep(250);
@@ -305,6 +310,72 @@ namespace FlightSimulatorApp
             }
         }
 
+        public string IP
+        {
+            get
+            {
+                return _currentIP;
+            }
+            set
+            {
+                if (_currentIP != value)
+                {
+                    _currentIP = value;
+                    NotifyPropertyChanged("IP");
+                }
+            }
+        }
+
+        public int Port
+        {
+            get
+            {
+                return _currentPort;
+            }
+            set
+            {
+                if (_currentPort != value)
+                {
+                    _currentPort = value;
+                    NotifyPropertyChanged("Port");
+                }
+            }
+        }
+
+        public bool ConnectedToServer
+        {
+            get
+            {
+                return _connected;
+            }
+            set
+            {
+                if (value != _connected)
+                {
+                    _connected = value;
+                    NotifyPropertyChanged("simConnectButton");
+                    NotifyPropertyChanged("simConnectEnabled");
+                }
+            }
+        }
+
+        public bool TryingToConnect
+        {
+            get
+            {
+                return _tryToConnect;
+            }
+
+            set
+            {
+                if (_tryToConnect != value)
+                {
+                    _tryToConnect = value;
+                    NotifyPropertyChanged("simConnectButton");
+                    NotifyPropertyChanged("simConnectEnabled");
+                }
+            }
+        }
 
         #endregion
 
@@ -316,6 +387,28 @@ namespace FlightSimulatorApp
         }
         #endregion
 
+        public void ConnectToNewServer(string ip, int port)
+        {
+            ConnectedToServer = false;
+            TryingToConnect = true;
+            ClientThread(ip, port);
+        }
+
+        private void ClientThread(string ip, int port)
+        {
+            new Thread(delegate ()
+            {
+                //  Try to connect to the server as long as it's not connected 
+                //  tand the user still wants to try to connect
+                while (TryingToConnect && !Connect(ip, port))
+                {
+                    Thread.Sleep(1000);
+                }
+                ConnectedToServer = true;
+                InitalizeValuesDictionary();
+            }).Start();
+        }
+
         public bool Connect(string ip, int port)
         {
             bool connected = false;
@@ -324,13 +417,12 @@ namespace FlightSimulatorApp
                 // Establish the remote endpoint  
                 // for the socket. This example  
                 // uses given port on the given ip
-                IPHostEntry ipHost = Dns.GetHostEntry("localhost");
-                IPAddress ipAddr = ipHost.AddressList[1];
+                IPAddress ipAddr = IPAddress.Parse(ip);
                 IPEndPoint localEndPoint = new IPEndPoint(ipAddr, port);
 
                 // Creation TCP/IP Socket using  
                 // Socket Class Costructor 
-                this._clientSocket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                _clientSocket = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 try
                 {
                     // Connect Socket to the remote  
@@ -341,6 +433,7 @@ namespace FlightSimulatorApp
                     // that we are connected 
                     Console.WriteLine("Socket connected to -> {0} ",
                                   this._clientSocket.RemoteEndPoint.ToString());
+                    TryingToConnect = false;
                     connected = true;
                 }
                 // Manage of Socket's Exceptions 
@@ -359,21 +452,22 @@ namespace FlightSimulatorApp
 
                 Console.WriteLine(e.ToString());
             }
+
             return connected;
         }
 
         public void Disconnect()
         {
+            TryingToConnect = false;
             if (_clientSocket != null)
             {
-                _stop = true;
                 if (_clientSocket != null && _clientSocket.Connected)
                 {
                     _clientSocket.Shutdown(SocketShutdown.Both);
                     _clientSocket.Close();
                 }
-
             }
+            ConnectedToServer = false;
         }
 
         public void Move(double x, double y)
@@ -384,6 +478,7 @@ namespace FlightSimulatorApp
         public string SendToServer(string message)
         {
             string result;
+            bool sentToServer = false;
             try
             {
                 lock (obj)
@@ -400,9 +495,8 @@ namespace FlightSimulatorApp
                     // Receive the response from the remote device.
                     bytesRec = this._clientSocket.Receive(bytes);
 
-
-
                     result = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                    sentToServer = true;
                 }
             }
             catch (ArgumentNullException ane)
@@ -420,6 +514,7 @@ namespace FlightSimulatorApp
                 Console.WriteLine("Unexpected exception : {0}", e.ToString());
                 result = "Unexpected exception";
             }
+            ConnectedToServer = sentToServer;
 
             return result;
         }
@@ -456,7 +551,7 @@ namespace FlightSimulatorApp
         }
         public bool IsConnected()
         {
-            return !_stop;
+            return ConnectedToServer;
         }
     }
 }
