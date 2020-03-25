@@ -5,19 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FlightSimulatorApp"
         mc:Ignorable="d"
-        Title="Flight Simulator App" Height="675" Width="1200">
-    <Grid x:Name="mainGrid" Margin="5">
+        Title="Flight Simulator App" Height="400" Width="800">
+    
+    <Grid x:Name="mainGrid" Background="#FFFF00B4">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="20*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="SeconderyGrid" Grid.Column="1" Margin="5"  >
+
+
+        <Grid x:Name="SeconderyGrid" Grid.Column="1"  >
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
@@ -27,17 +30,18 @@
               ScrollViewer.HorizontalScrollBarVisibility="Auto"
               ScrollViewer.VerticalScrollBarVisibility="Auto"
               ScrollViewer.CanContentScroll="True"
-              HorizontalAlignment="Stretch" Text="{Binding VM_Dashboard}" IsReadOnly="True" FontSize="16" FontWeight="Bold">
+              HorizontalAlignment="Stretch" Text="{Binding VM_Dashboard}" IsReadOnly="True" FontSize="16">
             </TextBox>
 
-            <Viewbox x:Name="JoystickViewBox" Grid.Row="1" Margin="5" Stretch="Uniform">
-                <local:Joystick x:Name="Joystick"/>
+            <Viewbox x:Name="JoystickViewBox" Grid.Row="1" Stretch="Uniform" >
+                <local:Joystick x:Name="Joystick" Width="Auto" />
+
             </Viewbox>
         </Grid>
 
-        <Viewbox x:Name="mapViewBox" Grid.Column="0"  Stretch="Uniform">
-        <local:BingMap x:Name="myMap"/>
+        <Viewbox x:Name="mapViewBox" Grid.Column="0" Margin="5"  Stretch="Fill">
+            <local:BingMap x:Name="myMap"  />
         </Viewbox>
-        
+
     </Grid>
 </Window>
