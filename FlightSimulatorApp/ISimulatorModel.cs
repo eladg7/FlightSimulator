@@ -11,7 +11,7 @@ namespace FlightSimulatorApp
     public interface ISimulatorModel : INotifyPropertyChanged, ITCPClient
     {
         //  properties
-
+        bool IsInitialRun { get; set; }
         string Dashboard { get; set; }
         string Throttle { get; set; }
         string Aileron { get; set; }

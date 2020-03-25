@@ -16,9 +16,8 @@ namespace FlightSimulatorApp.Maps
     public class BingMapViewModel : BaseViewModel
     {
 
-        bool IsInitial = true;
         Location _InitialLocation;
-        BitmapImage myBitmapImage = new BitmapImage();
+         BitmapImage myBitmapImage = new BitmapImage();
         public BingMapViewModel(ISimulatorModel model)
         {
             Model = model;
@@ -85,7 +84,7 @@ namespace FlightSimulatorApp.Maps
             {
                 if (IsModelConnected())
                 {
-                    if (IsInitial)
+                    if (Model.IsInitialRun) // inital plain location
                     {
                         string[] str = Regex.Split(VM_LocationByString, ", ");
                         _InitialLocation = new Location()
@@ -93,8 +92,8 @@ namespace FlightSimulatorApp.Maps
                             Latitude = Convert.ToDouble(str[0]),
                             Longitude = Convert.ToDouble(str[1])
                         };
-
-                        IsInitial = false;
+                        NotifyPropertyChanged("VM_LocationByString");
+                        Model.IsInitialRun = false;
                     }
                 }
                 else
