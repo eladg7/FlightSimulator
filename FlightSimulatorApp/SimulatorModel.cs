@@ -29,6 +29,7 @@ namespace FlightSimulatorApp
         const string THROTTLE = "/controls/engines/current-engine/throttle";
         const string RUDDER = "/controls/flight/rudder";
         const string ELEVATOR = "/controls/flight/elevator";
+        const string AILERON = "/controls/flight/aileron";
         //  Map
         const string LATITUDE_X = "/position/latitude-deg";
         const string LONGITUDE_Y = "/position/longitude-deg";
@@ -66,6 +67,7 @@ namespace FlightSimulatorApp
             _values["throttle"] = GetFromSimulator(THROTTLE);
             _values["rudder"] = GetFromSimulator(RUDDER);
             _values["elevator"] = GetFromSimulator(ELEVATOR);
+            _values["aileron"] = GetFromSimulator(AILERON);
             _values["latitude_x"] = GetFromSimulator(LATITUDE_X);
             _values["longitude_y"] = GetFromSimulator(LONGITUDE_Y);
 
@@ -130,6 +132,8 @@ namespace FlightSimulatorApp
                 }
             }
         }
+
+
 
         public string Dashboard
         {
@@ -219,6 +223,19 @@ namespace FlightSimulatorApp
         //    set { }
         //}
 
+
+        public string Aileron
+        {
+            get { return _values["aileron"]; }
+            set
+            {
+                if (_values["aileron"] != value)
+                {
+                    _values["aileron"] = value;
+                    SetToSimulator(AILERON, value);
+                }
+            }
+        }
         public string Throttle
         {
             get { return _values["throttle"]; }
@@ -227,7 +244,6 @@ namespace FlightSimulatorApp
                 if (_values["throttle"] != value)
                 {
                     _values["throttle"] = value;
-                    Console.WriteLine("Throttle: " + value);
                     SetToSimulator(THROTTLE, value);
                 }
             }
@@ -241,7 +257,6 @@ namespace FlightSimulatorApp
                 if (_values["rudder"] != value)
                 {
                     _values["rudder"] = value;
-                    Console.WriteLine("Rudder: " + value);
                     SetToSimulator(RUDDER, value);
                     UpdateMapCoordinates();
                 }
@@ -258,7 +273,6 @@ namespace FlightSimulatorApp
                 if (_values["elevator"] != tempVal)
                 {
                     _values["elevator"] = tempVal;
-                    Console.WriteLine("Elevator: " + tempVal);
                     SetToSimulator(ELEVATOR, tempVal);
                     UpdateMapCoordinates();
                 }
@@ -289,7 +303,6 @@ namespace FlightSimulatorApp
                 if (_location != value)
                 {
                     _location = value;
-                    NotifyPropertyChanged("LocationByString");
                     NotifyPropertyChanged("InitialLocation");
                 }
             }
@@ -470,10 +483,6 @@ namespace FlightSimulatorApp
             ConnectedToServer = false;
         }
 
-        public void Move(double x, double y)
-        {
-            throw new NotImplementedException();
-        }
 
         public string SendToServer(string message)
         {
