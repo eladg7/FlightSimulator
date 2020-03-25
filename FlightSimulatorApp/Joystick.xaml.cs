@@ -105,7 +105,7 @@ namespace FlightSimulatorApp
                     / (permitedRange + disMinuspre);
             }
 
-            UpdateThrottle(distanceSquared, permitedRange);
+            //UpdateThrottle(distanceSquared, permitedRange); <- update throttle by joystick
             UpdateAirplaneAngle(centerKnob);
 
             //xaml position transfer
@@ -134,6 +134,18 @@ namespace FlightSimulatorApp
             _vm.VM_knobX = 0;
             _vm.VM_knobY = 0;
             _vm.VM_Throttle = 0;
+        }
+
+    
+
+        private void aileronSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _vm.VM_Aileron = e.NewValue;
+        }
+
+        private void throttleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _vm.VM_Throttle = e.NewValue;
         }
     }
 }

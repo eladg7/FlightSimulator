@@ -14,16 +14,15 @@ namespace FlightSimulatorApp
 
         string Dashboard { get; set; }
         string Throttle { get; set; }
+        string Aileron { get; set; }
         string Rudder { get; set; }
         string Elevator { get; set; }
         string LocationByString { get; set; }
-        int AirplaneAngle { get;  set; }
+        int AirplaneAngle { get; set; }
 
         //  server
         string SetToSimulator(string propertyPath, string value);
         string GetFromSimulator(string message);
 
-        //  activate
-        void Move(double x, double y);
     }
 }

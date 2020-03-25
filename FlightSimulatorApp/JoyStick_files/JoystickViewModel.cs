@@ -13,6 +13,7 @@ namespace FlightSimulatorApp.JoyStick_files
         private double _knobY = 0;
         private double _premittedRange = 1;
         private double _throttle = 0;
+        private double _aileron = 0;
         public JoystickViewModel(ISimulatorModel model)
         {
             Model = model;
@@ -34,6 +35,46 @@ namespace FlightSimulatorApp.JoyStick_files
                 _premittedRange = value;
             }
         }
+        public string VM_Aileron_toString
+        {
+            get
+            {
+                float roundedValue = (float)System.Math.Round(_aileron, 3);
+                return roundedValue.ToString();
+            }
+            set { }
+            
+        }
+
+        public string VM_Throttle_toString
+        {
+            get
+            {
+
+                float roundedValue = (float)System.Math.Round(_throttle, 3);
+                return roundedValue.ToString();
+            }
+            set { }
+          
+        }
+
+        public double VM_Aileron
+        {
+            get
+            {
+                return _aileron;
+            }
+            set
+            {
+                if (value != _aileron)
+                {
+                    _aileron = value;
+                    Model.Aileron = value.ToString();
+                    NotifyPropertyChanged("VM_Aileron_toString");
+
+                }
+            }
+        }
 
         public double VM_Throttle
         {
@@ -47,6 +88,7 @@ namespace FlightSimulatorApp.JoyStick_files
                 {
                     _throttle = value;
                     Model.Throttle = value.ToString();
+                    NotifyPropertyChanged("VM_Throttle_toString");
                 }
             }
         }
