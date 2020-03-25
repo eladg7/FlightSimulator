@@ -5,9 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FlightSimulatorApp"
         mc:Ignorable="d"
-        Title="Flight Simulator App" Height="400" Width="800">
-    
-    <Grid x:Name="mainGrid" Background="#FFFF00B4">
+        Title="Flight Simulator App" Height="400" Width="800">    
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="*"/>
@@ -15,7 +13,7 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="20*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
 
 
@@ -40,8 +38,20 @@
         </Grid>
 
         <Viewbox x:Name="mapViewBox" Grid.Column="0" Margin="5"  Stretch="Fill">
-            <local:BingMap x:Name="myMap"  />
+            <local:BingMap x:Name="myMap"/>
         </Viewbox>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
+            <Label x:Name="simIPLabel" Content="IP:" Margin="5 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBox x:Name="simIPTextBox" VerticalAlignment="Center" Text="{Binding VM_simIP}"
+                     MinWidth="110" MaxWidth="150" IsEnabled="{Binding VM_simConnectEnabled}" TextChanged="SimIPTextBox_TextChanged"/>
 
+            <Label x:Name="simPortLabel" Content="Port:" Margin="5 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBox x:Name="simPortTextBox" VerticalAlignment="Center" Text="{Binding VM_simPort}" MinWidth="60"  MaxWidth="100"
+                     IsEnabled="{Binding VM_simConnectEnabled}" TextChanged="SimPortTextBox_TextChanged" />
+
+            <Button x:Name="simConnectToServerButton" Content="{Binding VM_simConnectButton}" Margin="10" FontSize="16" Padding="5, 2"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" Click="SimConnectToServerButton_Click" Cursor="Hand"/>
+
+        </StackPanel>
     </Grid>
 </Window>

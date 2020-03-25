@@ -25,6 +25,61 @@ namespace FlightSimulatorApp
             set { }
 
         }
+
+        public string VM_simConnectEnabled
+        {
+            get
+            {
+                return (!Model.ConnectedToServer && !Model.TryingToConnect).ToString();
+            }
+            set { }
+        }
+
+        public int VM_simPort
+        {
+            get
+            {
+                return Model.Port;
+            }
+            set
+            {
+                Model.Port = value;
+            }
+        }
+
+        public string VM_simIP
+        {
+            get
+            {
+                return Model.IP;
+            }
+            set
+            {
+                Model.IP = value;
+            }
+        }
+
+        public string VM_simConnectButton
+        {
+            get
+            {
+                string result;
+                if (Model.ConnectedToServer)
+                {
+                    result = "Disconnect";
+                }
+                else if (Model.TryingToConnect)
+                {
+                    result = "Cancel";
+                }
+                else
+                {
+                    result = "Connect";
+                }
+                return result;
+            }
+            set { }
+        }
     }
 
 
