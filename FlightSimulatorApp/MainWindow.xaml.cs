@@ -24,28 +24,29 @@ namespace FlightSimulatorApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string IP_REGEX = @"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$";
+        private const string IP_REGEX =
+            @"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$";
 
-        private MainWindowViewModel mainViewModel;
-        private BingMapViewModel mapViewModel;
-        private JoystickViewModel joystickView;
+        private MainWindowViewModel _mainViewModel;
+        private BingMapViewModel _mapViewModel;
+        private JoystickViewModel _joystickView;
 
         //  function for testing text box
         delegate bool TextBoxFunc();
 
         ISimulatorModel _model = new SimulatorModel();
+
         public MainWindow()
         {
-            mainViewModel = new MainWindowViewModel(_model);
-            mapViewModel = new BingMapViewModel(_model);
-            joystickView = new JoystickViewModel(_model);
-
+            _mainViewModel = new MainWindowViewModel(_model);
+            _mapViewModel = new BingMapViewModel(_model);
+            _joystickView = new JoystickViewModel(_model);
 
             InitializeComponent();
-            DataContext = mainViewModel;
+            DataContext = _mainViewModel;
 
-            myMap.SetViewModel(mapViewModel);
-            Joystick.SetViewModel(joystickView);
+            myMap.SetViewModel(_mapViewModel);
+            Joystick.SetViewModel(_joystickView);
 
             Closing += OnWindowClosing;
         }
@@ -53,20 +54,19 @@ namespace FlightSimulatorApp
         public void OnWindowClosing(object sender, CancelEventArgs e)
         {
             _model.Disconnect();
-
         }
 
-        private void TestTextBox(TextBox textBox, TextBoxFunc TestFunc)
+        private void TestTextBox(TextBox textBox, TextBoxFunc testFunc)
         {
-            if (!TestFunc())
+            if (!testFunc())
             {
                 textBox.BorderBrush = Brushes.Red;
-                simConnectToServerButton.IsEnabled = false;
+                SimConnectToServerButton.IsEnabled = false;
             }
             else
             {
-                simPortTextBox.BorderBrush = Brushes.Gray;
-                simConnectToServerButton.IsEnabled = true;
+                SimPortTextBox.BorderBrush = Brushes.Gray;
+                SimConnectToServerButton.IsEnabled = true;
             }
 
             // Keep the cursor at the end of the input
@@ -75,18 +75,18 @@ namespace FlightSimulatorApp
 
         private void SimIPTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TestTextBox(simIPTextBox, delegate ()
+            TestTextBox(SimIpTextBox, delegate()
             {
-                string tempText = simIPTextBox.Text;
+                string tempText = SimIpTextBox.Text;
                 return tempText.Length > 0 && Regex.IsMatch(tempText, IP_REGEX);
             });
         }
 
         private void SimPortTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TestTextBox(simPortTextBox, delegate ()
+            TestTextBox(SimPortTextBox, delegate()
             {
-                string tempText = simPortTextBox.Text;
+                string tempText = SimPortTextBox.Text;
                 return tempText.Length > 0 && int.TryParse(tempText, out _);
             });
         }
@@ -101,7 +101,7 @@ namespace FlightSimulatorApp
                 }
                 else
                 {
-                    _model.ConnectToNewServer(simIPTextBox.Text, Convert.ToInt32(simPortTextBox.Text));
+                    _model.ConnectToNewServer(SimIpTextBox.Text, Convert.ToInt32(SimPortTextBox.Text));
                 }
             }
             else

@@ -14,56 +14,47 @@ namespace FlightSimulatorApp.JoyStick_files
         private double _premittedRange = 1;
         private double _throttle = 0;
         private double _aileron = 0;
+
         public JoystickViewModel(ISimulatorModel model)
         {
             Model = model;
         }
 
         #region properties
+
         public int VM_JoystickAngle
         {
-            set
-            {
-                Model.AirplaneAngle = value;
-            }
+            set { Model.AirplaneAngle = value; }
         }
 
         public double VM_premittedRange
         {
-            set
-            {
-                _premittedRange = value;
-            }
+            set { _premittedRange = value; }
         }
+
         public string VM_Aileron_toString
         {
             get
             {
-                float roundedValue = (float)System.Math.Round(_aileron, 3);
+                float roundedValue = (float) System.Math.Round(_aileron, 3);
                 return roundedValue.ToString();
             }
             set { }
-            
         }
 
         public string VM_Throttle_toString
         {
             get
             {
-
-                float roundedValue = (float)System.Math.Round(_throttle, 3);
+                float roundedValue = (float) System.Math.Round(_throttle, 3);
                 return roundedValue.ToString();
             }
             set { }
-          
         }
 
         public double VM_Aileron
         {
-            get
-            {
-                return _aileron;
-            }
+            get { return _aileron; }
             set
             {
                 if (value != _aileron)
@@ -71,17 +62,13 @@ namespace FlightSimulatorApp.JoyStick_files
                     _aileron = value;
                     Model.Aileron = value.ToString();
                     NotifyPropertyChanged("VM_Aileron_toString");
-
                 }
             }
         }
 
         public double VM_Throttle
         {
-            get
-            {
-                return _throttle;
-            }
+            get { return _throttle; }
             set
             {
                 if (value != _throttle)
@@ -95,10 +82,7 @@ namespace FlightSimulatorApp.JoyStick_files
 
         public double VM_knobX
         {
-            get
-            {
-                return _knobX;
-            }
+            get { return _knobX; }
             set
             {
                 if (value != _knobX)
@@ -113,10 +97,7 @@ namespace FlightSimulatorApp.JoyStick_files
 
         public double VM_knobY
         {
-            get
-            {
-                return _knobY;
-            }
+            get { return _knobY; }
             set
             {
                 if (value != _knobY)
@@ -128,7 +109,7 @@ namespace FlightSimulatorApp.JoyStick_files
                 }
             }
         }
-        #endregion
 
+        #endregion
     }
 }

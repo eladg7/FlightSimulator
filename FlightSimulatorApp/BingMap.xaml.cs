@@ -38,9 +38,9 @@ namespace FlightSimulatorApp
         {
             _vm = vm;
             DataContext = _vm;
-            myMap.Focus();
+            MyMap.Focus();
             //Set map to Aerial mode with labels
-            myMap.Mode = new AerialMode(true);
+            MyMap.Mode = new AerialMode(true);
         }
 
     }
