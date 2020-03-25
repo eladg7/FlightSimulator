@@ -40,6 +40,7 @@ namespace FlightSimulatorApp
 
         private static readonly Object obj = new Object();
 
+        private bool _IsInitial = true;
         private Dictionary<string, string> _values;
         private Socket _clientSocket;
         private string _dashboard;
@@ -55,15 +56,12 @@ namespace FlightSimulatorApp
             TryingToConnect = true;
             ConnectToNewServer(_currentIP, _currentPort);
 
-            //if (Connect(_currentIP, _currentPort))
-            //{
-            //    _stop = false;
-            //    InitalizeValuesDictionary();
-            //}
         }
 
-        private void InitalizeValuesDictionary()
+        private void InitalizeValues()
         {
+            _IsInitial = true;
+
             _values["throttle"] = GetFromSimulator(THROTTLE);
             _values["rudder"] = GetFromSimulator(RUDDER);
             _values["elevator"] = GetFromSimulator(ELEVATOR);
@@ -72,6 +70,7 @@ namespace FlightSimulatorApp
             _values["longitude_y"] = GetFromSimulator(LONGITUDE_Y);
 
             _location = _values["latitude_x"] + ", " + _values["longitude_y"];
+
 
             UpdateDashboardThread();
             UpdateMapCoordinates();
@@ -223,7 +222,17 @@ namespace FlightSimulatorApp
         //    set { }
         //}
 
-
+        public bool IsInitialRun
+        {
+            get
+            {
+                return _IsInitial;
+            }
+            set
+            {
+                _IsInitial = value;
+            }
+        }
         public string Aileron
         {
             get { return _values["aileron"]; }
@@ -418,7 +427,7 @@ namespace FlightSimulatorApp
                     Thread.Sleep(1000);
                 }
                 ConnectedToServer = true;
-                InitalizeValuesDictionary();
+                InitalizeValues();
             }).Start();
         }
 
