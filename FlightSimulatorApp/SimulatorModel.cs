@@ -51,11 +51,13 @@ namespace FlightSimulatorApp
         private bool _IsInitial = true;
         private Dictionary<string, string> _values;
         private Socket _clientSocket;
-        private string _dashboard;
-        private string _location;
+        private string _dashboard="";
+        private string _location="0, 0";
         private volatile bool _connected = false;
-        private int _airPlaneAngle;
+        private int _airPlaneAngle=0;
         private volatile bool _tryToConnect = false;
+        private Queue <string> _warningQueue;
+
 
         public SimulatorModel()
         {
@@ -63,7 +65,6 @@ namespace FlightSimulatorApp
 
             TryingToConnect = true;
             ConnectToNewServer(_currentIP, _currentPort);
-
         }
 
         private void InitalizeValues()
@@ -92,7 +93,7 @@ namespace FlightSimulatorApp
 
         private void UpdateDashboardThread()
         {
-            new Thread(delegate()
+            new Thread(delegate ()
             {
                 while (ConnectedToServer)
                 {
@@ -126,8 +127,55 @@ namespace FlightSimulatorApp
                         + "altimeter_indicated-altitude-ft = " + _values["altimeter_indicated-altitude-ft"];
         }
 
+        public string SetToSimulator(string propertyPath, string value)
+        {
+            string result = "";
+            if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(propertyPath))
+            {
+                value = "set " + propertyPath + " " + value;
+                result = SendToServer(value);
+            }
+            else
+            {
+                Console.WriteLine("Could not send empty value.");
+            }
+
+            return result;
+        }
+
+        public string GetFromSimulator(string message)
+        {
+            string result = "";
+            if (!string.IsNullOrEmpty(message))
+            {
+                message = "get " + message;
+                result = SendToServer(message);
+            }
+            else
+            {
+                Console.WriteLine("Could not get empty value.");
+            }
+
+            //  Remove \n
+            return Regex.Replace(result, @"\t|\n|\r", "");
+        }
+
+
         #region Properties
 
+
+        public string Warning
+        {
+            get
+            {
+                return _warningQueue.Dequeue();
+            }
+            set
+            {
+
+            }
+       
+        }
         public int AirplaneAngle
         {
             get { return _airPlaneAngle; }
@@ -290,18 +338,18 @@ namespace FlightSimulatorApp
                 if (value == _values["latitude_x"]) return;
                 _values["latitude_x"] = value;
                 string str = value + ", " + Longitude_y;
-                LocationByString = str;
+                PlaneLocationByString = str;
             }
         }
 
-        public string LocationByString
+        public string PlaneLocationByString
         {
             get => _location;
             set
             {
                 if (_location == value) return;
                 _location = value;
-                NotifyPropertyChanged("InitialLocation");
+                NotifyPropertyChanged("PlaneLocationByString");
             }
         }
 
@@ -314,7 +362,7 @@ namespace FlightSimulatorApp
                 if (value == _values["longitude_y"]) return;
                 _values["longitude_y"] = value;
                 string str = Latitude_x + ", " + value;
-                LocationByString = str;
+                PlaneLocationByString = str;
             }
         }
 
@@ -378,6 +426,13 @@ namespace FlightSimulatorApp
 
         #endregion
 
+        #region Connection
+
+        public bool IsConnected()
+        {
+            return ConnectedToServer;
+        }
+
         public void ConnectToNewServer(string ip, int port)
         {
             ConnectedToServer = false;
@@ -387,12 +442,13 @@ namespace FlightSimulatorApp
 
         private void ClientThread(string ip, int port)
         {
-            new Thread(delegate()
+            new Thread(delegate ()
             {
                 //  Try to connect to the server as long as it's not connected 
                 //  tand the user still wants to try to connect
                 while (TryingToConnect && !Connect(ip, port))
                 {
+                    
                     Thread.Sleep(1000);
                 }
 
@@ -505,42 +561,8 @@ namespace FlightSimulatorApp
             return result;
         }
 
-        public string SetToSimulator(string propertyPath, string value)
-        {
-            string result = "";
-            if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(propertyPath))
-            {
-                value = "set " + propertyPath + " " + value;
-                result = SendToServer(value);
-            }
-            else
-            {
-                Console.WriteLine("Could not send empty value.");
-            }
-
-            return result;
-        }
-
-        public string GetFromSimulator(string message)
-        {
-            string result = "";
-            if (!string.IsNullOrEmpty(message))
-            {
-                message = "get " + message;
-                result = SendToServer(message);
-            }
-            else
-            {
-                Console.WriteLine("Could not get empty value.");
-            }
-
-            //  Remove \n
-            return Regex.Replace(result, @"\t|\n|\r", "");
-        }
-
-        public bool IsConnected()
-        {
-            return ConnectedToServer;
-        }
+        #endregion
+       
+      
     }
 }

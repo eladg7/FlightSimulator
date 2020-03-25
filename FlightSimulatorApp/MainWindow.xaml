@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FlightSimulatorApp"
         mc:Ignorable="d"
-        Title="Flight Simulator App" Height="675" Width="1200">
+        Title="Flight Simulator App" Height="450" Width="800">
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -39,6 +39,15 @@
         <Viewbox x:Name="MapViewBox" Grid.Row="0" Grid.Column="0" Margin="5" Stretch="UniformToFill">
             <local:BingMap x:Name="myMap" />
         </Viewbox>
+
+        <TextBlock x:Name="TextWarning"  Grid.Row="1" Grid.Column="0" Margin="5,0,5,5" 
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="HotPink"
+                    Text="{Binding VM_Warning}">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="2"/>
+            </TextBlock.Effect>
+        </TextBlock>
+
 
         <Grid Grid.Row="1" Grid.Column="1">
             <Grid.ColumnDefinitions>

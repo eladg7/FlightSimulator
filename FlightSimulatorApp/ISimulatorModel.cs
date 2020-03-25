@@ -11,13 +11,14 @@ namespace FlightSimulatorApp
     public interface ISimulatorModel : INotifyPropertyChanged, ITCPClient
     {
         //  properties
+        string Warning { get; set; }
         bool IsInitialRun { get; set; }
         string Dashboard { get; set; }
         string Throttle { get; set; }
         string Aileron { get; set; }
         string Rudder { get; set; }
         string Elevator { get; set; }
-        string LocationByString { get; set; }
+        string PlaneLocationByString { get; set; }
         int AirplaneAngle { get; set; }
 
         //  server
