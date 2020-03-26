@@ -50,7 +50,6 @@ namespace FlightSimulatorApp
         private ManualResetEvent _manualResetWarningEvent = new ManualResetEvent(false);
         private bool _IsInitialRun = true;
 
-        private delegate bool LocationValidator(string loc);
 
         private Dictionary<string, string> _values = new Dictionary<string, string>()
         {
@@ -107,7 +106,7 @@ namespace FlightSimulatorApp
             Aileron = GetFromSimulator(AILERON);
             UpdateDashboardThread();
         }
-
+        #region LocationValidation
         private static bool IsLocationValid(string lat, string lon)
         {
             return IsLongitudeValid(lon) && IsLatitudeValid(lat);
@@ -144,6 +143,65 @@ namespace FlightSimulatorApp
 
             return valid;
         }
+
+        private string GetValidLatitude(string value) // 90 border
+        {
+            string localLat = value;
+            if (!IsLatitudeValid(value))
+            {
+                _warningQueue.Enqueue("ERROR: Plane in flying out of earth's latitude border.");
+                _manualResetWarningEvent.Set();
+                try
+                {
+                    double dValue = Convert.ToDouble(value);
+                    if(dValue < 0)
+                    {
+                        localLat = "-89";
+                    }
+                    else
+                    {
+                        localLat = "89";
+                    }
+                }
+                catch (Exception)
+                {
+                    localLat = "0";
+                }
+            }
+
+            return localLat;
+        }
+
+        private string GetValidLongitude(string value) //border 180
+        {
+            string localLong = value;
+            if (!IsLatitudeValid(value))
+            {
+                //_warningQueue.Enqueue("ERROR: Plane in flying out of earth's longtitude border.");
+                //_manualResetWarningEvent.Set();
+                try
+                {
+                    // goes to the other side of globe
+                    double dValue = Convert.ToDouble(value);
+                    if (dValue < 0)
+                    {
+                        localLong = "179";
+                    }
+                    else
+                    {
+                        localLong = "-179";
+                    }
+                }
+                catch (Exception)
+                {
+                    localLong = "0";
+                }
+            }
+
+            return localLong;
+        }
+
+        #endregion
 
         private void WarningQueueThread()
         {
@@ -470,12 +528,14 @@ namespace FlightSimulatorApp
             get => _values["latitude_x"];
             set
             {
-                string val = GetValidLocation(value, 85, IsLatitudeValid);
+                string val = GetValidLatitude(value);
                 if (val == _values["latitude_x"]) return;
                 _values["latitude_x"] = val;
                 PlaneLocationByString = val + ", " + Longitude_y;
             }
         }
+
+
 
         public string PlaneLocationByString
         {
@@ -489,17 +549,20 @@ namespace FlightSimulatorApp
         }
 
 
+
         public string Longitude_y
         {
             get => _values["longitude_y"];
             set
             {
-                string val = GetValidLocation(value, 179, IsLongitudeValid);
+                string val = GetValidLongitude(value);
                 if (val == _values["longitude_y"]) return;
                 _values["longitude_y"] = val;
                 PlaneLocationByString = Latitude_x + ", " + val;
             }
         }
+
+
 
         public string IP
         {
@@ -565,38 +628,7 @@ namespace FlightSimulatorApp
 
         #endregion
 
-        private string GetValidLocation(string value, int border, LocationValidator validator)
-        {
-            string result;
-            if (validator(value))
-            {
-                result = value;
-            }
-            else
-            {
-                double locaDouble;
-                try
-                {
-                    locaDouble = Convert.ToDouble(value);
-                    if (locaDouble < 0)
-                    {
-                        locaDouble = border-0.1;
-                    }
-                    else
-                    {
-                        locaDouble =border * (-1) + 0.1;
-                    }
-                }
-                catch (Exception)
-                {
-                    locaDouble = 0;
-                }
 
-                result = locaDouble.ToString("0.######");
-            }
-
-            return result;
-        }
 
 
         #region Connection
@@ -689,7 +721,7 @@ namespace FlightSimulatorApp
 
         public void Disconnect()
         {
-     
+
 
             IsTryingToConnect = false;
             if (_clientSocket != null && _clientSocket.Connected)
