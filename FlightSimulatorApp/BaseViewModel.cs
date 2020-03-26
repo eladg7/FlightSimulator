@@ -22,7 +22,7 @@ namespace FlightSimulatorApp
         public bool IsModelConnected()
         {
             //  TODO handle errors bar
-            return _model.IsConnected();
+            return _model.IsConnectedToServer;
         }
 
         public ISimulatorModel Model

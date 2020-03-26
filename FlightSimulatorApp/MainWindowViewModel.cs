@@ -10,11 +10,25 @@ namespace FlightSimulatorApp
 {
     class MainWindowViewModel : BaseViewModel
     {
+      
         public MainWindowViewModel(ISimulatorModel model)
         {
             Model = model;
         }
 
+        public string VM_WarningColor
+        {
+            get
+            {
+                if (Model.Warning.Contains("ERROR")){
+                    return "Red";
+                }
+                else
+                {
+                    return "DarkSeaGreen";
+                }
+            }
+        }
 
         public string VM_Warning
         {
@@ -38,7 +52,7 @@ namespace FlightSimulatorApp
         {
             get
             {
-                return (!Model.ConnectedToServer && !Model.TryingToConnect).ToString();
+                return (!Model.IsConnectedToServer && !Model.IsTryingToConnect).ToString();
             }
             set { }
         }
@@ -72,11 +86,11 @@ namespace FlightSimulatorApp
             get
             {
                 string result;
-                if (Model.ConnectedToServer)
+                if (Model.IsConnectedToServer)
                 {
                     result = "Disconnect";
                 }
-                else if (Model.TryingToConnect)
+                else if (Model.IsTryingToConnect)
                 {
                     result = "Cancel";
                 }

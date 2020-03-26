@@ -20,9 +20,10 @@ namespace FlightSimulatorApp
         string Elevator { get; set; }
         string PlaneLocationByString { get; set; }
         int AirplaneAngle { get; set; }
+        bool IsAppShutDown { get; set; }
 
         //  server
-        string SetToSimulator(string propertyPath, string value);
+        void SetToSimulator(string propertyPath, string value);
         string GetFromSimulator(string message);
 
     }
