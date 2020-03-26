@@ -1,0 +1,128 @@
+﻿<UserControl x:Class="FlightSimulatorApp.DashboardTableFiles.DashboardTable"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:FlightSimulatorApp.DashboardTableFiles"
+             mc:Ignorable="d"
+             d:DesignWidth="*" d:DesignHeight="*">
+    <FlowDocumentScrollViewer UseLayoutRounding="True" SnapsToDevicePixels="True" IsToolBarVisible="False"
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <FlowDocumentScrollViewer.Resources>
+            <Style TargetType="TableCell">
+                <Setter Property="TextAlignment" Value="Center" />
+            </Style>
+            <Style TargetType="Paragraph">
+                <Setter Property="FontStyle" Value="Italic" />
+            </Style>
+        </FlowDocumentScrollViewer.Resources>
+        <FlowDocument>
+            <Table CellSpacing="0">
+                <Table.Columns>
+                    <TableColumn />
+                    <TableColumn />
+                </Table.Columns>
+
+                <TableRowGroup>
+                    <!-- Header row for the table.-->
+                    <TableRow Background="LightGoldenrodYellow">
+                        <TableCell>
+                            <Paragraph FontSize="14pt" FontWeight="Bold">Attribute</Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph FontSize="14pt" FontWeight="Bold">Value</Paragraph>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>
+                            <Paragraph>indicated-heading-deg</Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <Run Text="{Binding VM_Indicated_heading_deg}" />
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow Background="lightgray">
+                        <TableCell>
+                            <Paragraph>gps_indicated-vertical-speed</Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <Run Text="{Binding VM_GPS_indicated_vertical_speed}" />
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>
+                            <Paragraph>gps_indicated-ground-speed-kt</Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <Run Text="{Binding VM_GPS_indicated_ground_speed_kt}" />
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow Background="lightgray">
+                        <TableCell>
+                            <Paragraph>airspeed-indicator_indicated-speed-kt</Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <Run Text="{Binding VM_Airspeed_indicator_indicated_speed_kt}" />
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>
+                            <Paragraph>gps_indicated-altitude-ft</Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <Run Text="{Binding VM_GPS_indicated_altitude_ft}" />
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow Background="lightgray">
+                        <TableCell>
+                            <Paragraph>attitude-indicator_internal-roll-deg</Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <Run Text="{Binding VM_Attitude_indicator_internal_roll_deg}" />
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                        <TableCell>
+                            <Paragraph>attitude-indicator_internal-pitch-deg</Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <Run Text="{Binding VM_Attitude_indicator_internal_pitch_deg}" />
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+
+                    <TableRow Background="lightgray">
+                        <TableCell>
+                            <Paragraph>altimeter_indicated-altitude-ft</Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <Run Text="{Binding VM_Altimeter_indicated_altitude_ft}" />
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+                </TableRowGroup>
+            </Table>
+        </FlowDocument>
+    </FlowDocumentScrollViewer>
+</UserControl>

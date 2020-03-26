@@ -63,7 +63,6 @@ namespace FlightSimulatorApp
 
             TryingToConnect = true;
             ConnectToNewServer(_currentIP, _currentPort);
-
         }
 
         private void InitalizeValues()
@@ -104,33 +103,33 @@ namespace FlightSimulatorApp
 
         private void UpdateDashBoardAndData()
         {
-            _values["indicated-heading-deg"] = GetFromSimulator(HEADING);
-            _values["gps_indicated-vertical-speed"] = GetFromSimulator(VERTICAL_SPEED);
-            _values["gps_indicated-ground-speed-kt"] = GetFromSimulator(GROUND_SPEED);
-            _values["airspeed-indicator_indicated-speed-kt"] = GetFromSimulator(INDICATED_SPEED);
-            _values["gps_indicated-altitude-ft"] = GetFromSimulator(GPS_ALTITUDE);
-            _values["attitude-indicator_internal-roll-deg"] = GetFromSimulator(ROLL);
-            _values["attitude-indicator_internal-pitch-deg"] = GetFromSimulator(PITCH);
-            _values["altimeter_indicated-altitude-ft"] = GetFromSimulator(ALTIMETER_ALTITUDE);
+            IndicatedHeadingDeg = GetFromSimulator(HEADING);
+            GpsIndicatedVerticalSpeed = GetFromSimulator(VERTICAL_SPEED);
+            GpsIndicatedGroundSpeedKt = GetFromSimulator(GROUND_SPEED);
+            AirspeedIndicatorIndicatedSpeedKt = GetFromSimulator(INDICATED_SPEED);
+            GpsIndicatedAltitudeFt = GetFromSimulator(GPS_ALTITUDE);
+            AttitudeIndicatorInternalRollDeg = GetFromSimulator(ROLL);
+            AttitudeIndicatorInternalPitchDeg = GetFromSimulator(PITCH);
+            AltimeterIndicatedAltitudeFt = GetFromSimulator(ALTIMETER_ALTITUDE);
 
-            Dashboard = "indicated-heading-deg = " + _values["indicated-heading-deg"] + "\n"
-                        + "gps_indicated-vertical-speed = " + _values["gps_indicated-vertical-speed"] + "\n"
-                        + "gps_indicated-ground-speed-kt = " + _values["gps_indicated-ground-speed-kt"] + "\n"
-                        + "airspeed-indicator_indicated-speed-kt = " +
-                        _values["airspeed-indicator_indicated-speed-kt"] + "\n"
-                        + "gps_indicated-altitude-ft = " + _values["gps_indicated-altitude-ft"] + "\n"
-                        + "attitude-indicator_internal-roll-deg = " + _values["attitude-indicator_internal-roll-deg"] +
-                        "\n"
-                        + "attitude-indicator_internal-pitch-deg = " +
-                        _values["attitude-indicator_internal-pitch-deg"] + "\n"
-                        + "altimeter_indicated-altitude-ft = " + _values["altimeter_indicated-altitude-ft"];
+            // Dashboard = "indicated-heading-deg = " + _values["indicated-heading-deg"] + "\n"
+            //             + "gps_indicated-vertical-speed = " + _values["gps_indicated-vertical-speed"] + "\n"
+            //             + "gps_indicated-ground-speed-kt = " + _values["gps_indicated-ground-speed-kt"] + "\n"
+            //             + "airspeed-indicator_indicated-speed-kt = " +
+            //             _values["airspeed-indicator_indicated-speed-kt"] + "\n"
+            //             + "gps_indicated-altitude-ft = " + _values["gps_indicated-altitude-ft"] + "\n"
+            //             + "attitude-indicator_internal-roll-deg = " + _values["attitude-indicator_internal-roll-deg"] +
+            //             "\n"
+            //             + "attitude-indicator_internal-pitch-deg = " +
+            //             _values["attitude-indicator_internal-pitch-deg"] + "\n"
+            //             + "altimeter_indicated-altitude-ft = " + _values["altimeter_indicated-altitude-ft"];
         }
 
         #region Properties
 
         public int AirplaneAngle
         {
-            get { return _airPlaneAngle; }
+            get => _airPlaneAngle;
             set
             {
                 if (value == _airPlaneAngle) return;
@@ -151,89 +150,122 @@ namespace FlightSimulatorApp
             }
         }
 
-        //public string Indicated_heading_deg
-        //{
-        //    get
-        //    {
-        //        return this._values["Indicated_heading_deg"];
-        //    }
-        //    set { }
-        //}
+        public string IndicatedHeadingDeg
+        {
+            get => _values["Indicated_heading_deg"];
+            set
+            {
+                if (!_values.ContainsKey("Indicated_heading_deg") || value != _values["Indicated_heading_deg"])
+                {
+                    _values["Indicated_heading_deg"] = value;
+                    NotifyPropertyChanged("Indicated_heading_deg");
+                }
+            }
+        }
 
-        //public string GPS_indicated_vertical_speed
-        //{
-        //    get
-        //    {
-        //        return this._values["GPS_indicated_vertical_speed"];
-        //    }
-        //    set { }
-        //}
+        public string GpsIndicatedVerticalSpeed
+        {
+            get => _values["GPS_indicated_vertical_speed"];
+            set
+            {
+                if (!_values.ContainsKey("GPS_indicated_vertical_speed") ||
+                    _values["GPS_indicated_vertical_speed"] != value)
+                {
+                    _values["GPS_indicated_vertical_speed"] = value;
+                    NotifyPropertyChanged("GPS_indicated_vertical_speed");
+                }
+            }
+        }
 
-        //public string GPS_indicated_ground_speed_kt
-        //{
-        //    get
-        //    {
-        //        return this._values["GPS_indicated_ground_speed_kt"];
-        //    }
-        //    set { }
-        //}
+        public string GpsIndicatedGroundSpeedKt
+        {
+            get => _values["GPS_indicated_ground_speed_kt"];
+            set
+            {
+                if (!_values.ContainsKey("GPS_indicated_ground_speed_kt-vertical-speed") ||
+                    _values["GPS_indicated_ground_speed_kt"] != value)
+                {
+                    _values["GPS_indicated_ground_speed_kt"] = value;
+                    NotifyPropertyChanged("GPS_indicated_ground_speed_kt");
+                }
+            }
+        }
 
-        //public string Airspeed_indicator_indicated_speed_kt
-        //{
-        //    get
-        //    {
-        //        return this._values["Airspeed_indicator_indicated_speed_kt"];
-        //    }
-        //    set { }
-        //}
+        public string AirspeedIndicatorIndicatedSpeedKt
+        {
+            get => _values["Airspeed_indicator_indicated_speed_kt"];
+            set
+            {
+                if (!_values.ContainsKey("Airspeed_indicator_indicated_speed_kt") ||
+                    _values["Airspeed_indicator_indicated_speed_kt"] != value)
+                {
+                    _values["Airspeed_indicator_indicated_speed_kt"] = value;
+                    NotifyPropertyChanged("Airspeed_indicator_indicated_speed_kt");
+                }
+            }
+        }
 
-        //public string GPS_indicated_altitude_ft
-        //{
-        //    get
-        //    {
-        //        return this._values["GPS_indicated_altitude_ft"];
-        //    }
-        //    set { }
-        //}
+        public string GpsIndicatedAltitudeFt
+        {
+            get => _values["GPS_indicated_altitude_ft"];
+            set
+            {
+                if (!_values.ContainsKey("GPS_indicated_altitude_ft") || _values["GPS_indicated_altitude_ft"] != value)
+                {
+                    _values["GPS_indicated_altitude_ft"] = value;
+                    NotifyPropertyChanged("GPS_indicated_altitude_ft");
+                }
+            }
+        }
 
-        //public string Attitude_indicator_internal_roll_deg
-        //{
-        //    get
-        //    {
-        //        return this._values["Attitude_indicator_internal_roll_deg"];
-        //    }
-        //    set { }
-        //}
+        public string AttitudeIndicatorInternalRollDeg
+        {
+            get => _values["Attitude_indicator_internal_roll_deg"];
+            set
+            {
+                if (!_values.ContainsKey("Attitude_indicator_internal_roll_deg") ||
+                    _values["Attitude_indicator_internal_roll_deg"] != value)
+                {
+                    _values["Attitude_indicator_internal_roll_deg"] = value;
+                    NotifyPropertyChanged("Attitude_indicator_internal_roll_deg");
+                }
+            }
+        }
 
-        //public string Attitude_indicator_internal_pitch_deg
-        //{
-        //    get
-        //    {
-        //        return this._values["Attitude_indicator_internal_pitch_deg"];
-        //    }
-        //    set { }
-        //}
+        public string AttitudeIndicatorInternalPitchDeg
+        {
+            get => _values["Attitude_indicator_internal_pitch_deg"];
+            set
+            {
+                if (!_values.ContainsKey("Attitude_indicator_internal_pitch_deg") ||
+                    _values["Attitude_indicator_internal_pitch_deg"] != value)
+                {
+                    _values["Attitude_indicator_internal_pitch_deg"] = value;
+                    NotifyPropertyChanged("Attitude_indicator_internal_pitch_deg");
+                }
+            }
+        }
 
-        //public string Altimeter_indicated_altitude_ft
-        //{
-        //    get
-        //    {
-        //        return this._values["Altimeter_indicated_altitude_ft"];
-        //    }
-        //    set { }
-        //}
+        public string AltimeterIndicatedAltitudeFt
+        {
+            get => _values["Altimeter_indicated_altitude_ft"];
+            set
+            {
+                if (!_values.ContainsKey("Altimeter_indicated_altitude_ft") ||
+                    _values["Altimeter_indicated_altitude_ft"] != value)
+                {
+                    _values["Altimeter_indicated_altitude_ft"] = value;
+                    NotifyPropertyChanged("Altimeter_indicated_altitude_ft");
+                }
+            }
+        }
 
         public bool IsInitialRun
         {
-            get
-            {
-                return _IsInitial;
-            }
-            set
-            {
-                _IsInitial = value;
-            }
+            get => _IsInitial;
+            set => _IsInitial = value;
         }
+
         public string Aileron
         {
             get => _values["aileron"];

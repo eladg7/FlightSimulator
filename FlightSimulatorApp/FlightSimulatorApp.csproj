@@ -64,6 +64,10 @@
       <DependentUpon>BingMap.xaml</DependentUpon>
     </Compile>
     <Compile Include="Client\TCPClient.cs" />
+    <Compile Include="DashboardTableFiles\DashboardTable.xaml.cs">
+      <DependentUpon>DashboardTable.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DashboardTableFiles\DashboardTableViewModel.cs" />
     <Compile Include="Joystick.xaml.cs">
       <DependentUpon>Joystick.xaml</DependentUpon>
     </Compile>
@@ -74,6 +78,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="DashboardTableFiles\DashboardTable.xaml" />
     <Page Include="Joystick.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

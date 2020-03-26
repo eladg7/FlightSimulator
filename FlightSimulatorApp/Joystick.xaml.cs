@@ -22,7 +22,6 @@ namespace FlightSimulatorApp
     /// </summary>
     public partial class Joystick : UserControl
     {
-
         private JoystickViewModel _vm;
         private bool _isMouseDown = false;
         private double _baseWidth = 0;
@@ -30,7 +29,6 @@ namespace FlightSimulatorApp
         private double _knobRadius = 0;
         private Storyboard _knobAnimation;
         private Point _positionBaseRelative = new Point(0, 0);
-
 
         public Joystick()
         {
@@ -44,7 +42,9 @@ namespace FlightSimulatorApp
             DataContext = _vm;
         }
 
-        private void CenterKnob_Completed(object sender, EventArgs e) { }
+        private void CenterKnob_Completed(object sender, EventArgs e)
+        {
+        }
 
         private void Knob_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -66,7 +66,6 @@ namespace FlightSimulatorApp
                 _positionBaseRelative = e.GetPosition(Base);
                 UpdateKnobPosition();
             }
-
         }
 
         private void UpdateAirplaneAngle(Point pt1)
@@ -92,7 +91,7 @@ namespace FlightSimulatorApp
             double permitedRange = radiusBase - _knobRadius;
             _vm.VM_premittedRange = permitedRange;
             double distanceSquared = Math.Sqrt(Math.Pow((centerKnob.X - _positionBaseRelative.X), 2)
-                + Math.Pow((centerKnob.Y - _positionBaseRelative.Y), 2));
+                                               + Math.Pow((centerKnob.Y - _positionBaseRelative.Y), 2));
 
             // if the distance of the mouse is bigger than the black base.
             if (distanceSquared > permitedRange)
@@ -100,9 +99,9 @@ namespace FlightSimulatorApp
                 // math equation for a point between two points.
                 double disMinuspre = distanceSquared - permitedRange;
                 _positionBaseRelative.X = (disMinuspre * centerKnob.X + permitedRange * _positionBaseRelative.X)
-                    / (permitedRange + disMinuspre);
+                                          / (permitedRange + disMinuspre);
                 _positionBaseRelative.Y = (disMinuspre * centerKnob.Y + permitedRange * _positionBaseRelative.Y)
-                    / (permitedRange + disMinuspre);
+                                          / (permitedRange + disMinuspre);
             }
 
             //UpdateThrottle(distanceSquared, permitedRange); <- update throttle by joystick
@@ -123,6 +122,7 @@ namespace FlightSimulatorApp
             {
                 tempThrottle = 1;
             }
+
             _vm.VM_Throttle = tempThrottle;
         }
 
@@ -136,7 +136,6 @@ namespace FlightSimulatorApp
             _vm.VM_Throttle = 0;
         }
 
-    
 
         private void aileronSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
