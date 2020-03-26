@@ -1,6 +1,7 @@
 ﻿using FlightSimulatorApp.Client;
 using Microsoft.Maps.MapControl.WPF;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -84,7 +85,7 @@ namespace FlightSimulatorApp
                 ["Shutdown"] = false
             };
 
-        private volatile Queue<string> _warningQueue = new Queue<string>();
+        private ConcurrentQueue<string> _warningQueue = new ConcurrentQueue<string>();
         private string _warningString = "";
 
         public SimulatorModel()
@@ -154,7 +155,7 @@ namespace FlightSimulatorApp
                 try
                 {
                     double dValue = Convert.ToDouble(value);
-                    if(dValue < 0)
+                    if (dValue < 0)
                     {
                         localLat = "-89";
                     }
@@ -209,9 +210,12 @@ namespace FlightSimulatorApp
             {
                 while (!IsAppShutDown)
                 {
-                    if (_warningQueue.Count != 0)
+
+                    if (!_warningQueue.IsEmpty)
                     {
-                        Warning = _warningQueue.Dequeue();
+                        string sWarning;
+                        _warningQueue.TryDequeue(out sWarning);
+                        Warning = sWarning;
                         Thread.Sleep(3500);
                     }
                     else
@@ -615,9 +619,13 @@ namespace FlightSimulatorApp
             set
             {
                 if (_connectionState["Trying"] == value) return;
-                if (!value) // trying to connect message clearance
+                if (!value) // trying to connect, message clearance
                 {
-                    _warningQueue.Clear();
+                    string str;
+                    while (_warningQueue.TryDequeue(out str)) ; //clear queue
+                    _warningQueue.Enqueue("To fly, please connect to the simulator.");
+                    _manualResetWarningEvent.Set();
+
                 }
 
                 _connectionState["Trying"] = value;
@@ -653,14 +661,16 @@ namespace FlightSimulatorApp
                     Thread.Sleep(1000);
                 }
 
-                IsConnectedToServer = true;
-                InitalizeValues();
+                if (IsConnectedToServer)
+                {
+                    InitalizeValues();
+                }
+
             }).Start();
         }
 
         public bool Connect(string ip, int port)
         {
-            bool connected = false;
             try
             {
                 // Establish the remote endpoint  
@@ -687,7 +697,7 @@ namespace FlightSimulatorApp
                     Console.WriteLine("Socket connected to -> {0} ",
                         this._clientSocket.RemoteEndPoint.ToString());
                     IsTryingToConnect = false;
-                    connected = true;
+                    IsConnectedToServer = true;
                     _warningQueue.Enqueue("Connected successfully.");
                     _warningQueue.Enqueue("FLY ME TO THE MOON (:");
 
@@ -709,14 +719,14 @@ namespace FlightSimulatorApp
                 Console.WriteLine(e.ToString());
             }
 
-            if (!connected)
+            if (!IsConnectedToServer && IsTryingToConnect)
             {
                 _warningQueue.Enqueue("ERROR: Could not connect to simulator, trying again..." +
-                                      "\nCheck IP and port values.");
+                                      " Check IP and port values.");
                 _manualResetWarningEvent.Set();
             }
 
-            return connected;
+            return IsConnectedToServer;
         }
 
         public void Disconnect()
