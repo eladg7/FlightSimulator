@@ -60,14 +60,14 @@ namespace FlightSimulatorApp
             ["latitude_x"] = "0",
             ["longitude_y"] = "0",
 
-            ["indicated-heading-deg"] = "0",
-            ["gps_indicated-vertical-speed"] = "0",
-            ["gps_indicated-ground-speed-kt"] = "0",
-            ["airspeed-indicator_indicated-speed-kt"] = "0",
-            ["gps_indicated-altitude-ft"] = "0",
-            ["attitude-indicator_internal-roll-deg"] = "0",
-            ["attitude-indicator_internal-pitch-deg"] = "0",
-            ["altimeter_indicated-altitude-ft"] = "0"
+            ["Indicated_heading_deg"] = "0",
+            ["GPS_indicated_vertical_speed"] = "0",
+            ["GPS_indicated_ground_speed_kt"] = "0",
+            ["Airspeed_indicator_indicated_speed_kt"] = "0",
+            ["GPS_indicated_altitude_ft"] = "0",
+            ["Attitude_indicator_internal_roll_deg"] = "0",
+            ["Attitude_indicator_internal_pitch_deg"] = "0",
+            ["Altimeter_indicated_altitude_ft"] = "0"
         };
 
         private Socket _clientSocket;
@@ -214,7 +214,6 @@ namespace FlightSimulatorApp
 
             return result;
         }
-
 
         #region Properties
 
