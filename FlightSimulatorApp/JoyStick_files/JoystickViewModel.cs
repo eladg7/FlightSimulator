@@ -22,38 +22,27 @@ namespace FlightSimulatorApp.JoyStick_files
 
         #region properties
 
-
         public bool ThrottleSliderEnable
         {
-            get
-            {
-                if (Model.IsConnectedToServer)
-                {
-                    return true;
-                }
-                return false;
-            }
+            get { return Model.IsConnectedToServer; }
+            set { }
         }
 
         public bool AileronSliderEnable
         {
-            get
-            {
-                if (Model.IsConnectedToServer)
-                {
-                    return true;
-                }
-                return false;
-            }
+            get { return Model.IsConnectedToServer; }
+            set { }
         }
 
         public int VM_JoystickAngle
         {
+            get { return Model.AirplaneAngle; }
             set { Model.AirplaneAngle = value; }
         }
 
         public double VM_premittedRange
         {
+            get { return _premittedRange; }
             set { _premittedRange = value; }
         }
 
@@ -82,7 +71,7 @@ namespace FlightSimulatorApp.JoyStick_files
             get { return _aileron; }
             set
             {
-                if ( value != _aileron)
+                if (value != _aileron)
                 {
                     _aileron = value;
                     Model.Aileron = value.ToString();
@@ -96,7 +85,7 @@ namespace FlightSimulatorApp.JoyStick_files
             get { return _throttle; }
             set
             {
-                if ( value != _throttle)
+                if (value != _throttle)
                 {
                     _throttle = value;
                     Model.Throttle = value.ToString();
@@ -134,6 +123,7 @@ namespace FlightSimulatorApp.JoyStick_files
                 }
             }
         }
+
         #endregion
     }
 }

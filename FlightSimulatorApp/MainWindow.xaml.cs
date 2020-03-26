@@ -48,7 +48,7 @@ namespace FlightSimulatorApp
             InitializeComponent();
             DataContext = _mainViewModel;
 
-            myMap.SetViewModel(_mapViewModel);
+            MyMap.SetViewModel(_mapViewModel);
             Joystick.SetViewModel(_joystickView);
             DashboardTable.SetViewModel(_dashboardTableViewModel);
 
