@@ -47,27 +47,54 @@ namespace FlightSimulatorApp
         #endregion
 
         private static readonly Object obj = new Object();
+        private ManualResetEvent _manualResetWarningEvent = new ManualResetEvent(false);
+        private bool _IsInitialRun = true;
+        private Dictionary<string, string> _values = new Dictionary<string, string>()
+        {
+            ["throttle"] = "0",
+            ["rudder"] = "0",
+            ["elevator"] = "0",
+            ["aileron"] = "0",
 
-        private bool _IsInitial = true;
-        private Dictionary<string, string> _values;
+            ["latitude_x"] = "0",
+            ["longitude_y"] = "0",
+
+            ["indicated-heading-deg"] = "0",
+            ["gps_indicated-vertical-speed"] = "0",
+            ["gps_indicated-ground-speed-kt"] = "0",
+            ["airspeed-indicator_indicated-speed-kt"] = "0",
+            ["gps_indicated-altitude-ft"] = "0",
+            ["attitude-indicator_internal-roll-deg"] = "0",
+            ["attitude-indicator_internal-pitch-deg"] = "0",
+            ["altimeter_indicated-altitude-ft"] = "0"
+        };
+
         private Socket _clientSocket;
-        private string _dashboard;
-        private string _location;
-        private volatile bool _connected = false;
-        private int _airPlaneAngle;
-        private volatile bool _tryToConnect = false;
+        private string _dashboard = "";
+        private string _location = "0, 0";
+        private int _airPlaneAngle = 0;
+
+        private volatile Dictionary<string, bool>
+            _connectionState = new Dictionary<string, bool>()
+            {
+                ["Trying"] = true,
+                ["Connected"] = false,
+                ["Shutdown"] = false
+            };
+
+        private volatile Queue<string> _warningQueue = new Queue<string>();
+        private string _warningString = "";
 
         public SimulatorModel()
         {
-            _values = new Dictionary<string, string>();
 
-            TryingToConnect = true;
+            WarningQueueThread();
             ConnectToNewServer(_currentIP, _currentPort);
         }
 
         private void InitalizeValues()
         {
-            _IsInitial = true;
+            _IsInitialRun = true;
 
             _values["throttle"] = GetFromSimulator(THROTTLE);
             _values["rudder"] = GetFromSimulator(RUDDER);
@@ -78,10 +105,32 @@ namespace FlightSimulatorApp
 
             _location = _values["latitude_x"] + ", " + _values["longitude_y"];
 
-
             UpdateDashboardThread();
             UpdateMapCoordinates();
         }
+        private void WarningQueueThread()
+        {
+            new Thread(delegate ()
+            {
+                while (!IsAppShutDown)
+                {
+                    if (_warningQueue.Count != 0)
+                    {
+                        Warning = _warningQueue.Dequeue();
+                        Thread.Sleep(2000);
+                    }
+                    else
+                    {
+                        _manualResetWarningEvent.WaitOne();
+                    }
+
+                }
+            }).Start();
+
+
+        }
+
+
 
         private void UpdateMapCoordinates()
         {
@@ -91,9 +140,9 @@ namespace FlightSimulatorApp
 
         private void UpdateDashboardThread()
         {
-            new Thread(delegate()
+            new Thread(delegate ()
             {
-                while (ConnectedToServer)
+                while (IsConnectedToServer)
                 {
                     UpdateDashBoardAndData();
                     Thread.Sleep(250);
@@ -111,22 +160,88 @@ namespace FlightSimulatorApp
             AttitudeIndicatorInternalRollDeg = GetFromSimulator(ROLL);
             AttitudeIndicatorInternalPitchDeg = GetFromSimulator(PITCH);
             AltimeterIndicatedAltitudeFt = GetFromSimulator(ALTIMETER_ALTITUDE);
-
-            // Dashboard = "indicated-heading-deg = " + _values["indicated-heading-deg"] + "\n"
-            //             + "gps_indicated-vertical-speed = " + _values["gps_indicated-vertical-speed"] + "\n"
-            //             + "gps_indicated-ground-speed-kt = " + _values["gps_indicated-ground-speed-kt"] + "\n"
-            //             + "airspeed-indicator_indicated-speed-kt = " +
-            //             _values["airspeed-indicator_indicated-speed-kt"] + "\n"
-            //             + "gps_indicated-altitude-ft = " + _values["gps_indicated-altitude-ft"] + "\n"
-            //             + "attitude-indicator_internal-roll-deg = " + _values["attitude-indicator_internal-roll-deg"] +
-            //             "\n"
-            //             + "attitude-indicator_internal-pitch-deg = " +
-            //             _values["attitude-indicator_internal-pitch-deg"] + "\n"
-            //             + "altimeter_indicated-altitude-ft = " + _values["altimeter_indicated-altitude-ft"];
         }
+
+        public void SetToSimulator(string propertyPath, string value)
+        {
+            string result = "";
+            if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(propertyPath))
+            {
+                value = "set " + propertyPath + " " + value;
+                result = SendToServer(value);
+            }
+            else
+            {
+                Console.WriteLine("Could not send empty value.");
+                _warningQueue.Enqueue("ERROR: Requesting value is invalid.");
+                _manualResetWarningEvent.Set();
+            }
+
+            result = Regex.Replace(result, @"\t|\n|\r", "");             //  Remove \n
+
+
+            double d;
+            if (!Double.TryParse(result, out d))
+            {
+
+                _warningQueue.Enqueue("ERROR: Return value from simulator is invalid, in set action.");
+                _manualResetWarningEvent.Set();
+
+            }
+
+        }
+
+        public string GetFromSimulator(string message)
+        {
+            string result = "";
+            if (!string.IsNullOrEmpty(message))
+            {
+                message = "get " + message;
+                result = SendToServer(message);
+            }
+            else
+            {
+                Console.WriteLine("Could not get empty value.");
+                result = "0";
+                _warningQueue.Enqueue("ERROR: Requesting value is invalid.");
+                _manualResetWarningEvent.Set();
+            }
+            result = Regex.Replace(result, @"\t|\n|\r", "");             //  Remove \n
+
+
+            double d;
+            if (!Double.TryParse(result, out d))
+            {
+                result = "0";
+                _warningQueue.Enqueue("ERROR: Return value from simulator is invalid, in get action.");
+                _manualResetWarningEvent.Set();
+
+            }
+
+            return result;
+        }
+
 
         #region Properties
 
+
+        public string Warning
+        {
+            get
+            {
+                return _warningString;
+            }
+            set
+            {
+                if (value != _warningString)
+                {
+                    _warningString = value;
+                    NotifyPropertyChanged("Warning");
+                    NotifyPropertyChanged("WarningColor");
+                }
+            }
+
+        }
         public int AirplaneAngle
         {
             get => _airPlaneAngle;
@@ -155,7 +270,7 @@ namespace FlightSimulatorApp
             get => _values["Indicated_heading_deg"];
             set
             {
-                if (!_values.ContainsKey("Indicated_heading_deg") || value != _values["Indicated_heading_deg"])
+                if (value != _values["Indicated_heading_deg"])
                 {
                     _values["Indicated_heading_deg"] = value;
                     NotifyPropertyChanged("Indicated_heading_deg");
@@ -168,8 +283,7 @@ namespace FlightSimulatorApp
             get => _values["GPS_indicated_vertical_speed"];
             set
             {
-                if (!_values.ContainsKey("GPS_indicated_vertical_speed") ||
-                    _values["GPS_indicated_vertical_speed"] != value)
+                if (_values["GPS_indicated_vertical_speed"] != value)
                 {
                     _values["GPS_indicated_vertical_speed"] = value;
                     NotifyPropertyChanged("GPS_indicated_vertical_speed");
@@ -182,8 +296,7 @@ namespace FlightSimulatorApp
             get => _values["GPS_indicated_ground_speed_kt"];
             set
             {
-                if (!_values.ContainsKey("GPS_indicated_ground_speed_kt-vertical-speed") ||
-                    _values["GPS_indicated_ground_speed_kt"] != value)
+                if (_values["GPS_indicated_ground_speed_kt"] != value)
                 {
                     _values["GPS_indicated_ground_speed_kt"] = value;
                     NotifyPropertyChanged("GPS_indicated_ground_speed_kt");
@@ -196,8 +309,7 @@ namespace FlightSimulatorApp
             get => _values["Airspeed_indicator_indicated_speed_kt"];
             set
             {
-                if (!_values.ContainsKey("Airspeed_indicator_indicated_speed_kt") ||
-                    _values["Airspeed_indicator_indicated_speed_kt"] != value)
+                if (_values["Airspeed_indicator_indicated_speed_kt"] != value)
                 {
                     _values["Airspeed_indicator_indicated_speed_kt"] = value;
                     NotifyPropertyChanged("Airspeed_indicator_indicated_speed_kt");
@@ -210,7 +322,7 @@ namespace FlightSimulatorApp
             get => _values["GPS_indicated_altitude_ft"];
             set
             {
-                if (!_values.ContainsKey("GPS_indicated_altitude_ft") || _values["GPS_indicated_altitude_ft"] != value)
+                if (_values["GPS_indicated_altitude_ft"] != value)
                 {
                     _values["GPS_indicated_altitude_ft"] = value;
                     NotifyPropertyChanged("GPS_indicated_altitude_ft");
@@ -223,8 +335,7 @@ namespace FlightSimulatorApp
             get => _values["Attitude_indicator_internal_roll_deg"];
             set
             {
-                if (!_values.ContainsKey("Attitude_indicator_internal_roll_deg") ||
-                    _values["Attitude_indicator_internal_roll_deg"] != value)
+                if (_values["Attitude_indicator_internal_roll_deg"] != value)
                 {
                     _values["Attitude_indicator_internal_roll_deg"] = value;
                     NotifyPropertyChanged("Attitude_indicator_internal_roll_deg");
@@ -237,8 +348,7 @@ namespace FlightSimulatorApp
             get => _values["Attitude_indicator_internal_pitch_deg"];
             set
             {
-                if (!_values.ContainsKey("Attitude_indicator_internal_pitch_deg") ||
-                    _values["Attitude_indicator_internal_pitch_deg"] != value)
+                if (_values["Attitude_indicator_internal_pitch_deg"] != value)
                 {
                     _values["Attitude_indicator_internal_pitch_deg"] = value;
                     NotifyPropertyChanged("Attitude_indicator_internal_pitch_deg");
@@ -251,8 +361,7 @@ namespace FlightSimulatorApp
             get => _values["Altimeter_indicated_altitude_ft"];
             set
             {
-                if (!_values.ContainsKey("Altimeter_indicated_altitude_ft") ||
-                    _values["Altimeter_indicated_altitude_ft"] != value)
+                if (_values["Altimeter_indicated_altitude_ft"] != value)
                 {
                     _values["Altimeter_indicated_altitude_ft"] = value;
                     NotifyPropertyChanged("Altimeter_indicated_altitude_ft");
@@ -322,18 +431,18 @@ namespace FlightSimulatorApp
                 if (value == _values["latitude_x"]) return;
                 _values["latitude_x"] = value;
                 string str = value + ", " + Longitude_y;
-                LocationByString = str;
+                PlaneLocationByString = str;
             }
         }
 
-        public string LocationByString
+        public string PlaneLocationByString
         {
             get => _location;
             set
             {
                 if (_location == value) return;
                 _location = value;
-                NotifyPropertyChanged("InitialLocation");
+                NotifyPropertyChanged("PlaneLocationByString");
             }
         }
 
@@ -346,7 +455,7 @@ namespace FlightSimulatorApp
                 if (value == _values["longitude_y"]) return;
                 _values["longitude_y"] = value;
                 string str = Latitude_x + ", " + value;
-                LocationByString = str;
+                PlaneLocationByString = str;
             }
         }
 
@@ -372,26 +481,43 @@ namespace FlightSimulatorApp
             }
         }
 
-        public bool ConnectedToServer
+        public bool IsAppShutDown
         {
-            get => _connected;
+            get
+            {
+                return _connectionState["Shutdown"];
+            }
             set
             {
-                if (value == _connected) return;
-                _connected = value;
+                _connectionState["Shutdown"] = value;
+                _manualResetWarningEvent.Set();
+            }
+        }
+
+        public bool IsConnectedToServer
+        {
+            get => _connectionState["Connected"];
+            set
+            {
+                if (value == _connectionState["Connected"]) return;
+                _connectionState["Connected"] = value;
                 NotifyPropertyChanged("simConnectButton");
                 NotifyPropertyChanged("simConnectEnabled");
             }
         }
 
-        public bool TryingToConnect
+        public bool IsTryingToConnect
         {
-            get => _tryToConnect;
+            get => _connectionState["Trying"];
 
             set
             {
-                if (_tryToConnect == value) return;
-                _tryToConnect = value;
+                if (_connectionState["Trying"] == value) return;
+                if (!value) // trying to connect message clearance
+                {
+                    _warningQueue.Clear();
+                }
+                _connectionState["Trying"] = value;
                 NotifyPropertyChanged("simConnectButton");
                 NotifyPropertyChanged("simConnectEnabled");
             }
@@ -399,36 +525,30 @@ namespace FlightSimulatorApp
 
         #endregion
 
-        #region INotifyPropertyChanged
+        #region Connection
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void NotifyPropertyChanged(string propertyName)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
 
         public void ConnectToNewServer(string ip, int port)
         {
-            ConnectedToServer = false;
-            TryingToConnect = true;
+            IsConnectedToServer = false;
+            IsTryingToConnect = true;
             ClientThread(ip, port);
         }
 
         private void ClientThread(string ip, int port)
         {
-            new Thread(delegate()
+            new Thread(delegate ()
             {
                 //  Try to connect to the server as long as it's not connected 
                 //  tand the user still wants to try to connect
-                while (TryingToConnect && !Connect(ip, port))
+                while (IsTryingToConnect && !Connect(ip, port))
                 {
+                    _warningQueue.Enqueue("Trying to connect to the simulator...");
+                    _manualResetWarningEvent.Set();
                     Thread.Sleep(1000);
                 }
 
-                ConnectedToServer = true;
+                IsConnectedToServer = true;
                 InitalizeValues();
             }).Start();
         }
@@ -453,17 +573,26 @@ namespace FlightSimulatorApp
                     // endpoint using method Connect() 
                     this._clientSocket.Connect(localEndPoint);
 
+                    //Configure Tcp Socket :10 seconds time out
+                    _clientSocket.ReceiveTimeout = 10000;
+                    _clientSocket.SendTimeout = 10000;
+
                     // We print EndPoint information  
                     // that we are connected 
                     Console.WriteLine("Socket connected to -> {0} ",
                         this._clientSocket.RemoteEndPoint.ToString());
-                    TryingToConnect = false;
+                    IsTryingToConnect = false;
                     connected = true;
+                    _warningQueue.Enqueue("Connected successfully.");
+                    _warningQueue.Enqueue("FLY ME TO THE MOON (:");
+
+                    _manualResetWarningEvent.Set();
                 }
                 // Manage of Socket's Exceptions 
                 catch (SocketException se)
                 {
                     Console.WriteLine("SocketException : {0}", se.ToString());
+
                 }
                 catch (Exception e)
                 {
@@ -475,20 +604,28 @@ namespace FlightSimulatorApp
             {
                 Console.WriteLine(e.ToString());
             }
-
+            if (!connected)
+            {
+                _warningQueue.Enqueue("ERROR: Could not connect to simulator, trying again..." +
+                    "\nCheck IP and port values.");
+                _manualResetWarningEvent.Set();
+            }
             return connected;
         }
 
         public void Disconnect()
         {
-            TryingToConnect = false;
+            _warningQueue.Enqueue("Disconnecting from simulator...");
+            _manualResetWarningEvent.Set();
+
+            IsTryingToConnect = false;
             if (_clientSocket != null && _clientSocket.Connected)
             {
                 _clientSocket.Shutdown(SocketShutdown.Both);
                 _clientSocket.Close();
             }
+            IsConnectedToServer = false;
 
-            ConnectedToServer = false;
         }
 
 
@@ -525,54 +662,36 @@ namespace FlightSimulatorApp
             {
                 Console.WriteLine("SocketException : {0}", se.ToString());
                 result = "SocketException";
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("Unexpected exception : {0}", e.ToString());
                 result = "Unexpected exception";
+
             }
 
-            ConnectedToServer = sentToServer;
-
-            return result;
-        }
-
-        public string SetToSimulator(string propertyPath, string value)
-        {
-            string result = "";
-            if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(propertyPath))
+            IsConnectedToServer = sentToServer;
+            if (!IsConnectedToServer)
             {
-                value = "set " + propertyPath + " " + value;
-                result = SendToServer(value);
-            }
-            else
-            {
-                Console.WriteLine("Could not send empty value.");
+                _warningQueue.Enqueue("ERROR: Simulator is not responding.");
+                _manualResetWarningEvent.Set();
             }
 
             return result;
         }
 
-        public string GetFromSimulator(string message)
-        {
-            string result = "";
-            if (!string.IsNullOrEmpty(message))
-            {
-                message = "get " + message;
-                result = SendToServer(message);
-            }
-            else
-            {
-                Console.WriteLine("Could not get empty value.");
-            }
+        #endregion
 
-            //  Remove \n
-            return Regex.Replace(result, @"\t|\n|\r", "");
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propertyName)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public bool IsConnected()
-        {
-            return ConnectedToServer;
-        }
+        #endregion
     }
 }

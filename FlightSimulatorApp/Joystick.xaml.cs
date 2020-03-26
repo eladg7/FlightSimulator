@@ -139,12 +139,16 @@ namespace FlightSimulatorApp
 
         private void aileronSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+
             _vm.VM_Aileron = e.NewValue;
+            
         }
 
         private void throttleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+
             _vm.VM_Throttle = e.NewValue;
+
         }
     }
 }
