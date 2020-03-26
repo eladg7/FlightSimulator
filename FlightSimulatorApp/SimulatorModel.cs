@@ -49,6 +49,7 @@ namespace FlightSimulatorApp
         private static readonly Object obj = new Object();
         private ManualResetEvent _manualResetWarningEvent = new ManualResetEvent(false);
         private bool _IsInitialRun = true;
+
         private Dictionary<string, string> _values = new Dictionary<string, string>()
         {
             ["throttle"] = "0",
@@ -87,7 +88,6 @@ namespace FlightSimulatorApp
 
         public SimulatorModel()
         {
-
             WarningQueueThread();
             ConnectToNewServer(_currentIP, _currentPort);
         }
@@ -108,9 +108,10 @@ namespace FlightSimulatorApp
             UpdateDashboardThread();
             UpdateMapCoordinates();
         }
+
         private void WarningQueueThread()
         {
-            new Thread(delegate ()
+            new Thread(delegate()
             {
                 while (!IsAppShutDown)
                 {
@@ -123,13 +124,9 @@ namespace FlightSimulatorApp
                     {
                         _manualResetWarningEvent.WaitOne();
                     }
-
                 }
             }).Start();
-
-
         }
-
 
 
         private void UpdateMapCoordinates()
@@ -140,7 +137,7 @@ namespace FlightSimulatorApp
 
         private void UpdateDashboardThread()
         {
-            new Thread(delegate ()
+            new Thread(delegate()
             {
                 while (IsConnectedToServer)
                 {
@@ -177,18 +174,15 @@ namespace FlightSimulatorApp
                 _manualResetWarningEvent.Set();
             }
 
-            result = Regex.Replace(result, @"\t|\n|\r", "");             //  Remove \n
+            result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
 
 
             double d;
             if (!Double.TryParse(result, out d))
             {
-
                 _warningQueue.Enqueue("ERROR: Return value from simulator is invalid, in set action.");
                 _manualResetWarningEvent.Set();
-
             }
-
         }
 
         public string GetFromSimulator(string message)
@@ -206,7 +200,8 @@ namespace FlightSimulatorApp
                 _warningQueue.Enqueue("ERROR: Requesting value is invalid.");
                 _manualResetWarningEvent.Set();
             }
-            result = Regex.Replace(result, @"\t|\n|\r", "");             //  Remove \n
+
+            result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
 
 
             double d;
@@ -215,7 +210,6 @@ namespace FlightSimulatorApp
                 result = "0";
                 _warningQueue.Enqueue("ERROR: Return value from simulator is invalid, in get action.");
                 _manualResetWarningEvent.Set();
-
             }
 
             return result;
@@ -224,13 +218,9 @@ namespace FlightSimulatorApp
 
         #region Properties
 
-
         public string Warning
         {
-            get
-            {
-                return _warningString;
-            }
+            get { return _warningString; }
             set
             {
                 if (value != _warningString)
@@ -240,8 +230,8 @@ namespace FlightSimulatorApp
                     NotifyPropertyChanged("WarningColor");
                 }
             }
-
         }
+
         public int AirplaneAngle
         {
             get => _airPlaneAngle;
@@ -371,8 +361,8 @@ namespace FlightSimulatorApp
 
         public bool IsInitialRun
         {
-            get => _IsInitial;
-            set => _IsInitial = value;
+            get => _IsInitialRun;
+            set => _IsInitialRun = value;
         }
 
         public string Aileron
@@ -483,10 +473,7 @@ namespace FlightSimulatorApp
 
         public bool IsAppShutDown
         {
-            get
-            {
-                return _connectionState["Shutdown"];
-            }
+            get { return _connectionState["Shutdown"]; }
             set
             {
                 _connectionState["Shutdown"] = value;
@@ -517,6 +504,7 @@ namespace FlightSimulatorApp
                 {
                     _warningQueue.Clear();
                 }
+
                 _connectionState["Trying"] = value;
                 NotifyPropertyChanged("simConnectButton");
                 NotifyPropertyChanged("simConnectEnabled");
@@ -527,7 +515,6 @@ namespace FlightSimulatorApp
 
         #region Connection
 
-
         public void ConnectToNewServer(string ip, int port)
         {
             IsConnectedToServer = false;
@@ -537,7 +524,7 @@ namespace FlightSimulatorApp
 
         private void ClientThread(string ip, int port)
         {
-            new Thread(delegate ()
+            new Thread(delegate()
             {
                 //  Try to connect to the server as long as it's not connected 
                 //  tand the user still wants to try to connect
@@ -592,7 +579,6 @@ namespace FlightSimulatorApp
                 catch (SocketException se)
                 {
                     Console.WriteLine("SocketException : {0}", se.ToString());
-
                 }
                 catch (Exception e)
                 {
@@ -604,12 +590,14 @@ namespace FlightSimulatorApp
             {
                 Console.WriteLine(e.ToString());
             }
+
             if (!connected)
             {
                 _warningQueue.Enqueue("ERROR: Could not connect to simulator, trying again..." +
-                    "\nCheck IP and port values.");
+                                      "\nCheck IP and port values.");
                 _manualResetWarningEvent.Set();
             }
+
             return connected;
         }
 
@@ -624,8 +612,8 @@ namespace FlightSimulatorApp
                 _clientSocket.Shutdown(SocketShutdown.Both);
                 _clientSocket.Close();
             }
-            IsConnectedToServer = false;
 
+            IsConnectedToServer = false;
         }
 
 
@@ -662,13 +650,11 @@ namespace FlightSimulatorApp
             {
                 Console.WriteLine("SocketException : {0}", se.ToString());
                 result = "SocketException";
-
             }
             catch (Exception e)
             {
                 Console.WriteLine("Unexpected exception : {0}", e.ToString());
                 result = "Unexpected exception";
-
             }
 
             IsConnectedToServer = sentToServer;
