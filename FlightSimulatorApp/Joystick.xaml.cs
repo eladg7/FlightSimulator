@@ -133,22 +133,18 @@ namespace FlightSimulatorApp
             _knobAnimation.Begin();
             _vm.VM_knobX = 0;
             _vm.VM_knobY = 0;
-            _vm.VM_Throttle = 0;
+            // _vm.VM_Throttle = 0;
         }
 
 
         private void aileronSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-
             _vm.VM_Aileron = e.NewValue;
-            
         }
 
         private void throttleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-
             _vm.VM_Throttle = e.NewValue;
-
         }
     }
 }
