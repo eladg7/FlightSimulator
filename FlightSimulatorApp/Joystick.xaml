@@ -18,7 +18,7 @@
             </Label>
             <TextBox x:Name="TextBoxAileron" Text="{Binding VM_Aileron_toString}" DockPanel.Dock="Right"
                      TextAlignment="Center" Width="150" Height="40" FontSize="30" IsReadOnly="True" />
-            <Slider x:Name="AileronSlider" IsMoveToPointEnabled="True" Maximum="1" Foreground="White"
+            <Slider x:Name="AileronSlider" IsEnabled="{Binding AileronSliderEnable}" IsMoveToPointEnabled="True" Maximum="1" Foreground="White"
                     TickPlacement="Both" Value="{Binding VM_Aileron}"
                     Minimum="-1" Height="40" TickFrequency="0.2" LargeChange="0"
                     ValueChanged="aileronSlider_ValueChanged">
@@ -38,7 +38,7 @@
             </Label>
             <TextBox x:Name="TextBoxThrottle" Text="{Binding VM_Throttle_toString}" DockPanel.Dock="Top"
                      TextAlignment="Center" Width="150" Height="40" FontSize="30" IsReadOnly="True" />
-            <Slider x:Name="ThrottleSlider" IsMoveToPointEnabled="True" Maximum="1" Orientation="Vertical"
+            <Slider x:Name="ThrottleSlider" IsEnabled="{Binding ThrottleSliderEnable}" IsMoveToPointEnabled="True" Maximum="1" Orientation="Vertical"
                     Foreground="White" Value="{Binding VM_Throttle}"
                     TickPlacement="Both" TickFrequency="0.1"
                     IsSnapToTickEnabled="True" AutoToolTipPrecision="2" HorizontalAlignment="Center" LargeChange="0"
