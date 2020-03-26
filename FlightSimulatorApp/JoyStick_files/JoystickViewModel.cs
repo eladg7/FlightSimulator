@@ -134,7 +134,6 @@ namespace FlightSimulatorApp.JoyStick_files
                 }
             }
         }
-
         #endregion
     }
 }

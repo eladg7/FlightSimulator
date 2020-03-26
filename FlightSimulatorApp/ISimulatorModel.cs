@@ -20,11 +20,28 @@ namespace FlightSimulatorApp
         string Elevator { get; set; }
         string PlaneLocationByString { get; set; }
         int AirplaneAngle { get; set; }
+        
+        string IndicatedHeadingDeg { get; set; }
+        
+        string GpsIndicatedVerticalSpeed { get; set; }
+
+        string GpsIndicatedGroundSpeedKt { get; set; }
+
+        string AirspeedIndicatorIndicatedSpeedKt { get; set; }
+
+        string GpsIndicatedAltitudeFt { get; set; }
+
+        string AttitudeIndicatorInternalRollDeg { get; set; }
+
+        string AttitudeIndicatorInternalPitchDeg { get; set; }
+
+        string AltimeterIndicatedAltitudeFt { get; set; }
+
         bool IsAppShutDown { get; set; }
+
 
         //  server
         void SetToSimulator(string propertyPath, string value);
         string GetFromSimulator(string message);
-
     }
 }
