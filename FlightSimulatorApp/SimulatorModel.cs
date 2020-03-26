@@ -98,13 +98,14 @@ namespace FlightSimulatorApp
         {
             IsInitialRun = true;
 
+            bool validLoactionSet = UpdateMapCoordinates();
+            if (!validLoactionSet) return; // invalid inital location.
+
             Throttle = GetFromSimulator(THROTTLE);
             Rudder = GetFromSimulator(RUDDER);
             Elevator = GetFromSimulator(ELEVATOR);
             Aileron = GetFromSimulator(AILERON);
-
             UpdateDashboardThread();
-            UpdateMapCoordinates();
         }
 
         private static bool IsLocationValid(string lat, string lon)
@@ -146,14 +147,14 @@ namespace FlightSimulatorApp
 
         private void WarningQueueThread()
         {
-            new Thread(delegate()
+            new Thread(delegate ()
             {
                 while (!IsAppShutDown)
                 {
                     if (_warningQueue.Count != 0)
                     {
                         Warning = _warningQueue.Dequeue();
-                        Thread.Sleep(2000);
+                        Thread.Sleep(3500);
                     }
                     else
                     {
@@ -163,27 +164,33 @@ namespace FlightSimulatorApp
             }).Start();
         }
 
-        private void UpdateMapCoordinates()
+
+
+        private bool UpdateMapCoordinates()
         {
             string lat = GetFromSimulator(LATITUDE_X);
             string lon = GetFromSimulator(LONGITUDE_Y);
-            if (IsInitialRun && !IsLocationValid(lat, lon))
+            bool isValid = IsLocationValid(lat, lon);
+            if (IsInitialRun && !isValid)
             {
                 Latitude_x = "0";
                 Longitude_y = "0";
-                _warningQueue.Enqueue("ERROR: Invalid Longitude or Latitude. Location set to default (0, 0).");
+                _warningQueue.Enqueue("ERROR: Invalid Longitude or Latitude. Change Initial Location.");
                 _manualResetWarningEvent.Set();
+                Disconnect();
+
             }
             else
             {
                 Latitude_x = lat;
                 Longitude_y = lon;
             }
+            return isValid;
         }
 
         private void UpdateDashboardThread()
         {
-            new Thread(delegate()
+            new Thread(delegate ()
             {
                 while (IsConnectedToServer)
                 {
@@ -558,7 +565,7 @@ namespace FlightSimulatorApp
 
         #endregion
 
-        private string GetValidLocation(string value, int modulo, LocationValidator validator)
+        private string GetValidLocation(string value, int border, LocationValidator validator)
         {
             string result;
             if (validator(value))
@@ -573,11 +580,11 @@ namespace FlightSimulatorApp
                     locaDouble = Convert.ToDouble(value);
                     if (locaDouble < 0)
                     {
-                        locaDouble = (-1 * locaDouble) % modulo;
+                        locaDouble = border-0.1;
                     }
                     else
                     {
-                        locaDouble = (locaDouble % modulo) * -1;
+                        locaDouble =border * (-1) + 0.1;
                     }
                 }
                 catch (Exception)
@@ -603,7 +610,7 @@ namespace FlightSimulatorApp
 
         private void ClientThread(string ip, int port)
         {
-            new Thread(delegate()
+            new Thread(delegate ()
             {
                 //  Try to connect to the server as long as it's not connected 
                 //  tand the user still wants to try to connect
@@ -682,8 +689,7 @@ namespace FlightSimulatorApp
 
         public void Disconnect()
         {
-            _warningQueue.Enqueue("Disconnecting from simulator...");
-            _manualResetWarningEvent.Set();
+     
 
             IsTryingToConnect = false;
             if (_clientSocket != null && _clientSocket.Connected)
@@ -693,6 +699,8 @@ namespace FlightSimulatorApp
             }
 
             IsConnectedToServer = false;
+            _warningQueue.Enqueue("Disconnected from simulator.");
+            _manualResetWarningEvent.Set();
         }
 
 
