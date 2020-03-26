@@ -17,7 +17,7 @@
             <Canvas
               m:MapLayer.Position="{Binding VM_PlaneLocationByString}"
               m:MapLayer.PositionOrigin="BottomLeft" >
-                <Image x:Name="AirPlanePicture" Height="95" Stretch="None" 
+                <Image x:Name="AirPlanePicture" Stretch="None" 
                        Source="{Binding PlaneImage}">
                     <Image.LayoutTransform>
                         <TransformGroup>

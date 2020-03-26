@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:FlightSimulatorApp"
         xmlns:dashboardTable="clr-namespace:FlightSimulatorApp.DashboardTableFiles"
         mc:Ignorable="d"
-        Title="Flight Simulator App" Height="450" Width="800">
+        Title="Flight Simulator App" MinWidth="800" MinHeight="450">
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -25,7 +25,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <dashboardTable:DashboardTable x:Name="DashboardTable" Grid.Row="0" Width="500" VerticalAlignment="Stretch"
+            <dashboardTable:DashboardTable x:Name="DashboardTable" Grid.Row="0" VerticalAlignment="Stretch"
                                            HorizontalAlignment="Stretch" />
 
             <Viewbox x:Name="JoystickViewBox" Grid.Row="1" Stretch="Uniform">

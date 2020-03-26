@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:FlightSimulatorApp.DashboardTableFiles"
              mc:Ignorable="d"
-             d:DesignWidth="*" d:DesignHeight="*">
+             d:DesignWidth="*" d:DesignHeight="*" MaxWidth="500" MaxHeight="280">
     <FlowDocumentScrollViewer UseLayoutRounding="True" SnapsToDevicePixels="True" IsToolBarVisible="False"
                               VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
         <FlowDocumentScrollViewer.Resources>
