@@ -12,14 +12,13 @@ namespace FlightSimulatorApp.Client
 
         int Port { get; set; }
 
-        bool ConnectedToServer { get; set; }
+        bool IsConnectedToServer { get; set; }
 
-        bool TryingToConnect { get; set; }
+        bool IsTryingToConnect { get; set; }
 
         bool Connect(string ip, int port);
 
-        bool IsConnected();
-
+      
         void Disconnect();
 
         string SendToServer(string message);

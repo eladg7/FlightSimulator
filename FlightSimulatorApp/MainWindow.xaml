@@ -41,11 +41,9 @@
         </Viewbox>
 
         <TextBlock x:Name="TextWarning"  Grid.Row="1" Grid.Column="0" Margin="5,0,5,5" 
-                    HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="HotPink"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding VM_WarningColor}"
                     Text="{Binding VM_Warning}">
-            <TextBlock.Effect>
-                <DropShadowEffect ShadowDepth="2"/>
-            </TextBlock.Effect>
+           
         </TextBlock>
 
 

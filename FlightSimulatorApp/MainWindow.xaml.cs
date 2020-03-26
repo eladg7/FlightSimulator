@@ -54,6 +54,7 @@ namespace FlightSimulatorApp
         public void OnWindowClosing(object sender, CancelEventArgs e)
         {
             _model.Disconnect();
+            _model.IsAppShutDown = true;
         }
 
         #region connectArea
@@ -94,9 +95,9 @@ namespace FlightSimulatorApp
 
         private void SimConnectToServerButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!_model.TryingToConnect)
+            if (!_model.IsTryingToConnect)
             {
-                if (_model.ConnectedToServer)
+                if (_model.IsConnectedToServer)
                 {
                     _model.Disconnect();
                 }
@@ -107,7 +108,8 @@ namespace FlightSimulatorApp
             }
             else
             {
-                _model.TryingToConnect = false;
+                _model.IsTryingToConnect = false;
+               
             }
         }
 
