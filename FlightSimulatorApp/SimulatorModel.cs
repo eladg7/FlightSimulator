@@ -50,6 +50,8 @@ namespace FlightSimulatorApp
         private ManualResetEvent _manualResetWarningEvent = new ManualResetEvent(false);
         private bool _IsInitialRun = true;
 
+        private delegate bool LocationValidator(string loc);
+
         private Dictionary<string, string> _values = new Dictionary<string, string>()
         {
             ["throttle"] = "0",
@@ -94,19 +96,52 @@ namespace FlightSimulatorApp
 
         private void InitalizeValues()
         {
-            _IsInitialRun = true;
+            IsInitialRun = true;
 
-            _values["throttle"] = GetFromSimulator(THROTTLE);
-            _values["rudder"] = GetFromSimulator(RUDDER);
-            _values["elevator"] = GetFromSimulator(ELEVATOR);
-            _values["aileron"] = GetFromSimulator(AILERON);
-            _values["latitude_x"] = GetFromSimulator(LATITUDE_X);
-            _values["longitude_y"] = GetFromSimulator(LONGITUDE_Y);
-
-            _location = _values["latitude_x"] + ", " + _values["longitude_y"];
+            Throttle = GetFromSimulator(THROTTLE);
+            Rudder = GetFromSimulator(RUDDER);
+            Elevator = GetFromSimulator(ELEVATOR);
+            Aileron = GetFromSimulator(AILERON);
 
             UpdateDashboardThread();
             UpdateMapCoordinates();
+        }
+
+        private static bool IsLocationValid(string lat, string lon)
+        {
+            return IsLongitudeValid(lon) && IsLatitudeValid(lat);
+        }
+
+        private static bool IsLongitudeValid(string lon)
+        {
+            bool valid;
+            try
+            {
+                double longitude = Convert.ToDouble(lon);
+                valid = longitude >= -179 && longitude <= 179;
+            }
+            catch (Exception)
+            {
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        private static bool IsLatitudeValid(string lat)
+        {
+            bool valid;
+            try
+            {
+                double latitude = Convert.ToDouble(lat);
+                valid = latitude >= -85 && latitude <= 85;
+            }
+            catch (Exception)
+            {
+                valid = false;
+            }
+
+            return valid;
         }
 
         private void WarningQueueThread()
@@ -128,11 +163,22 @@ namespace FlightSimulatorApp
             }).Start();
         }
 
-
         private void UpdateMapCoordinates()
         {
-            Latitude_x = GetFromSimulator(LATITUDE_X);
-            Longitude_y = GetFromSimulator(LONGITUDE_Y);
+            string lat = GetFromSimulator(LATITUDE_X);
+            string lon = GetFromSimulator(LONGITUDE_Y);
+            if (IsInitialRun && !IsLocationValid(lat, lon))
+            {
+                Latitude_x = "0";
+                Longitude_y = "0";
+                _warningQueue.Enqueue("ERROR: Invalid Longitude or Latitude. Location set to default (0, 0).");
+                _manualResetWarningEvent.Set();
+            }
+            else
+            {
+                Latitude_x = lat;
+                Longitude_y = lon;
+            }
         }
 
         private void UpdateDashboardThread()
@@ -417,10 +463,10 @@ namespace FlightSimulatorApp
             get => _values["latitude_x"];
             set
             {
-                if (value == _values["latitude_x"]) return;
-                _values["latitude_x"] = value;
-                string str = value + ", " + Longitude_y;
-                PlaneLocationByString = str;
+                string val = GetValidLocation(value, 85, IsLatitudeValid);
+                if (val == _values["latitude_x"]) return;
+                _values["latitude_x"] = val;
+                PlaneLocationByString = val + ", " + Longitude_y;
             }
         }
 
@@ -441,10 +487,10 @@ namespace FlightSimulatorApp
             get => _values["longitude_y"];
             set
             {
-                if (value == _values["longitude_y"]) return;
-                _values["longitude_y"] = value;
-                string str = Latitude_x + ", " + value;
-                PlaneLocationByString = str;
+                string val = GetValidLocation(value, 179, IsLongitudeValid);
+                if (val == _values["longitude_y"]) return;
+                _values["longitude_y"] = val;
+                PlaneLocationByString = Latitude_x + ", " + val;
             }
         }
 
@@ -511,6 +557,40 @@ namespace FlightSimulatorApp
         }
 
         #endregion
+
+        private string GetValidLocation(string value, int modulo, LocationValidator validator)
+        {
+            string result;
+            if (validator(value))
+            {
+                result = value;
+            }
+            else
+            {
+                double locaDouble;
+                try
+                {
+                    locaDouble = Convert.ToDouble(value);
+                    if (locaDouble < 0)
+                    {
+                        locaDouble = (-1 * locaDouble) % modulo;
+                    }
+                    else
+                    {
+                        locaDouble = (locaDouble % modulo) * -1;
+                    }
+                }
+                catch (Exception)
+                {
+                    locaDouble = 0;
+                }
+
+                result = locaDouble.ToString("0.######");
+            }
+
+            return result;
+        }
+
 
         #region Connection
 
