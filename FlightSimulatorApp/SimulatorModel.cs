@@ -619,14 +619,15 @@ namespace FlightSimulatorApp
             set
             {
                 if (_connectionState["Trying"] == value) return;
+
                 if (!value) // trying to connect, message clearance
                 {
-                    string str;
-                    while (_warningQueue.TryDequeue(out str)) ; //clear queue
+                    while (_warningQueue.TryDequeue(out _)) ; //clear queue
                     _warningQueue.Enqueue("To fly, please connect to the simulator.");
                     _manualResetWarningEvent.Set();
 
                 }
+
 
                 _connectionState["Trying"] = value;
                 NotifyPropertyChanged("simConnectButton");
@@ -656,8 +657,6 @@ namespace FlightSimulatorApp
                 //  tand the user still wants to try to connect
                 while (IsTryingToConnect && !Connect(ip, port))
                 {
-                    _warningQueue.Enqueue("Trying to connect to the simulator...");
-                    _manualResetWarningEvent.Set();
                     Thread.Sleep(1000);
                 }
 
@@ -723,6 +722,7 @@ namespace FlightSimulatorApp
             {
                 _warningQueue.Enqueue("ERROR: Could not connect to simulator, trying again..." +
                                       " Check IP and port values.");
+                _warningQueue.Enqueue("Trying to connect to the simulator...");
                 _manualResetWarningEvent.Set();
             }
 
