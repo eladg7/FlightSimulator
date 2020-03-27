@@ -42,8 +42,8 @@ namespace FlightSimulatorApp
         const string LONGITUDE_Y = "/position/longitude-deg";
 
         //  Server
-        int _currentPort = 5402;
-        string _currentIP = "127.0.0.1";
+        private int _currentPort;
+        private string _currentIP;
 
         #endregion
 
@@ -88,8 +88,10 @@ namespace FlightSimulatorApp
         private ConcurrentQueue<string> _warningQueue = new ConcurrentQueue<string>();
         private string _warningString = "";
 
-        public SimulatorModel()
+        public SimulatorModel(string defaultIP, int defaultPort)
         {
+            _currentIP = defaultIP;
+            _currentPort = defaultPort;
             WarningQueueThread();
             ConnectToNewServer(_currentIP, _currentPort);
         }
@@ -107,7 +109,9 @@ namespace FlightSimulatorApp
             Aileron = GetFromSimulator(AILERON);
             UpdateDashboardThread();
         }
+
         #region LocationValidation
+
         private static bool IsLocationValid(string lat, string lon)
         {
             return IsLongitudeValid(lon) && IsLatitudeValid(lat);
@@ -206,11 +210,10 @@ namespace FlightSimulatorApp
 
         private void WarningQueueThread()
         {
-            new Thread(delegate ()
+            new Thread(delegate()
             {
                 while (!IsAppShutDown)
                 {
-
                     if (!_warningQueue.IsEmpty)
                     {
                         string sWarning;
@@ -227,7 +230,6 @@ namespace FlightSimulatorApp
         }
 
 
-
         private bool UpdateMapCoordinates()
         {
             string lat = GetFromSimulator(LATITUDE_X);
@@ -240,19 +242,19 @@ namespace FlightSimulatorApp
                 _warningQueue.Enqueue("ERROR: Invalid Longitude or Latitude. Change Initial Location.");
                 _manualResetWarningEvent.Set();
                 Disconnect();
-
             }
             else
             {
                 Latitude_x = lat;
                 Longitude_y = lon;
             }
+
             return isValid;
         }
 
         private void UpdateDashboardThread()
         {
-            new Thread(delegate ()
+            new Thread(delegate()
             {
                 while (IsConnectedToServer)
                 {
@@ -540,7 +542,6 @@ namespace FlightSimulatorApp
         }
 
 
-
         public string PlaneLocationByString
         {
             get => _location;
@@ -551,7 +552,6 @@ namespace FlightSimulatorApp
                 NotifyPropertyChanged("PlaneLocationByString");
             }
         }
-
 
 
         public string Longitude_y
@@ -565,7 +565,6 @@ namespace FlightSimulatorApp
                 PlaneLocationByString = Latitude_x + ", " + val;
             }
         }
-
 
 
         public string IP
@@ -625,7 +624,6 @@ namespace FlightSimulatorApp
                     while (_warningQueue.TryDequeue(out _)) ; //clear queue
                     _warningQueue.Enqueue("To fly, please connect to the simulator.");
                     _manualResetWarningEvent.Set();
-
                 }
 
 
@@ -636,8 +634,6 @@ namespace FlightSimulatorApp
         }
 
         #endregion
-
-
 
 
         #region Connection
@@ -651,7 +647,7 @@ namespace FlightSimulatorApp
 
         private void ClientThread(string ip, int port)
         {
-            new Thread(delegate ()
+            new Thread(delegate()
             {
                 //  Try to connect to the server as long as it's not connected 
                 //  tand the user still wants to try to connect
@@ -664,7 +660,6 @@ namespace FlightSimulatorApp
                 {
                     InitalizeValues();
                 }
-
             }).Start();
         }
 
@@ -731,8 +726,6 @@ namespace FlightSimulatorApp
 
         public void Disconnect()
         {
-
-
             IsTryingToConnect = false;
             if (_clientSocket != null && _clientSocket.Connected)
             {

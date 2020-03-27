@@ -17,6 +17,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using FlightSimulatorApp.DashboardTableFiles;
+using System.Configuration;
 
 namespace FlightSimulatorApp
 {
@@ -25,7 +26,7 @@ namespace FlightSimulatorApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string IP_REGEX =
+        private const string IpRegex =
             @"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$";
 
         private MainWindowViewModel _mainViewModel;
@@ -34,12 +35,15 @@ namespace FlightSimulatorApp
         private DashboardTableViewModel _dashboardTableViewModel;
 
         //  function for testing text box
-        delegate bool TextBoxFunc();
+        private delegate bool TextBoxFunc();
 
-        ISimulatorModel _model = new SimulatorModel();
+        ISimulatorModel _model;
 
         public MainWindow()
         {
+            //    Initiate the model with ip and port from app.config
+            _model = new SimulatorModel(ReadSetting("DefaultIP"),
+                Convert.ToInt32(ReadSetting("DefaultPort")));
             _mainViewModel = new MainWindowViewModel(_model);
             _mapViewModel = new BingMapViewModel(_model);
             _joystickView = new JoystickViewModel(_model);
@@ -55,6 +59,23 @@ namespace FlightSimulatorApp
             Closing += OnWindowClosing;
         }
 
+        private static string ReadSetting(string key)
+        {
+            string result = "Not Found";
+            try
+            {
+                var appSettings = ConfigurationManager.AppSettings;
+                result = appSettings[key] ?? "Not Found";
+            }
+            catch (ConfigurationErrorsException)
+            {
+                Console.WriteLine("Error reading app settings");
+            }
+
+            return result;
+        }
+
+
         public void OnWindowClosing(object sender, CancelEventArgs e)
         {
             _model.Disconnect();
@@ -62,6 +83,7 @@ namespace FlightSimulatorApp
         }
 
         #region connectArea
+
         private void TestTextBox(TextBox textBox, TextBoxFunc testFunc)
         {
             if (!testFunc())
@@ -84,7 +106,7 @@ namespace FlightSimulatorApp
             TestTextBox(SimIpTextBox, delegate()
             {
                 string tempText = SimIpTextBox.Text;
-                return tempText.Length > 0 && Regex.IsMatch(tempText, IP_REGEX);
+                return tempText.Length > 0 && Regex.IsMatch(tempText, IpRegex);
             });
         }
 
@@ -113,11 +135,9 @@ namespace FlightSimulatorApp
             else
             {
                 _model.IsTryingToConnect = false;
-               
             }
         }
 
         #endregion
-
     }
 }
