@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FlightSimulatorApp"
         xmlns:dashboardTable="clr-namespace:FlightSimulatorApp.DashboardTableFiles"
+        xmlns:maps="clr-namespace:FlightSimulatorApp.Maps"
+        xmlns:joyStickFiles="clr-namespace:FlightSimulatorApp.JoyStick_files"
         mc:Ignorable="d"
         Title="Flight Simulator App" MinWidth="800" MinHeight="450">
     <Grid x:Name="MainGrid">
@@ -29,13 +31,13 @@
                                            HorizontalAlignment="Stretch" />
 
             <Viewbox x:Name="JoystickViewBox" Grid.Row="1" Stretch="Uniform">
-                <local:Joystick x:Name="Joystick" />
+                <joyStickFiles:Joystick x:Name="Joystick" />
 
             </Viewbox>
         </Grid>
 
         <Viewbox x:Name="MapViewBox" Grid.Row="0" Grid.Column="0" Margin="5" Stretch="UniformToFill">
-            <local:BingMap x:Name="MyMap" />
+            <maps:BingMap x:Name="MyMap" />
         </Viewbox>
 
         <TextBlock x:Name="TextWarning" Grid.Row="1" Grid.Column="0" Margin="5,0,5,5"
