@@ -25,7 +25,7 @@ namespace FlightSimulatorApp
                 }
                 else
                 {
-                    return "DarkSeaGreen";
+                    return "White";
                 }
             }
         }
