@@ -6,16 +6,45 @@
              xmlns:local="clr-namespace:FlightSimulatorApp.UserNavigationControl"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
-
     <DockPanel x:Name="MainJoystickDock">
+        <DockPanel.Resources>
+            <Style x:Key="LabelStyle" TargetType="Label">
+                <Setter Property="BorderBrush">
+                    <Setter.Value>
+                        <SolidColorBrush Color="White" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Label">
+                            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0" CornerRadius="3">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#FF72FFE5" ShadowDepth="0" />
+                                </Border.Effect>
+                                <TextBlock Foreground="{TemplateBinding BorderBrush}" Text="{TemplateBinding Content}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" Padding="3,1" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style TargetType="TextBox">
+                <Setter Property="Foreground" Value="White" />
+            </Style>
+            <Style TargetType="Label">
+                <Setter Property="Foreground" Value="White" />
+            </Style>
+        </DockPanel.Resources>
         <DockPanel x:Name="TopDock" VerticalAlignment="Top" Margin="10" DockPanel.Dock="Top">
-            <Label x:Name="AileronLabel" DockPanel.Dock="Left" Content="Aileron:" FontSize="40">
+            <Label x:Name="AileronLabel" DockPanel.Dock="Left" Content="Aileron" FontSize="40"
+                   Style="{StaticResource LabelStyle}" Margin="10" Padding="2,2" FontFamily="Segoe UI Light">
                 <Label.Effect>
                     <DropShadowEffect ShadowDepth="2" />
                 </Label.Effect>
             </Label>
             <TextBox x:Name="TextBoxAileron" Text="{Binding VM_Aileron_toString}" DockPanel.Dock="Right"
-                     TextAlignment="Center" Width="150" Height="40" FontSize="30" IsReadOnly="True" />
+                     TextAlignment="Center" Width="150" Height="40" FontSize="30" IsReadOnly="True"
+                     Background="#294520" />
             <Slider x:Name="AileronSlider" IsEnabled="{Binding VM_SliderEnable}" IsMoveToPointEnabled="True"
                     Maximum="1" Foreground="White"
                     TickPlacement="Both" Value="{Binding VM_Aileron}"
@@ -30,13 +59,15 @@
 
 
         <DockPanel x:Name="LeftDock" HorizontalAlignment="Center" Margin="10" DockPanel.Dock="Left">
-            <Label x:Name="Throttlabel" DockPanel.Dock="Bottom" Content="Throttle:" FontSize="40">
+            <Label x:Name="Throttlabel" DockPanel.Dock="Bottom" Content="Throttle" FontSize="40"
+                   Style="{StaticResource LabelStyle}" Margin="10" Padding="2,2" FontFamily="Segoe UI Light">
                 <Label.Effect>
                     <DropShadowEffect ShadowDepth="2" />
                 </Label.Effect>
             </Label>
             <TextBox x:Name="TextBoxThrottle" Text="{Binding VM_Throttle_toString}" DockPanel.Dock="Top"
-                     TextAlignment="Center" Width="150" Height="40" FontSize="30" IsReadOnly="True" />
+                     TextAlignment="Center" Width="150" Height="40" FontSize="30" IsReadOnly="True"
+                     Background="#294520" />
             <Slider x:Name="ThrottleSlider" IsEnabled="{Binding VM_SliderEnable}" IsMoveToPointEnabled="True"
                     Maximum="1" Orientation="Vertical"
                     Foreground="White" Value="{Binding VM_Throttle}"
@@ -49,9 +80,7 @@
                 </Slider.Effect>
             </Slider>
         </DockPanel>
-        
-        <local:Joystick x:Name="Joystick">
-            
-        </local:Joystick>
+
+        <local:Joystick x:Name="Joystick" />
     </DockPanel>
 </UserControl>

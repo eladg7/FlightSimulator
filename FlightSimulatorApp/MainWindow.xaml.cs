@@ -93,7 +93,7 @@ namespace FlightSimulatorApp
             }
             else
             {
-                SimPortTextBox.BorderBrush = Brushes.Gray;
+                textBox.BorderBrush = Brushes.Gray;
                 SimConnectToServerButton.IsEnabled = true;
             }
 

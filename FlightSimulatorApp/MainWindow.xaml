@@ -8,8 +8,37 @@
         xmlns:maps="clr-namespace:FlightSimulatorApp.Maps"
         xmlns:userNavigationControl="clr-namespace:FlightSimulatorApp.UserNavigationControl"
         mc:Ignorable="d"
-        Title="Flight Simulator App" MinWidth="800" MinHeight="450">
+        Title="Flight Simulator App" MinWidth="800" MinHeight="450" Background="#052533">
     <Grid x:Name="MainGrid">
+        <Grid.Resources>
+            <Style TargetType="TextBox">
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="Background" Value="#294520" />
+            </Style>
+            <Style TargetType="Label">
+                <Setter Property="Foreground" Value="White" />
+            </Style>
+            <Style x:Key="ButtonStyle" TargetType="Button">
+                <Setter Property="BorderBrush">
+                    <Setter.Value>
+                        <SolidColorBrush Color="White" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0.8" CornerRadius="3">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#FF72FFE5" ShadowDepth="0" />
+                                </Border.Effect>
+                                <TextBlock Foreground="{TemplateBinding BorderBrush}" Text="{TemplateBinding Content}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" Padding="3,1"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
@@ -63,8 +92,9 @@
                      Margin="0,5,5,5" />
 
             <Button x:Name="SimConnectToServerButton" Grid.Column="4" Content="{Binding VM_simConnectButton}"
-                    Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Click="SimConnectToServerButton_Click" Cursor="Hand" />
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Click="SimConnectToServerButton_Click" Cursor="Hand" Style="{StaticResource ButtonStyle}"
+                    Margin="10" Padding="2,2" FontSize="18" FontFamily="Segoe UI Light" />
 
         </Grid>
     </Grid>
