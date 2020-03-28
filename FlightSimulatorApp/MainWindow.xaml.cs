@@ -1,5 +1,4 @@
-﻿using FlightSimulatorApp.JoyStick_files;
-using FlightSimulatorApp.Maps;
+﻿using FlightSimulatorApp.Maps;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,6 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using FlightSimulatorApp.DashboardTableFiles;
 using System.Configuration;
+using FlightSimulatorApp.UserNavigationControl;
 
 namespace FlightSimulatorApp
 {
@@ -31,7 +31,7 @@ namespace FlightSimulatorApp
 
         private MainWindowViewModel _mainViewModel;
         private BingMapViewModel _mapViewModel;
-        private JoystickViewModel _joystickView;
+        private UserNavigationViewModel _userNavigationView;
         private DashboardTableViewModel _dashboardTableViewModel;
 
         //  function for testing text box
@@ -46,14 +46,14 @@ namespace FlightSimulatorApp
                 Convert.ToInt32(ReadSetting("DefaultPort")));
             _mainViewModel = new MainWindowViewModel(_model);
             _mapViewModel = new BingMapViewModel(_model);
-            _joystickView = new JoystickViewModel(_model);
+            _userNavigationView = new UserNavigationViewModel(_model);
             _dashboardTableViewModel = new DashboardTableViewModel(_model);
 
             InitializeComponent();
             DataContext = _mainViewModel;
 
             MyMap.SetViewModel(_mapViewModel);
-            Joystick.SetViewModel(_joystickView);
+            UserNavigation.SetViewModel(_userNavigationView);
             DashboardTable.SetViewModel(_dashboardTableViewModel);
 
             Closing += OnWindowClosing;

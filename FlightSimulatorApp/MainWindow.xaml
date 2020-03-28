@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:FlightSimulatorApp"
         xmlns:dashboardTable="clr-namespace:FlightSimulatorApp.DashboardTableFiles"
         xmlns:maps="clr-namespace:FlightSimulatorApp.Maps"
-        xmlns:joyStickFiles="clr-namespace:FlightSimulatorApp.JoyStick_files"
+        xmlns:userNavigationControl="clr-namespace:FlightSimulatorApp.UserNavigationControl"
         mc:Ignorable="d"
         Title="Flight Simulator App" MinWidth="800" MinHeight="450">
     <Grid x:Name="MainGrid">
@@ -30,9 +30,8 @@
             <dashboardTable:DashboardTable x:Name="DashboardTable" Grid.Row="0" VerticalAlignment="Stretch"
                                            HorizontalAlignment="Stretch" />
 
-            <Viewbox x:Name="JoystickViewBox" Grid.Row="1" Stretch="Uniform">
-                <joyStickFiles:Joystick x:Name="Joystick" />
-
+            <Viewbox x:Name="UserNavigationViewBox" Grid.Row="1" Stretch="Uniform">
+                <userNavigationControl:UserNavigation x:Name="UserNavigation" />
             </Viewbox>
         </Grid>
 
@@ -64,9 +63,8 @@
                      Margin="0,5,5,5" />
 
             <Button x:Name="SimConnectToServerButton" Grid.Column="4" Content="{Binding VM_simConnectButton}"
-                    Margin="5"
-                    HorizontalAlignment="Center" VerticalAlignment="Center" Click="SimConnectToServerButton_Click"
-                    Cursor="Hand" />
+                    Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Click="SimConnectToServerButton_Click" Cursor="Hand" />
 
         </Grid>
     </Grid>

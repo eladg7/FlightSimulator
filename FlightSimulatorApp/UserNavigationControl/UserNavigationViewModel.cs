@@ -1,34 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace FlightSimulatorApp.JoyStick_files
+namespace FlightSimulatorApp.UserNavigationControl
 {
-    public class JoystickViewModel : BaseViewModel
+    public class UserNavigationViewModel : BaseViewModel
     {
+        private const double DoubleDiffPermitted = 0.001;
         private double _knobX = 0;
         private double _knobY = 0;
         private double _premittedRange = 1;
-        private double _throttle = 0;
-        private double _aileron = 0;
 
-        public JoystickViewModel(ISimulatorModel model)
+        public UserNavigationViewModel(ISimulatorModel model)
         {
             Model = model;
         }
 
         #region properties
 
-        public bool ThrottleSliderEnable
-        {
-            get { return Model.IsConnectedToServer; }
-            set { }
-        }
-
-        public bool AileronSliderEnable
+        public bool VM_SliderEnable
         {
             get { return Model.IsConnectedToServer; }
             set { }
@@ -50,7 +38,8 @@ namespace FlightSimulatorApp.JoyStick_files
         {
             get
             {
-                float roundedValue = (float) System.Math.Round(_aileron, 3);
+                double val = Convert.ToDouble(Model.Aileron);
+                float roundedValue = (float) Math.Round(val, 3);
                 return roundedValue.ToString();
             }
             set { }
@@ -60,7 +49,8 @@ namespace FlightSimulatorApp.JoyStick_files
         {
             get
             {
-                float roundedValue = (float) System.Math.Round(_throttle, 3);
+                double val = Convert.ToDouble(Model.Throttle);
+                float roundedValue = (float) Math.Round(val, 3);
                 return roundedValue.ToString();
             }
             set { }
@@ -68,28 +58,24 @@ namespace FlightSimulatorApp.JoyStick_files
 
         public double VM_Aileron
         {
-            get { return _aileron; }
+            get { return Convert.ToDouble(Model.Aileron); }
             set
             {
-                if (value != _aileron)
+                if (Math.Abs(value - Convert.ToDouble(Model.Aileron)) > DoubleDiffPermitted)
                 {
-                    _aileron = value;
                     Model.Aileron = value.ToString();
-                    NotifyPropertyChanged("VM_Aileron_toString");
                 }
             }
         }
 
         public double VM_Throttle
         {
-            get { return _throttle; }
+            get { return Convert.ToDouble(Model.Throttle); }
             set
             {
-                if (value != _throttle)
+                if (Math.Abs(value - Convert.ToDouble(Model.Throttle)) > DoubleDiffPermitted)
                 {
-                    _throttle = value;
                     Model.Throttle = value.ToString();
-                    NotifyPropertyChanged("VM_Throttle_toString");
                 }
             }
         }
@@ -99,7 +85,7 @@ namespace FlightSimulatorApp.JoyStick_files
             get { return _knobX; }
             set
             {
-                if (value != _knobX)
+                if (Math.Abs(value - _knobX) > DoubleDiffPermitted)
                 {
                     _knobX = value;
                     Model.Rudder = (value / _premittedRange).ToString();
@@ -114,7 +100,7 @@ namespace FlightSimulatorApp.JoyStick_files
             get { return _knobY; }
             set
             {
-                if (value != _knobY)
+                if (Math.Abs(value - _knobY) > DoubleDiffPermitted)
                 {
                     _knobY = value;
                     Model.Elevator = (value / _premittedRange).ToString();

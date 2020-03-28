@@ -75,8 +75,7 @@ namespace FlightSimulatorApp.Maps
         {
             get
             {
-
-                if (Model.IsInitialRun) // inital center map location
+                if (Model.IsInitialRun) // initial center map location
                 {
                     string[] str = Regex.Split(Model.PlaneLocationByString, ", ");
                     VM_InitialLocation = new Location()

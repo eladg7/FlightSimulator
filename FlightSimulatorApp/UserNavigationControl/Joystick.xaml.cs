@@ -4,14 +4,14 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 
-namespace FlightSimulatorApp.JoyStick_files
+namespace FlightSimulatorApp.UserNavigationControl
 {
     /// <summary>
     /// Interaction logic for Joystick.xaml
     /// </summary>
     public partial class Joystick : UserControl
     {
-        private JoystickViewModel _vm;
+        private UserNavigationViewModel _vm;
         private bool _isMouseDown = false;
         private double _baseWidth = 0;
         private double _baseHeight = 0;
@@ -25,7 +25,7 @@ namespace FlightSimulatorApp.JoyStick_files
             _knobAnimation = Knob.FindResource("CenterKnob") as Storyboard;
         }
 
-        public void SetViewModel(JoystickViewModel vm)
+        public void SetViewModel(UserNavigationViewModel vm)
         {
             _vm = vm;
             DataContext = _vm;
@@ -122,18 +122,6 @@ namespace FlightSimulatorApp.JoyStick_files
             _knobAnimation.Begin();
             _vm.VM_knobX = 0;
             _vm.VM_knobY = 0;
-            // _vm.VM_Throttle = 0;
-        }
-
-
-        private void aileronSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            _vm.VM_Aileron = e.NewValue;
-        }
-
-        private void throttleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            _vm.VM_Throttle = e.NewValue;
         }
     }
 }
