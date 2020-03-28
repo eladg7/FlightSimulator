@@ -88,20 +88,23 @@
       <DependentUpon>DashboardTable.xaml</DependentUpon>
     </Compile>
     <Compile Include="DashboardTableFiles\DashboardTableViewModel.cs" />
-    <Compile Include="JoyStick_files\Joystick.xaml.cs">
+    <Compile Include="UserNavigationControl\Joystick.xaml.cs">
       <DependentUpon>Joystick.xaml</DependentUpon>
     </Compile>
-    <Compile Include="JoyStick_files\JoystickViewModel.cs" />
+    <Compile Include="UserNavigationControl\UserNavigationViewModel.cs" />
     <Compile Include="Maps\BingMap.xaml.cs">
       <DependentUpon>BingMap.xaml</DependentUpon>
     </Compile>
     <Compile Include="Maps\BingMapViewModel.cs" />
     <Compile Include="SimulatorModel.cs" />
+    <Compile Include="UserNavigationControl\UserNavigation.xaml.cs">
+      <DependentUpon>UserNavigation.xaml</DependentUpon>
+    </Compile>
     <Page Include="DashboardTableFiles\DashboardTable.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="JoyStick_files\Joystick.xaml">
+    <Page Include="UserNavigationControl\Joystick.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -122,6 +125,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UserNavigationControl\UserNavigation.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainWindowViewModel.cs" />

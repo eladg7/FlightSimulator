@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace FlightSimulatorApp
 {
@@ -96,12 +97,12 @@ namespace FlightSimulatorApp
             ConnectToNewServer(_currentIP, _currentPort);
         }
 
-        private void InitalizeValues()
+        private void InitializeValues()
         {
             IsInitialRun = true;
 
-            bool validLoactionSet = UpdateMapCoordinates();
-            if (!validLoactionSet) return; // invalid inital location.
+            bool validLocationSet = UpdateMapCoordinates();
+            if (!validLocationSet) return; // invalid initial location.
 
             Throttle = GetFromSimulator(THROTTLE);
             Rudder = GetFromSimulator(RUDDER);
@@ -477,8 +478,23 @@ namespace FlightSimulatorApp
 
         public bool IsInitialRun
         {
-            get => _IsInitialRun;
-            set => _IsInitialRun = value;
+            get
+            {
+                bool val;
+                lock (obj)
+                {
+                    val = _IsInitialRun;
+                }
+
+                return val;
+            }
+            set
+            {
+                lock (obj)
+                {
+                    _IsInitialRun = value;
+                }
+            }
         }
 
         public string Aileron
@@ -488,6 +504,8 @@ namespace FlightSimulatorApp
             {
                 if (_values["aileron"] == value) return;
                 _values["aileron"] = value;
+                NotifyPropertyChanged("Aileron");
+                NotifyPropertyChanged("Aileron_toString");
                 SetToSimulator(AILERON, value);
             }
         }
@@ -499,6 +517,8 @@ namespace FlightSimulatorApp
             {
                 if (_values["throttle"] == value) return;
                 _values["throttle"] = value;
+                NotifyPropertyChanged("Throttle");
+                NotifyPropertyChanged("Throttle_toString");
                 SetToSimulator(THROTTLE, value);
             }
         }
@@ -511,6 +531,7 @@ namespace FlightSimulatorApp
                 if (_values["rudder"] == value) return;
                 _values["rudder"] = value;
                 SetToSimulator(RUDDER, value);
+                NotifyPropertyChanged("Rudder");
                 UpdateMapCoordinates();
             }
         }
@@ -525,6 +546,7 @@ namespace FlightSimulatorApp
                 if (_values["elevator"] == tempVal) return;
                 _values["elevator"] = tempVal;
                 SetToSimulator(ELEVATOR, tempVal);
+                NotifyPropertyChanged("Elevator");
                 UpdateMapCoordinates();
             }
         }
@@ -608,6 +630,7 @@ namespace FlightSimulatorApp
                 _connectionState["Connected"] = value;
                 NotifyPropertyChanged("simConnectButton");
                 NotifyPropertyChanged("simConnectEnabled");
+                NotifyPropertyChanged("SliderEnable");
             }
         }
 
@@ -650,7 +673,7 @@ namespace FlightSimulatorApp
             new Thread(delegate()
             {
                 //  Try to connect to the server as long as it's not connected 
-                //  tand the user still wants to try to connect
+                //  and the user still wants to try to connect
                 while (IsTryingToConnect && !Connect(ip, port))
                 {
                     Thread.Sleep(1000);
@@ -658,7 +681,7 @@ namespace FlightSimulatorApp
 
                 if (IsConnectedToServer)
                 {
-                    InitalizeValues();
+                    InitializeValues();
                 }
             }).Start();
         }
