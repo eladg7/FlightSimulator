@@ -94,8 +94,7 @@
                 </Label.Effect>
             </Label>
             <Label x:Name="ElevatorLabelContent" DockPanel.Dock="Left" Content="{Binding VM_Elevator}" 
-                      FontFamily="Segoe UI Light"  FontSize="20"  
-                   Style="{StaticResource LabelStyle}" Margin="5" Padding="2,2" >
+                      FontFamily="Segoe UI Light"  FontSize="20" Style="{StaticResource LabelStyle}" Padding="2,2" >
                 <Label.LayoutTransform>
                     <RotateTransform Angle="90"></RotateTransform>
                 </Label.LayoutTransform>
@@ -112,9 +111,13 @@
                     <DropShadowEffect ShadowDepth="2" />
                 </Label.Effect>
             </Label>
-            <TextBox x:Name="TextBoxRudder" Text="{Binding VM_Rudder}" DockPanel.Dock="Bottom"
-                     TextAlignment="Center" Width="80" Height="30" FontSize="20" IsReadOnly="True"
-                     Background="#294520" Margin="5" />
+            <Label x:Name="RudderValueLabel" Content="{Binding VM_Rudder}"  DockPanel.Dock="Bottom"
+                      FontFamily="Segoe UI Light"  FontSize="20"  Width="80" Height="30"
+                     Background="#294520" Style="{StaticResource LabelStyle}" Padding="2,2">
+                <Label.Effect>
+                    <DropShadowEffect ShadowDepth="2" />
+                </Label.Effect>
+            </Label>
         </DockPanel>
 
         <local:Joystick x:Name="Joystick" />

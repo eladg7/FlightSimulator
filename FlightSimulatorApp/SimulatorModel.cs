@@ -211,7 +211,7 @@ namespace FlightSimulatorApp
 
         private void WarningQueueThread()
         {
-            new Thread(delegate()
+            new Thread(delegate ()
             {
                 while (!IsAppShutDown)
                 {
@@ -224,6 +224,7 @@ namespace FlightSimulatorApp
                     }
                     else
                     {
+                        Warning = "";
                         _manualResetWarningEvent.WaitOne();
                     }
                 }
@@ -255,7 +256,7 @@ namespace FlightSimulatorApp
 
         private void UpdateDashboardThread()
         {
-            new Thread(delegate()
+            new Thread(delegate ()
             {
                 while (IsConnectedToServer)
                 {
@@ -670,7 +671,7 @@ namespace FlightSimulatorApp
 
         private void ClientThread(string ip, int port)
         {
-            new Thread(delegate()
+            new Thread(delegate ()
             {
                 //  Try to connect to the server as long as it's not connected 
                 //  and the user still wants to try to connect
