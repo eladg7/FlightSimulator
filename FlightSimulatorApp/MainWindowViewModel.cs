@@ -38,15 +38,7 @@ namespace FlightSimulatorApp
             }
             set { }
         }
-        public string VM_Dashboard
-        {
-            get
-            {
-                return Model.Dashboard;
-            }
-            set { }
-
-        }
+  
 
         public string VM_simConnectEnabled
         {

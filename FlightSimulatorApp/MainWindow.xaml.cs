@@ -29,50 +29,41 @@ namespace FlightSimulatorApp
         private const string IpRegex =
             @"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$";
 
+
+        //  function for testing text box
+        private delegate bool TextBoxFunc();
+
+        private ISimulatorModel _model;
         private MainWindowViewModel _mainViewModel;
         private BingMapViewModel _mapViewModel;
         private UserNavigationViewModel _userNavigationView;
         private DashboardTableViewModel _dashboardTableViewModel;
 
-        //  function for testing text box
-        private delegate bool TextBoxFunc();
-
-        ISimulatorModel _model;
-
-        public MainWindow()
+        public MainWindow(ISimulatorModel model)
         {
-            //    Initiate the model with ip and port from app.config
-            _model = new SimulatorModel(ReadSetting("DefaultIP"),
-                Convert.ToInt32(ReadSetting("DefaultPort")));
-            _mainViewModel = new MainWindowViewModel(_model);
-            _mapViewModel = new BingMapViewModel(_model);
-            _userNavigationView = new UserNavigationViewModel(_model);
-            _dashboardTableViewModel = new DashboardTableViewModel(_model);
+            _model = model;
+            InitiateViewModels();
 
             InitializeComponent();
             DataContext = _mainViewModel;
 
-            MyMap.SetViewModel(_mapViewModel);
-            UserNavigation.SetViewModel(_userNavigationView);
-            DashboardTable.SetViewModel(_dashboardTableViewModel);
-
+            SetModelToViewModel();
             Closing += OnWindowClosing;
         }
 
-        private static string ReadSetting(string key)
+        private void InitiateViewModels()
         {
-            string result = "Not Found";
-            try
-            {
-                var appSettings = ConfigurationManager.AppSettings;
-                result = appSettings[key] ?? "Not Found";
-            }
-            catch (ConfigurationErrorsException)
-            {
-                Console.WriteLine("Error reading app settings");
-            }
+            _mainViewModel = new MainWindowViewModel(_model);
+            _mapViewModel = new BingMapViewModel(_model);
+            _userNavigationView = new UserNavigationViewModel(_model);
+            _dashboardTableViewModel = new DashboardTableViewModel(_model);
+        }
 
-            return result;
+        private void SetModelToViewModel()
+        {
+            MyMap.SetViewModel(_mapViewModel);
+            UserNavigation.SetViewModel(_userNavigationView);
+            DashboardTable.SetViewModel(_dashboardTableViewModel);
         }
 
 
@@ -103,7 +94,7 @@ namespace FlightSimulatorApp
 
         private void SimIPTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TestTextBox(SimIpTextBox, delegate()
+            TestTextBox(SimIpTextBox, delegate ()
             {
                 string tempText = SimIpTextBox.Text;
                 return tempText.Length > 0 && Regex.IsMatch(tempText, IpRegex);
@@ -112,7 +103,7 @@ namespace FlightSimulatorApp
 
         private void SimPortTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TestTextBox(SimPortTextBox, delegate()
+            TestTextBox(SimPortTextBox, delegate ()
             {
                 string tempText = SimPortTextBox.Text;
                 return tempText.Length > 0 && int.TryParse(tempText, out _);
