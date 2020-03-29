@@ -35,6 +35,7 @@
                 <Setter Property="Foreground" Value="White" />
             </Style>
         </DockPanel.Resources>
+
         <DockPanel x:Name="TopDock" VerticalAlignment="Top" Margin="10" DockPanel.Dock="Top">
             <Label x:Name="AileronLabel" DockPanel.Dock="Left" Content="Aileron" FontSize="40"
                    Style="{StaticResource LabelStyle}" Margin="10" Padding="2,2" FontFamily="Segoe UI Light">
@@ -79,6 +80,41 @@
                     <DropShadowEffect ShadowDepth="2" />
                 </Slider.Effect>
             </Slider>
+        </DockPanel>
+
+
+        <DockPanel DockPanel.Dock="Right" HorizontalAlignment="Center" Margin="10">
+            <Label x:Name="ElevatorLabel" DockPanel.Dock="Right" Content="&lt;- Elevator -&gt;" FontSize="20"
+                   Style="{StaticResource LabelStyle}" Margin="5" Padding="2,2" FontFamily="Segoe UI Light">
+                <Label.LayoutTransform>
+                    <RotateTransform Angle="90"></RotateTransform>
+                </Label.LayoutTransform>
+                <Label.Effect>
+                    <DropShadowEffect ShadowDepth="2" />
+                </Label.Effect>
+            </Label>
+            <Label x:Name="ElevatorLabelContent" DockPanel.Dock="Left" Content="{Binding VM_Elevator}" 
+                      FontFamily="Segoe UI Light"  FontSize="20"  
+                   Style="{StaticResource LabelStyle}" Margin="5" Padding="2,2" >
+                <Label.LayoutTransform>
+                    <RotateTransform Angle="90"></RotateTransform>
+                </Label.LayoutTransform>
+                <Label.Effect>
+                    <DropShadowEffect ShadowDepth="2" />
+                </Label.Effect>
+            </Label>
+        </DockPanel>
+
+        <DockPanel DockPanel.Dock="Bottom">
+            <Label x:Name="RudderLabel" DockPanel.Dock="Top" Content="&lt;- Rudder -&gt;" FontSize="20"
+                   Style="{StaticResource LabelStyle}" Margin="5" Padding="2,2" FontFamily="Segoe UI Light">
+                <Label.Effect>
+                    <DropShadowEffect ShadowDepth="2" />
+                </Label.Effect>
+            </Label>
+            <TextBox x:Name="TextBoxRudder" Text="{Binding VM_Rudder}" DockPanel.Dock="Bottom"
+                     TextAlignment="Center" Width="80" Height="30" FontSize="20" IsReadOnly="True"
+                     Background="#294520" Margin="5" />
         </DockPanel>
 
         <local:Joystick x:Name="Joystick" />
