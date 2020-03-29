@@ -13,7 +13,6 @@ namespace FlightSimulatorApp
         //  properties
         string Warning { get; set; }
         bool IsInitialRun { get; set; }
-        string Dashboard { get; set; }
         string Throttle { get; set; }
         string Aileron { get; set; }
         string Rudder { get; set; }
@@ -42,6 +41,6 @@ namespace FlightSimulatorApp
 
         //  server
         void SetToSimulator(string propertyPath, string value);
-        string GetFromSimulator(string message);
+        void GetFromSimulator(string propertyPath);
     }
 }

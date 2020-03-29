@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -12,9 +13,13 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace FlightSimulatorApp
 {
+
+
+    public delegate void ThreadExitCallBack(string result);
     class SimulatorModel : ISimulatorModel
     {
         #region ValuesPath
@@ -43,15 +48,42 @@ namespace FlightSimulatorApp
         const string LONGITUDE_Y = "/position/longitude-deg";
 
         //  Server
-        private int _currentPort;
-        private string _currentIP;
+        private int _currentPort = 0;
+        private string _currentIP = "";
 
+        private class RequestsToServer
+        {
+
+            public RequestsToServer(string message, bool update, string path)
+            {
+                Message = message;
+                IsUpdate = update;
+                Path = path;
+        
+            }
+            public string Message
+            {
+                get; set;
+            }
+
+            public bool IsUpdate
+            {
+                get; set;
+            }
+            public string Path
+            {
+                get; set;
+            }
+         
+        }
         #endregion
 
+        #region Fields
         private static readonly Object obj = new Object();
-        private ManualResetEvent _manualResetWarningEvent = new ManualResetEvent(false);
-        private bool _IsInitialRun = true;
+        private static readonly Object objConnection = new Object();
+        private static readonly Object objInitial = new Object();
 
+        private bool _IsInitialRun = false;
 
         private Dictionary<string, string> _values = new Dictionary<string, string>()
         {
@@ -74,140 +106,75 @@ namespace FlightSimulatorApp
         };
 
         private Socket _clientSocket;
-        private string _dashboard = "";
         private string _location = "0, 0";
         private int _airPlaneAngle = 0;
 
         private volatile Dictionary<string, bool>
             _connectionState = new Dictionary<string, bool>()
             {
-                ["Trying"] = true,
+                ["Trying"] = false,
                 ["Connected"] = false,
                 ["Shutdown"] = false
             };
 
+        private ManualResetEvent _manualResetWarningEvent = new ManualResetEvent(false);
         private ConcurrentQueue<string> _warningQueue = new ConcurrentQueue<string>();
-        private string _warningString = "";
 
-        public SimulatorModel(string defaultIP, int defaultPort)
+        private ManualResetEvent _manualResetRequestEvent = new ManualResetEvent(false);
+        private ConcurrentQueue<RequestsToServer> _requestGET_ToSim = new ConcurrentQueue<RequestsToServer>();
+        private ConcurrentQueue<RequestsToServer> _requestsSET_ToSim = new ConcurrentQueue<RequestsToServer>();
+
+
+
+        private string _warningString = "";
+        private Dispatcher _dispatcher = null;
+        #endregion
+        public SimulatorModel()
         {
-            _currentIP = defaultIP;
-            _currentPort = defaultPort;
+            _dispatcher = Dispatcher.CurrentDispatcher;
+            _currentIP = ReadSetting("DefaultIP");
+            _currentPort = Convert.ToInt32(ReadSetting("DefaultPort"));
             WarningQueueThread();
-            ConnectToNewServer(_currentIP, _currentPort);
+        }
+
+
+        private static string ReadSetting(string key)
+        {
+            string result = "Not Found";
+            try
+            {
+                var appSettings = ConfigurationManager.AppSettings;
+                result = appSettings[key] ?? "Not Found";
+            }
+            catch (ConfigurationErrorsException)
+            {
+                Console.WriteLine("Error reading app settings");
+            }
+
+            return result;
         }
 
         private void InitializeValues()
         {
+            ToUpdate = false;
             IsInitialRun = true;
+            UpdatePlaneLocation();
 
-            bool validLocationSet = UpdateMapCoordinates();
-            if (!validLocationSet) return; // invalid initial location.
+            GetFromSimulator(THROTTLE);
+            GetFromSimulator(RUDDER);
+            GetFromSimulator(ELEVATOR);
+            GetFromSimulator(AILERON);
 
-            Throttle = GetFromSimulator(THROTTLE);
-            Rudder = GetFromSimulator(RUDDER);
-            Elevator = GetFromSimulator(ELEVATOR);
-            Aileron = GetFromSimulator(AILERON);
             UpdateDashboardThread();
         }
 
-        #region LocationValidation
-
-        private static bool IsLocationValid(string lat, string lon)
+        private void UpdatePlaneLocation()
         {
-            return IsLongitudeValid(lon) && IsLatitudeValid(lat);
+            GetFromSimulator(LATITUDE_X);
+            GetFromSimulator(LONGITUDE_Y);
         }
 
-        private static bool IsLongitudeValid(string lon)
-        {
-            bool valid;
-            try
-            {
-                double longitude = Convert.ToDouble(lon);
-                valid = longitude >= -179 && longitude <= 179;
-            }
-            catch (Exception)
-            {
-                valid = false;
-            }
 
-            return valid;
-        }
-
-        private static bool IsLatitudeValid(string lat)
-        {
-            bool valid;
-            try
-            {
-                double latitude = Convert.ToDouble(lat);
-                valid = latitude >= -85 && latitude <= 85;
-            }
-            catch (Exception)
-            {
-                valid = false;
-            }
-
-            return valid;
-        }
-
-        private string GetValidLatitude(string value) // 90 border
-        {
-            string localLat = value;
-            if (!IsLatitudeValid(value))
-            {
-                _warningQueue.Enqueue("ERROR: Plane in flying out of earth's latitude border.");
-                _manualResetWarningEvent.Set();
-                try
-                {
-                    double dValue = Convert.ToDouble(value);
-                    if (dValue < 0)
-                    {
-                        localLat = "-89";
-                    }
-                    else
-                    {
-                        localLat = "89";
-                    }
-                }
-                catch (Exception)
-                {
-                    localLat = "0";
-                }
-            }
-
-            return localLat;
-        }
-
-        private string GetValidLongitude(string value) //border 180
-        {
-            string localLong = value;
-            if (!IsLatitudeValid(value))
-            {
-                //_warningQueue.Enqueue("ERROR: Plane in flying out of earth's longtitude border.");
-                //_manualResetWarningEvent.Set();
-                try
-                {
-                    // goes to the other side of globe
-                    double dValue = Convert.ToDouble(value);
-                    if (dValue < 0)
-                    {
-                        localLong = "179";
-                    }
-                    else
-                    {
-                        localLong = "-179";
-                    }
-                }
-                catch (Exception)
-                {
-                    localLong = "0";
-                }
-            }
-
-            return localLong;
-        }
-
-        #endregion
 
         private void WarningQueueThread()
         {
@@ -220,39 +187,22 @@ namespace FlightSimulatorApp
                         string sWarning;
                         _warningQueue.TryDequeue(out sWarning);
                         Warning = sWarning;
-                        Thread.Sleep(3500);
+                        Thread.Sleep(2000);
+
                     }
                     else
                     {
-                        Warning = "";
-                        _manualResetWarningEvent.WaitOne();
+                        if (!_manualResetWarningEvent.WaitOne(3500)) // if there is no notification initialize
+                        {
+                            Warning = "";
+                        }
+
                     }
                 }
             }).Start();
         }
 
 
-        private bool UpdateMapCoordinates()
-        {
-            string lat = GetFromSimulator(LATITUDE_X);
-            string lon = GetFromSimulator(LONGITUDE_Y);
-            bool isValid = IsLocationValid(lat, lon);
-            if (IsInitialRun && !isValid)
-            {
-                Latitude_x = "0";
-                Longitude_y = "0";
-                _warningQueue.Enqueue("ERROR: Invalid Longitude or Latitude. Change Initial Location.");
-                _manualResetWarningEvent.Set();
-                Disconnect();
-            }
-            else
-            {
-                Latitude_x = lat;
-                Longitude_y = lon;
-            }
-
-            return isValid;
-        }
 
         private void UpdateDashboardThread()
         {
@@ -268,23 +218,24 @@ namespace FlightSimulatorApp
 
         private void UpdateDashBoardAndData()
         {
-            IndicatedHeadingDeg = GetFromSimulator(HEADING);
-            GpsIndicatedVerticalSpeed = GetFromSimulator(VERTICAL_SPEED);
-            GpsIndicatedGroundSpeedKt = GetFromSimulator(GROUND_SPEED);
-            AirspeedIndicatorIndicatedSpeedKt = GetFromSimulator(INDICATED_SPEED);
-            GpsIndicatedAltitudeFt = GetFromSimulator(GPS_ALTITUDE);
-            AttitudeIndicatorInternalRollDeg = GetFromSimulator(ROLL);
-            AttitudeIndicatorInternalPitchDeg = GetFromSimulator(PITCH);
-            AltimeterIndicatedAltitudeFt = GetFromSimulator(ALTIMETER_ALTITUDE);
+            GetFromSimulator(HEADING);
+            GetFromSimulator(VERTICAL_SPEED);
+            GetFromSimulator(GROUND_SPEED);
+            GetFromSimulator(INDICATED_SPEED);
+            GetFromSimulator(GPS_ALTITUDE);
+            GetFromSimulator(ROLL);
+            GetFromSimulator(PITCH);
+            GetFromSimulator(ALTIMETER_ALTITUDE);
         }
 
         public void SetToSimulator(string propertyPath, string value)
         {
-            string result = "";
             if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(propertyPath))
             {
                 value = "set " + propertyPath + " " + value;
-                result = SendToServer(value);
+                _requestsSET_ToSim.Enqueue(new RequestsToServer(value, false, propertyPath));
+                _manualResetRequestEvent.Set();
+
             }
             else
             {
@@ -293,45 +244,24 @@ namespace FlightSimulatorApp
                 _manualResetWarningEvent.Set();
             }
 
-            result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
-
-
-            double d;
-            if (!Double.TryParse(result, out d))
-            {
-                _warningQueue.Enqueue("ERROR: Return value from simulator is invalid, in set action.");
-                _manualResetWarningEvent.Set();
-            }
         }
 
-        public string GetFromSimulator(string message)
+        public void GetFromSimulator(string propertyPath)
         {
-            string result = "";
-            if (!string.IsNullOrEmpty(message))
+            if (!string.IsNullOrEmpty(propertyPath))
             {
-                message = "get " + message;
-                result = SendToServer(message);
+                string message = "get " + propertyPath;
+                _requestGET_ToSim.Enqueue(new RequestsToServer(message, true, propertyPath));
+                _manualResetRequestEvent.Set();
             }
             else
             {
                 Console.WriteLine("Could not get empty value.");
-                result = "0";
+
                 _warningQueue.Enqueue("ERROR: Requesting value is invalid.");
                 _manualResetWarningEvent.Set();
             }
 
-            result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
-
-
-            double d;
-            if (!Double.TryParse(result, out d))
-            {
-                result = "0";
-                _warningQueue.Enqueue("ERROR: Return value from simulator is invalid, in get action.");
-                _manualResetWarningEvent.Set();
-            }
-
-            return result;
         }
 
         #region Properties
@@ -358,18 +288,6 @@ namespace FlightSimulatorApp
                 if (value == _airPlaneAngle) return;
                 _airPlaneAngle = value;
                 NotifyPropertyChanged("AirplaneAngle");
-            }
-        }
-
-
-        public string Dashboard
-        {
-            get => _dashboard;
-            set
-            {
-                if (_dashboard == value) return;
-                _dashboard = value;
-                NotifyPropertyChanged("Dashboard");
             }
         }
 
@@ -477,12 +395,14 @@ namespace FlightSimulatorApp
             }
         }
 
+        public bool ToUpdate
+        { get; set; } = false;
         public bool IsInitialRun
         {
             get
             {
                 bool val;
-                lock (obj)
+                lock (objInitial)
                 {
                     val = _IsInitialRun;
                 }
@@ -491,7 +411,7 @@ namespace FlightSimulatorApp
             }
             set
             {
-                lock (obj)
+                lock (objInitial)
                 {
                     _IsInitialRun = value;
                 }
@@ -508,6 +428,7 @@ namespace FlightSimulatorApp
                 NotifyPropertyChanged("Aileron");
                 NotifyPropertyChanged("Aileron_toString");
                 SetToSimulator(AILERON, value);
+                UpdatePlaneLocation();// update location after change
             }
         }
 
@@ -521,6 +442,7 @@ namespace FlightSimulatorApp
                 NotifyPropertyChanged("Throttle");
                 NotifyPropertyChanged("Throttle_toString");
                 SetToSimulator(THROTTLE, value);
+                UpdatePlaneLocation();// update location after change
             }
         }
 
@@ -533,7 +455,8 @@ namespace FlightSimulatorApp
                 _values["rudder"] = value;
                 SetToSimulator(RUDDER, value);
                 NotifyPropertyChanged("Rudder");
-                UpdateMapCoordinates();
+                UpdatePlaneLocation();// update location after change
+
             }
         }
 
@@ -548,7 +471,7 @@ namespace FlightSimulatorApp
                 _values["elevator"] = tempVal;
                 SetToSimulator(ELEVATOR, tempVal);
                 NotifyPropertyChanged("Elevator");
-                UpdateMapCoordinates();
+                UpdatePlaneLocation();// update location after change
             }
         }
 
@@ -560,7 +483,15 @@ namespace FlightSimulatorApp
                 string val = GetValidLatitude(value);
                 if (val == _values["latitude_x"]) return;
                 _values["latitude_x"] = val;
-                PlaneLocationByString = val + ", " + Longitude_y;
+                if (ToUpdate)
+                {
+                    PlaneLocationByString = val + ", " + Longitude_y;
+                }
+                else
+                {
+                    ToUpdate = true;
+                }
+
             }
         }
 
@@ -659,6 +590,104 @@ namespace FlightSimulatorApp
 
         #endregion
 
+        #region LocationValidation
+
+        private static bool IsLocationValid(string lat, string lon)
+        {
+            return IsLongitudeValid(lon) && IsLatitudeValid(lat);
+        }
+
+        private static bool IsLongitudeValid(string lon)
+        {
+            bool valid;
+            try
+            {
+                double longitude = Convert.ToDouble(lon);
+                valid = longitude >= -179 && longitude <= 179;
+            }
+            catch (Exception)
+            {
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        private static bool IsLatitudeValid(string lat)
+        {
+            bool valid;
+            try
+            {
+                double latitude = Convert.ToDouble(lat);
+                valid = latitude >= -85 && latitude <= 85;
+            }
+            catch (Exception)
+            {
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        private string GetValidLatitude(string value) // 90 border
+        {
+            string localLat = value;
+            if (!IsLatitudeValid(value))
+            {
+                _warningQueue.Enqueue("ERROR: Plane in flying out of earth's latitude border.");
+                _manualResetWarningEvent.Set();
+                try
+                {
+                    double dValue = Convert.ToDouble(value);
+                    if (dValue < 0)
+                    {
+                        localLat = "-89";
+                    }
+                    else
+                    {
+                        localLat = "89";
+                    }
+                }
+                catch (Exception)
+                {
+                    localLat = "0";
+                }
+            }
+
+            return localLat;
+        }
+
+        private string GetValidLongitude(string value) //border 180
+        {
+            string localLong = value;
+            if (!IsLatitudeValid(value))
+            {
+                _warningQueue.Enqueue("ERROR: Plane in flying out of earth's longitude border." +
+                    " Recalculating valid longitude");
+                _manualResetWarningEvent.Set();
+                try
+                {
+                    // goes to the other side of globe
+                    double dValue = Convert.ToDouble(value);
+                    if (dValue < 0)
+                    {
+                        localLong = "179";
+                    }
+                    else
+                    {
+                        localLong = "-179";
+                    }
+                }
+                catch (Exception)
+                {
+                    localLong = "0";
+                }
+            }
+
+            return localLong;
+        }
+
+        #endregion
 
         #region Connection
 
@@ -679,12 +708,15 @@ namespace FlightSimulatorApp
                 {
                     Thread.Sleep(1000);
                 }
-
                 if (IsConnectedToServer)
                 {
+                    SendToServerThread();
                     InitializeValues();
                 }
+
             }).Start();
+
+
         }
 
         public bool Connect(string ip, int port)
@@ -762,55 +794,179 @@ namespace FlightSimulatorApp
             _manualResetWarningEvent.Set();
         }
 
-
-        public string SendToServer(string message)
+        private void setServiceResult(string type, string result)
         {
-            string result;
-            bool sentToServer = false;
-            try
+            this._dispatcher.Invoke(() =>
             {
-                lock (obj)
+                result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
+
+
+                double d;
+                if (!Double.TryParse(result, out d))
                 {
-                    byte[] bytes = new byte[1024];
-                    // Encode the data string into a byte array.
-                    message += "\n";
-                    byte[] msg = Encoding.ASCII.GetBytes(message);
-                    int bytesRec = 0;
-
-                    // Send the data through the socket.
-                    int bytesSent = this._clientSocket.Send(msg);
-
-                    // Receive the response from the remote device.
-                    bytesRec = this._clientSocket.Receive(bytes);
-
-                    result = Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                    sentToServer = true;
+                    _warningQueue.Enqueue("ERROR: Return value from simulator is invalid, in set action.");
+                    _manualResetWarningEvent.Set();
                 }
-            }
-            catch (ArgumentNullException ane)
-            {
-                Console.WriteLine("ArgumentNullException : {0}", ane.ToString());
-                result = "ArgumentNullException";
-            }
-            catch (SocketException se)
-            {
-                Console.WriteLine("SocketException : {0}", se.ToString());
-                result = "SocketException";
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Unexpected exception : {0}", e.ToString());
-                result = "Unexpected exception";
-            }
 
-            IsConnectedToServer = sentToServer;
-            if (!IsConnectedToServer)
+            });
+        }
+        private void getServiceResult(string type, string result)
+        {
+            this._dispatcher.Invoke(() =>
             {
-                _warningQueue.Enqueue("ERROR: Simulator is not responding.");
-                _manualResetWarningEvent.Set();
-            }
+                result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
 
-            return result;
+
+                double d;
+                if (!Double.TryParse(result, out d))
+                {
+                    result = "0";
+                    _warningQueue.Enqueue("ERROR: Return value from simulator is invalid, in get action.");
+                    _manualResetWarningEvent.Set();
+                }
+                else
+                {
+                    updateTypes(type, result);
+                }
+
+            });
+        }
+
+        private void updateTypes(string type, string result)
+        {
+            switch (type)
+            {
+                case HEADING:
+                    IndicatedHeadingDeg = result;
+                    break;
+                case VERTICAL_SPEED:
+                    GpsIndicatedVerticalSpeed = result;
+                    break;
+                case GROUND_SPEED:
+                    GpsIndicatedGroundSpeedKt = result;
+                    break;
+                case INDICATED_SPEED:
+                    AirspeedIndicatorIndicatedSpeedKt = result;
+                    break;
+                case GPS_ALTITUDE:
+                    GpsIndicatedAltitudeFt = result;
+                    break;
+                case ROLL:
+                    AttitudeIndicatorInternalRollDeg = result;
+                    break;
+                case PITCH:
+                    AttitudeIndicatorInternalPitchDeg = result;
+                    break;
+                case ALTIMETER_ALTITUDE:
+                    AltimeterIndicatedAltitudeFt = result;
+                    break;
+                case THROTTLE:
+                    Throttle = result;
+                    break;
+                case RUDDER:
+                    Rudder = result;
+                    break;
+                case ELEVATOR:
+                    Elevator = result;
+                    break;
+                case AILERON:
+                    Aileron = result;
+                    break;
+                case LATITUDE_X:
+                    Latitude_x = result;
+                    break;
+                case LONGITUDE_Y:
+
+                    Longitude_y = result;
+
+                    break;
+                default:
+                    _warningQueue.Enqueue("ERROR: Could not find type to update.");
+                    _manualResetWarningEvent.Set();
+                    break;
+            }
+        }
+
+        public void SendToServerThread()
+        {
+
+            new Thread(delegate ()
+            {
+                while (IsConnectedToServer)
+                {
+
+                    if ((_requestsSET_ToSim.IsEmpty && _requestGET_ToSim.IsEmpty)
+                    || !_manualResetRequestEvent.WaitOne(100))
+                    {
+                        continue;
+                    }
+
+
+                    RequestsToServer request;
+                    _requestsSET_ToSim.TryDequeue(out request);
+                    if (request == null)
+                    {
+                        _requestGET_ToSim.TryDequeue(out request);
+                    }
+
+                    string message = request.Message;
+                    bool sentToServer = false;
+                    string result;
+
+                    try
+                    {
+                        byte[] bytes = new byte[1024];
+                        // Encode the data string into a byte array.
+                        message += "\n";
+                        byte[] msg = Encoding.ASCII.GetBytes(message);
+                        int bytesRec = 0;
+
+                        // Send the data through the socket.
+                        int bytesSent = this._clientSocket.Send(msg);
+
+                        // Receive the response from the remote device.
+                        bytesRec = this._clientSocket.Receive(bytes);
+
+                        result = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                        sentToServer = true;
+
+                    }
+                    catch (ArgumentNullException ane)
+                    {
+                        Console.WriteLine("ArgumentNullException : {0}", ane.ToString());
+                        result = "ArgumentNullException";
+                    }
+                    catch (SocketException se)
+                    {
+                        Console.WriteLine("SocketException : {0}", se.ToString());
+                        result = "SocketException";
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Unexpected exception : {0}", e.ToString());
+                        result = "Unexpected exception";
+                    }
+
+                    IsConnectedToServer = sentToServer;
+                    if (!IsConnectedToServer)
+                    {
+                        while (_warningQueue.TryDequeue(out _)) ;
+                        _warningQueue.Enqueue("ERROR: Simulator is not responding.");
+                        _manualResetWarningEvent.Set();
+                        result = "0";
+                    }
+
+                    if (request.IsUpdate)
+                    {
+                        getServiceResult(request.Path, result);
+                    }
+                    else
+                    {
+                        setServiceResult(request.Path, result);
+                    }
+                }
+
+            }).Start();
         }
 
         #endregion
