@@ -22,6 +22,28 @@ namespace FlightSimulatorApp.UserNavigationControl
             set { }
         }
 
+        public string VM_Elevator
+        {
+            get
+            {
+                double val = Convert.ToDouble(Model.Elevator);
+                float roundedValue = (float)Math.Round(val, 3);
+                return roundedValue.ToString();
+            }
+            set { }
+        }
+
+        public string VM_Rudder
+        {
+            get
+            {
+                double val = Convert.ToDouble(Model.Rudder);
+                float roundedValue = (float)Math.Round(val, 3);
+                return roundedValue.ToString();
+            }
+            set { }
+        }
+
         public int VM_JoystickAngle
         {
             get { return Model.AirplaneAngle; }
@@ -39,7 +61,7 @@ namespace FlightSimulatorApp.UserNavigationControl
             get
             {
                 double val = Convert.ToDouble(Model.Aileron);
-                float roundedValue = (float) Math.Round(val, 3);
+                float roundedValue = (float)Math.Round(val, 3);
                 return roundedValue.ToString();
             }
             set { }
@@ -50,7 +72,7 @@ namespace FlightSimulatorApp.UserNavigationControl
             get
             {
                 double val = Convert.ToDouble(Model.Throttle);
-                float roundedValue = (float) Math.Round(val, 3);
+                float roundedValue = (float)Math.Round(val, 3);
                 return roundedValue.ToString();
             }
             set { }
