@@ -117,10 +117,10 @@ namespace FlightSimulatorApp
                 ["Shutdown"] = false
             };
 
-        private ManualResetEvent _manualResetWarningEvent = new ManualResetEvent(false);
+        private AutoResetEvent _autoResetWarningEvent = new AutoResetEvent(false);
         private ConcurrentQueue<string> _warningQueue = new ConcurrentQueue<string>();
 
-        private ManualResetEvent _manualResetRequestEvent = new ManualResetEvent(false);
+        private AutoResetEvent _autoResetRequestEvent = new AutoResetEvent(false);
         private ConcurrentQueue<RequestsToServer> _requestGET_ToSim = new ConcurrentQueue<RequestsToServer>();
         private ConcurrentQueue<RequestsToServer> _requestsSET_ToSim = new ConcurrentQueue<RequestsToServer>();
 
@@ -173,7 +173,11 @@ namespace FlightSimulatorApp
             GetFromSimulator(LONGITUDE_Y);
         }
 
-
+        public void AddWarningMessage(string message)
+        {
+            _warningQueue.Enqueue(message);
+            _autoResetWarningEvent.Set();
+        }
 
         private void WarningQueueThread()
         {
@@ -181,27 +185,20 @@ namespace FlightSimulatorApp
             {
                 while (!IsAppShutDown)
                 {
-                    if (!_warningQueue.IsEmpty)
+                    if (_warningQueue.IsEmpty)
                     {
-                        string sWarning;
-                        _warningQueue.TryDequeue(out sWarning);
-                        Warning = sWarning;
-                        Thread.Sleep(2000);
-
-                    }
-                    else
-                    {
-                        if (!_manualResetWarningEvent.WaitOne(3500)) // if there is no notification initialize
+                        if (!_autoResetWarningEvent.WaitOne(2000))
                         {
                             Warning = "";
+                            continue;
                         }
-
                     }
+                    string sWarning;
+                    _warningQueue.TryDequeue(out sWarning);
+                    Warning = sWarning;
                 }
             }).Start();
         }
-
-
 
         private void UpdateDashboardThread()
         {
@@ -233,14 +230,13 @@ namespace FlightSimulatorApp
             {
                 value = "set " + propertyPath + " " + value;
                 _requestsSET_ToSim.Enqueue(new RequestsToServer(value, false, propertyPath));
-                _manualResetRequestEvent.Set();
+                _autoResetRequestEvent.Set();
 
             }
             else
             {
                 Console.WriteLine("Could not send empty value.");
-                _warningQueue.Enqueue("ERROR: Requesting value is invalid.");
-                _manualResetWarningEvent.Set();
+                AddWarningMessage("ERROR: Requesting value is invalid.");
             }
 
         }
@@ -251,20 +247,18 @@ namespace FlightSimulatorApp
             {
                 string message = "get " + propertyPath;
                 _requestGET_ToSim.Enqueue(new RequestsToServer(message, true, propertyPath));
-                _manualResetRequestEvent.Set();
+                _autoResetRequestEvent.Set();
             }
             else
             {
                 Console.WriteLine("Could not get empty value.");
-
-                _warningQueue.Enqueue("ERROR: Requesting value is invalid.");
-                _manualResetWarningEvent.Set();
+                AddWarningMessage("ERROR: Requesting value is invalid.");
             }
 
         }
 
-        #region Properties
 
+        #region Properties
         public string Warning
         {
             get { return _warningString; }
@@ -490,7 +484,6 @@ namespace FlightSimulatorApp
             }
         }
 
-
         public string PlaneLocationByString
         {
             get => _location;
@@ -510,7 +503,6 @@ namespace FlightSimulatorApp
             }
         }
 
-
         public string Longitude_y
         {
             get => _values["longitude_y"];
@@ -522,7 +514,6 @@ namespace FlightSimulatorApp
                 PlaneLocationByString = Latitude_x + ", " + val;
             }
         }
-
 
         public string IP
         {
@@ -552,7 +543,7 @@ namespace FlightSimulatorApp
             set
             {
                 _connectionState["Shutdown"] = value;
-                _manualResetWarningEvent.Set();
+                _autoResetWarningEvent.Set();
             }
         }
 
@@ -580,8 +571,7 @@ namespace FlightSimulatorApp
                 if (!value) // trying to connect, message clearance
                 {
                     while (_warningQueue.TryDequeue(out _)) ; //clear queue
-                    _warningQueue.Enqueue("To fly, please connect to the simulator.");
-                    _manualResetWarningEvent.Set();
+                    AddWarningMessage("To fly, please connect to the simulator.");
                 }
 
 
@@ -594,7 +584,6 @@ namespace FlightSimulatorApp
         #endregion
 
         #region LocationValidation
-
         private static bool IsLocationValid(string lat, string lon)
         {
             return IsLongitudeValid(lon) && IsLatitudeValid(lat);
@@ -637,8 +626,7 @@ namespace FlightSimulatorApp
             string localLat = value;
             if (!IsLatitudeValid(value))
             {
-                _warningQueue.Enqueue("ERROR: Plane in flying out of earth's latitude border.");
-                _manualResetWarningEvent.Set();
+                AddWarningMessage("ERROR: Plane in flying out of earth's latitude border.");
                 try
                 {
                     double dValue = Convert.ToDouble(value);
@@ -665,9 +653,8 @@ namespace FlightSimulatorApp
             string localLong = value;
             if (!IsLatitudeValid(value))
             {
-                _warningQueue.Enqueue("ERROR: Plane in flying out of earth's longitude border." +
+                AddWarningMessage("ERROR: Plane in flying out of earth's longitude border." +
                     " Recalculating valid longitude");
-                _manualResetWarningEvent.Set();
                 try
                 {
                     // goes to the other side of globe
@@ -751,10 +738,8 @@ namespace FlightSimulatorApp
                         this._clientSocket.RemoteEndPoint.ToString());
                     IsTryingToConnect = false;
                     IsConnectedToServer = true;
-                    _warningQueue.Enqueue("Connected successfully.");
-                    _warningQueue.Enqueue("FLY ME TO THE MOON (:");
-
-                    _manualResetWarningEvent.Set();
+                    AddWarningMessage("Connected successfully.");
+                    AddWarningMessage("FLY ME TO THE MOON (:");
                 }
                 // Manage of Socket's Exceptions 
                 catch (SocketException se)
@@ -774,10 +759,9 @@ namespace FlightSimulatorApp
 
             if (!IsConnectedToServer && IsTryingToConnect)
             {
-                _warningQueue.Enqueue("ERROR: Could not connect to simulator, trying again..." +
+                AddWarningMessage("ERROR: Could not connect to simulator, trying again..." +
                                       " Check IP and port values.");
-                _warningQueue.Enqueue("Trying to connect to the simulator...");
-                _manualResetWarningEvent.Set();
+                AddWarningMessage("Trying to connect to the simulator...");
             }
 
             return IsConnectedToServer;
@@ -793,24 +777,20 @@ namespace FlightSimulatorApp
             }
 
             IsConnectedToServer = false;
-            _warningQueue.Enqueue("Disconnected from simulator.");
-            _manualResetWarningEvent.Set();
+            AddWarningMessage("Disconnected from simulator.");
         }
 
-        private void setServiceResult(string type, string result)
+        private void SetServiceResult(string type, string result)
         {
             this._dispatcher.Invoke(() =>
             {
                 result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
 
-
                 double d;
                 if (!Double.TryParse(result, out d))
                 {
-                    _warningQueue.Enqueue("ERROR: Return value from simulator is invalid, in set action.");
-                    _manualResetWarningEvent.Set();
+                    AddWarningMessage("ERROR: Return value from simulator is invalid, in set action.");
                 }
-
             });
         }
         private void getServiceResult(string type, string result)
@@ -824,8 +804,7 @@ namespace FlightSimulatorApp
                 if (!Double.TryParse(result, out d))
                 {
                     result = "0";
-                    _warningQueue.Enqueue("ERROR: Return value from simulator is invalid, in get action.");
-                    _manualResetWarningEvent.Set();
+                    AddWarningMessage("ERROR: Return value from simulator is invalid, in get action.");
                 }
                 else
                 {
@@ -884,8 +863,7 @@ namespace FlightSimulatorApp
 
                     break;
                 default:
-                    _warningQueue.Enqueue("ERROR: Could not find type to update.");
-                    _manualResetWarningEvent.Set();
+                    AddWarningMessage("ERROR: Could not find type to update.");
                     break;
             }
         }
@@ -898,12 +876,13 @@ namespace FlightSimulatorApp
                 while (IsConnectedToServer)
                 {
 
-                    if ((_requestsSET_ToSim.IsEmpty && _requestGET_ToSim.IsEmpty)
-                    || !_manualResetRequestEvent.WaitOne(100))
+                    if (_requestsSET_ToSim.IsEmpty && _requestGET_ToSim.IsEmpty)
                     {
-                        continue;
+                        if (!_autoResetRequestEvent.WaitOne(100))
+                        {
+                            continue;
+                        }
                     }
-
 
                     RequestsToServer request;
                     _requestsSET_ToSim.TryDequeue(out request);
@@ -954,8 +933,7 @@ namespace FlightSimulatorApp
                     if (!IsConnectedToServer)
                     {
                         while (_warningQueue.TryDequeue(out _)) ;
-                        _warningQueue.Enqueue("ERROR: Simulator is not responding.");
-                        _manualResetWarningEvent.Set();
+                        AddWarningMessage("ERROR: Simulator is not responding.");
                         result = "0";
                     }
 
@@ -965,7 +943,7 @@ namespace FlightSimulatorApp
                     }
                     else
                     {
-                        setServiceResult(request.Path, result);
+                        SetServiceResult(request.Path, result);
                     }
                 }
 

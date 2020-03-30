@@ -19,12 +19,12 @@ namespace FlightSimulatorApp.UserNavigationControl
             Joystick.SetViewModel(_vm);
         }
 
-        private void aileronSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void AileronSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _vm.VM_Aileron = e.NewValue;
         }
 
-        private void throttleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void ThrottleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _vm.VM_Throttle = e.NewValue;
         }

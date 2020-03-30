@@ -18,7 +18,10 @@ namespace FlightSimulatorApp.UserNavigationControl
 
         public bool VM_SliderEnable
         {
-            get { return Model.IsConnectedToServer; }
+            get
+            {
+                return Model.IsConnectedToServer;
+            }
             set { }
         }
 

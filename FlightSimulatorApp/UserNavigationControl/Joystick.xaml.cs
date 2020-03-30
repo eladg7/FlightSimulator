@@ -46,6 +46,10 @@ namespace FlightSimulatorApp.UserNavigationControl
                 _baseWidth = Base.ActualWidth;
                 _knobRadius = KnobBase.ActualHeight / 2;
             }
+            else
+            {
+                _vm.Model.AddWarningMessage("Please connect to a server in order to activate the joystick");
+            }
         }
 
         private void Knob_MouseMove(object sender, MouseEventArgs e)
