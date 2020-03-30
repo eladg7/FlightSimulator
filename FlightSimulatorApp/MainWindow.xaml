@@ -8,7 +8,7 @@
         xmlns:maps="clr-namespace:FlightSimulatorApp.Maps"
         xmlns:userNavigationControl="clr-namespace:FlightSimulatorApp.UserNavigationControl"
         mc:Ignorable="d"
-        Title="Flight Simulator App" MinWidth="800" MinHeight="450" Background="#052533">
+        Title="Flight Simulator App" MinWidth="800" Width="800" MinHeight="450" Height="450" Background="#052533">
     <Grid x:Name="MainGrid">
         <Grid.Resources>
             <Style TargetType="TextBox">
@@ -102,16 +102,14 @@
                 <Button x:Name="SimConnectToServerButton" Grid.Column="4" Content="{Binding VM_simConnectButton}"
                     HorizontalAlignment="Left" VerticalAlignment="Center"
                     Click="SimConnectToServerButton_Click" Cursor="Hand" Style="{StaticResource ButtonStyle}"
-                    Margin="5,5,10,10" Padding="2,2" FontSize="13" FontFamily="Segoe UI Light" />
+                    Margin="5,5,10,10" Padding="2,2" FontSize="14" FontFamily="Segoe UI Light" />
 
             </Grid>
             
             <Button x:Name="ButtonCenterMap" Grid.Column="0" Content="Center Map"
                      VerticalAlignment="Center" HorizontalAlignment="Center"
                     Cursor="Hand" Style="{StaticResource ButtonStyle}"
-                    Margin="5,5,0,10" Padding="2,2" FontSize="13" FontFamily="Segoe UI Light" Click="ButtonCenterMap_Click" />
-            
-           
+                    Margin="5,5,0,10" Padding="2,2" FontSize="14" FontFamily="Segoe UI Light" Click="ButtonCenterMap_Click" />
 
         </Grid>
     </Grid>
