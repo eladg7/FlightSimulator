@@ -8,7 +8,7 @@ In this project, the application handles every edge case:
  - Bad coordinates (out of the world).
  - Connection loss in the middle of the process.
  - The application will never crash - it will display a warning that says there is something wrong.
- - The server responds in delay (or does not set the value in time). * And if it takes too long - it shuts doen the connection itself.
+ - The server responds in delay (or does not set the value in time), and if it takes too long - it shuts down the connection itself.
  - The server does not work at all.
  
  # Added features
