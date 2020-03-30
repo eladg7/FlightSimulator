@@ -59,7 +59,7 @@ namespace FlightSimulatorApp
                 Message = message;
                 IsUpdate = update;
                 Path = path;
-        
+
             }
             public string Message
             {
@@ -74,7 +74,7 @@ namespace FlightSimulatorApp
             {
                 get; set;
             }
-         
+
         }
         #endregion
 
@@ -157,7 +157,6 @@ namespace FlightSimulatorApp
         private void InitializeValues()
         {
             ToUpdate = false;
-            IsInitialRun = true;
             UpdatePlaneLocation();
 
             GetFromSimulator(THROTTLE);
@@ -483,14 +482,10 @@ namespace FlightSimulatorApp
                 string val = GetValidLatitude(value);
                 if (val == _values["latitude_x"]) return;
                 _values["latitude_x"] = val;
-                if (ToUpdate)
-                {
-                    PlaneLocationByString = val + ", " + Longitude_y;
-                }
-                else
-                {
-                    ToUpdate = true;
-                }
+
+                PlaneLocationByString = val + ", " + Longitude_y;
+
+
 
             }
         }
@@ -503,7 +498,15 @@ namespace FlightSimulatorApp
             {
                 if (_location == value) return;
                 _location = value;
-                NotifyPropertyChanged("PlaneLocationByString");
+                if (!ToUpdate)// initial loction update after second parameter in given for location 
+                {
+                    ToUpdate = true;
+                    IsInitialRun = true;
+                }
+                else
+                {
+                    NotifyPropertyChanged("PlaneLocationByString");
+                }
             }
         }
 
