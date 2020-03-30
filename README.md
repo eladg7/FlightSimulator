@@ -1,7 +1,7 @@
 # FlightSimulator
-Flight Simulator is a WPF application, built in MVVM architecture, that simulates airplane flight using [Flightgear](https://www.flightgear.org/) values.__
-This application is very easy to use, and responds to every user's commands.__
-The application connects to a TCP/IP server.__
+Flight Simulator is a WPF application, built in MVVM architecture, that simulates airplane flight using [Flightgear](https://www.flightgear.org/) values.<br />
+This application is very easy to use, and responds to every user's commands.<br />
+The application connects to a TCP/IP server.<br />
 In addition, we used [Bing Maps](https://www.bing.com/maps) in order to make the user enjoy more.
 
 # Edge Cases
