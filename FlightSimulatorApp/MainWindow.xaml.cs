@@ -30,7 +30,6 @@ namespace FlightSimulatorApp
         private const string IpRegex =
             @"^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$";
 
-
         //  function for testing text box
         private delegate bool TextBoxFunc();
 
@@ -75,40 +74,34 @@ namespace FlightSimulatorApp
         }
 
         #region connectArea
-
-        private void TestTextBox(TextBox textBox, TextBoxFunc testFunc)
+        private void SimIPTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!testFunc())
+            string tempText = SimIpTextBox.Text;
+            if (tempText.Length > 0 && Regex.IsMatch(tempText, IpRegex))
             {
-                textBox.BorderBrush = Brushes.Red;
-                SimConnectToServerButton.IsEnabled = false;
+                SimIpTextBox.BorderBrush = Brushes.Gray;
+                SimConnectToServerButton.IsEnabled = true;
             }
             else
             {
-                textBox.BorderBrush = Brushes.Gray;
-                SimConnectToServerButton.IsEnabled = true;
+                SimIpTextBox.BorderBrush = Brushes.Red;
+                SimConnectToServerButton.IsEnabled = false;
             }
-
-            // Keep the cursor at the end of the input
-            textBox.SelectionStart = textBox.Text.Length;
-        }
-
-        private void SimIPTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TestTextBox(SimIpTextBox, delegate ()
-            {
-                string tempText = SimIpTextBox.Text;
-                return tempText.Length > 0 && Regex.IsMatch(tempText, IpRegex);
-            });
         }
 
         private void SimPortTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TestTextBox(SimPortTextBox, delegate ()
+            string tempText = SimPortTextBox.Text;
+            if (tempText.Length > 0 && int.TryParse(tempText, out _))
             {
-                string tempText = SimPortTextBox.Text;
-                return tempText.Length > 0 && int.TryParse(tempText, out _);
-            });
+                SimPortTextBox.BorderBrush = Brushes.Gray;
+                SimConnectToServerButton.IsEnabled = true;
+            }
+            else
+            {
+                SimPortTextBox.BorderBrush = Brushes.Red;
+                SimConnectToServerButton.IsEnabled = false;
+            }
         }
 
         private void SimConnectToServerButton_Click(object sender, RoutedEventArgs e)
@@ -142,13 +135,11 @@ namespace FlightSimulatorApp
                     Latitude = Convert.ToDouble(str[0]),
                     Longitude = Convert.ToDouble(str[1])
                 };
-              
             }
             else
             {
                 _model.AddWarningMessage("Connect to server to center map.");
             }
-
         }
     }
 }

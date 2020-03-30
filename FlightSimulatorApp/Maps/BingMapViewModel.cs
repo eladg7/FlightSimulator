@@ -46,7 +46,6 @@ namespace FlightSimulatorApp.Maps
             //Define the image display properties
             myBitmapImage.DecodePixelHeight = 150;
             myBitmapImage.EndInit();
-
         }
 
         //properties 
@@ -97,13 +96,9 @@ namespace FlightSimulatorApp.Maps
             }
             set
             {
-
                 _InitialLocation = value;
                 NotifyPropertyChanged("VM_InitialLocation");
             }
-
         }
-
-
     }
 }
