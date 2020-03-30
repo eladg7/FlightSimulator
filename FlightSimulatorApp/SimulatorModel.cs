@@ -17,13 +17,10 @@ using System.Windows.Threading;
 
 namespace FlightSimulatorApp
 {
-
-
     public delegate void ThreadExitCallBack(string result);
     class SimulatorModel : ISimulatorModel
     {
         #region ValuesPath
-
         //  Dashboard
         const string HEADING = "/instrumentation/heading-indicator/indicated-heading-deg";
         const string VERTICAL_SPEED = "/instrumentation/gps/indicated-vertical-speed";
@@ -32,19 +29,16 @@ namespace FlightSimulatorApp
         const string GPS_ALTITUDE = "/instrumentation/gps/indicated-altitude-ft";
         const string ROLL = "/instrumentation/attitude-indicator/internal-roll-deg";
         const string PITCH = "/instrumentation/attitude-indicator/internal-pitch-deg";
-
         const string ALTIMETER_ALTITUDE = "/instrumentation/altimeter/indicated-altitude-ft";
 
         //  Joystick
         const string THROTTLE = "/controls/engines/current-engine/throttle";
         const string RUDDER = "/controls/flight/rudder";
         const string ELEVATOR = "/controls/flight/elevator";
-
         const string AILERON = "/controls/flight/aileron";
 
         //  Map
         const string LATITUDE_X = "/position/latitude-deg";
-
         const string LONGITUDE_Y = "/position/longitude-deg";
 
         //  Server
@@ -79,8 +73,8 @@ namespace FlightSimulatorApp
         #endregion
 
         #region Fields
-       
-        private static readonly Object objInitial = new Object();
+
+        private static readonly Object ObjInitial = new Object();
 
         private bool _IsInitialRun = false;
 
@@ -128,6 +122,7 @@ namespace FlightSimulatorApp
         private string _warningString = "";
         private Dispatcher _dispatcher = null;
         #endregion
+
         public SimulatorModel()
         {
             _dispatcher = Dispatcher.CurrentDispatcher;
@@ -135,7 +130,6 @@ namespace FlightSimulatorApp
             _currentPort = Convert.ToInt32(ReadSetting("DefaultPort"));
             WarningQueueThread();
         }
-
 
         private static string ReadSetting(string key)
         {
@@ -193,7 +187,7 @@ namespace FlightSimulatorApp
                     }
                     string sWarning;
                     _warningQueue.TryDequeue(out sWarning);
-                    if (sWarning==null)
+                    if (sWarning == null)
                     {
                         sWarning = "";
                     }
@@ -400,7 +394,7 @@ namespace FlightSimulatorApp
             get
             {
                 bool val;
-                lock (objInitial)
+                lock (ObjInitial)
                 {
                     val = _IsInitialRun;
                 }
@@ -409,7 +403,7 @@ namespace FlightSimulatorApp
             }
             set
             {
-                lock (objInitial)
+                lock (ObjInitial)
                 {
                     _IsInitialRun = value;
                 }
@@ -589,11 +583,6 @@ namespace FlightSimulatorApp
         #endregion
 
         #region LocationValidation
-        private static bool IsLocationValid(string lat, string lon)
-        {
-            return IsLongitudeValid(lon) && IsLatitudeValid(lat);
-        }
-
         private static bool IsLongitudeValid(string lon)
         {
             bool valid;
@@ -785,41 +774,37 @@ namespace FlightSimulatorApp
             AddWarningMessage("Disconnected from simulator.");
         }
 
-        private void SetServiceResult(string type, string result)
+        private void SetResultCallback(string result)
         {
-            this._dispatcher.Invoke(() =>
+            _dispatcher.Invoke(() =>
             {
                 result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
 
-                double d;
-                if (!Double.TryParse(result, out d))
+                if (!double.TryParse(result, out double d))
                 {
                     AddWarningMessage("ERROR: Return value from simulator is invalid, in set action.");
                 }
             });
         }
-        private void getServiceResult(string type, string result)
+        private void GetResultCallback(string type, string result)
         {
-            this._dispatcher.Invoke(() =>
+            _dispatcher.Invoke(() =>
             {
                 result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
 
-
-                double d;
-                if (!Double.TryParse(result, out d))
+                if (!double.TryParse(result, out double d))
                 {
                     result = "0";
                     AddWarningMessage("ERROR: Return value from simulator is invalid, in get action.");
                 }
                 else
                 {
-                    updateTypes(type, result);
+                    UpdateTypes(type, result);
                 }
-
             });
         }
 
-        private void updateTypes(string type, string result)
+        private void UpdateTypes(string type, string result)
         {
             switch (type)
             {
@@ -914,7 +899,6 @@ namespace FlightSimulatorApp
 
                         result = Encoding.ASCII.GetString(bytes, 0, bytesRec);
                         sentToServer = true;
-
                     }
                     catch (ArgumentNullException ane)
                     {
@@ -942,14 +926,13 @@ namespace FlightSimulatorApp
 
                     if (request.IsUpdate)
                     {
-                        getServiceResult(request.Path, result);
+                        GetResultCallback(request.Path, result);
                     }
                     else
                     {
-                        SetServiceResult(request.Path, result);
+                        SetResultCallback(result);
                     }
                 }
-
             }).Start();
         }
 
