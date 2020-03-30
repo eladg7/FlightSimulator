@@ -50,7 +50,7 @@
                     Maximum="1" Foreground="White"
                     TickPlacement="Both" Value="{Binding VM_Aileron}"
                     Minimum="-1" Height="40" TickFrequency="0.2" LargeChange="0"
-                    ValueChanged="aileronSlider_ValueChanged">
+                    ValueChanged="AileronSlider_ValueChanged">
 
                 <Slider.Effect>
                     <DropShadowEffect ShadowDepth="2" />
@@ -74,7 +74,7 @@
                     Foreground="White" Value="{Binding VM_Throttle}"
                     TickPlacement="Both" TickFrequency="0.1"
                     IsSnapToTickEnabled="True" AutoToolTipPrecision="2" HorizontalAlignment="Center" LargeChange="0"
-                    ValueChanged="throttleSlider_ValueChanged">
+                    ValueChanged="ThrottleSlider_ValueChanged">
 
                 <Slider.Effect>
                     <DropShadowEffect ShadowDepth="2" />

@@ -26,10 +26,6 @@ namespace FlightSimulatorApp
 
             MainWindow mw = new MainWindow(_model);
             mw.Show();
-
-        }
-
-
-       
+        }       
     }
 }

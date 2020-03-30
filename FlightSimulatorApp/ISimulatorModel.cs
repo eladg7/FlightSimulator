@@ -10,7 +10,7 @@ namespace FlightSimulatorApp
 {
     public interface ISimulatorModel : INotifyPropertyChanged, ITCPClient
     {
-        //  properties
+        #region properties
         string Warning { get; set; }
         bool IsInitialRun { get; set; }
         string Throttle { get; set; }
@@ -19,9 +19,9 @@ namespace FlightSimulatorApp
         string Elevator { get; set; }
         string PlaneLocationByString { get; set; }
         int AirplaneAngle { get; set; }
-        
+
         string IndicatedHeadingDeg { get; set; }
-        
+
         string GpsIndicatedVerticalSpeed { get; set; }
 
         string GpsIndicatedGroundSpeedKt { get; set; }
@@ -37,7 +37,9 @@ namespace FlightSimulatorApp
         string AltimeterIndicatedAltitudeFt { get; set; }
 
         bool IsAppShutDown { get; set; }
+        #endregion
 
+        void AddWarningMessage(string message);
 
         //  server
         void SetToSimulator(string propertyPath, string value);
