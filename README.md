@@ -18,6 +18,7 @@ In this project, the application handles every edge case:
   - The user can try to connect to a server (and let it keep trying) until connected to a server.
   - The appliction sends a lot of data to the server simultaneously, and read from it simultaneously as well.
   - The application displays the plane on [Bing Maps](https://www.bing.com/maps) in order to make the user enjoy using the simulator as much as possible.
+  - the user always can re-center the map to the current plane location.
   
   # In order to run the application
   You will need to start a server that sends all the required data to the simulator.
