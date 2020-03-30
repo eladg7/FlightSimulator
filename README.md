@@ -1,5 +1,8 @@
 # FlightSimulator
 Flight Simulator is a WPF application that simulates airplane flight, using [Flightgear](https://www.flightgear.org/) values.
+This application is very easy to use, and responds to every user's commands.
+The application connects to a TCP/IP server.
+In addition, we used [Bing Maps](https://www.bing.com/maps) in order to make the user enjoy more.
 
 # Edge Cases
 In this project, the application handles every edge case: 
