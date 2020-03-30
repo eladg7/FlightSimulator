@@ -21,4 +21,4 @@ In this project, the application handles every edge case:
   - the user always can re-center the map to the current plane location.
   
   # In order to run the application
-  You will need to start a server that sends all the required data to the simulator.
+  You will need to start a server that will act as FlightGear simulator, and will set/get the correct properties.
