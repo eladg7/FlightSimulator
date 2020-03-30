@@ -97,12 +97,9 @@ namespace FlightSimulatorApp.Maps
             }
             set
             {
-                if (value != _InitialLocation)
-                {
-                    _InitialLocation = value;
-                    NotifyPropertyChanged("VM_InitialLocation");
-                }
 
+                _InitialLocation = value;
+                NotifyPropertyChanged("VM_InitialLocation");
             }
 
         }

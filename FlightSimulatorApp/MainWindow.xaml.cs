@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 using FlightSimulatorApp.DashboardTableFiles;
 using System.Configuration;
 using FlightSimulatorApp.UserNavigationControl;
+using Microsoft.Maps.MapControl.WPF;
 
 namespace FlightSimulatorApp
 {
@@ -130,5 +131,24 @@ namespace FlightSimulatorApp
         }
 
         #endregion
+
+        private void ButtonCenterMap_Click(object sender, RoutedEventArgs e)
+        {
+            if (_model.IsConnectedToServer)
+            {
+                string[] str = Regex.Split(_mapViewModel.VM_PlaneLocationByString, ", ");
+                _mapViewModel.VM_InitialLocation = new Location()
+                {
+                    Latitude = Convert.ToDouble(str[0]),
+                    Longitude = Convert.ToDouble(str[1])
+                };
+              
+            }
+            else
+            {
+                _model.AddWarningMessage("Connect to server to center map.");
+            }
+
+        }
     }
 }

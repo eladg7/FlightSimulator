@@ -79,8 +79,7 @@ namespace FlightSimulatorApp
         #endregion
 
         #region Fields
-        private static readonly Object obj = new Object();
-        private static readonly Object objConnection = new Object();
+       
         private static readonly Object objInitial = new Object();
 
         private bool _IsInitialRun = false;
@@ -117,10 +116,10 @@ namespace FlightSimulatorApp
                 ["Shutdown"] = false
             };
 
-        private AutoResetEvent _autoResetWarningEvent = new AutoResetEvent(false);
+        private ManualResetEvent _manualResetWarningEvent = new ManualResetEvent(false);
         private ConcurrentQueue<string> _warningQueue = new ConcurrentQueue<string>();
 
-        private AutoResetEvent _autoResetRequestEvent = new AutoResetEvent(false);
+        private ManualResetEvent _manualResetRequestEvent = new ManualResetEvent(false);
         private ConcurrentQueue<RequestsToServer> _requestGET_ToSim = new ConcurrentQueue<RequestsToServer>();
         private ConcurrentQueue<RequestsToServer> _requestsSET_ToSim = new ConcurrentQueue<RequestsToServer>();
 
@@ -156,7 +155,7 @@ namespace FlightSimulatorApp
 
         private void InitializeValues()
         {
-            ToUpdate = false;
+            ToUpdateCenterMap = false;
             UpdatePlaneLocation();
 
             GetFromSimulator(THROTTLE);
@@ -176,7 +175,7 @@ namespace FlightSimulatorApp
         public void AddWarningMessage(string message)
         {
             _warningQueue.Enqueue(message);
-            _autoResetWarningEvent.Set();
+            _manualResetWarningEvent.Set();
         }
 
         private void WarningQueueThread()
@@ -185,17 +184,23 @@ namespace FlightSimulatorApp
             {
                 while (!IsAppShutDown)
                 {
-                    if (_warningQueue.IsEmpty)
+
+                    if (_warningQueue.IsEmpty && !_manualResetWarningEvent.WaitOne(1000))
                     {
-                        if (!_autoResetWarningEvent.WaitOne(2000))
-                        {
-                            Warning = "";
-                            continue;
-                        }
+                        Warning = "";
+                        continue;
+
                     }
                     string sWarning;
                     _warningQueue.TryDequeue(out sWarning);
+                    if (sWarning==null)
+                    {
+                        sWarning = "";
+                    }
                     Warning = sWarning;
+                    Thread.Sleep(2000);
+
+
                 }
             }).Start();
         }
@@ -230,7 +235,7 @@ namespace FlightSimulatorApp
             {
                 value = "set " + propertyPath + " " + value;
                 _requestsSET_ToSim.Enqueue(new RequestsToServer(value, false, propertyPath));
-                _autoResetRequestEvent.Set();
+                _manualResetRequestEvent.Set();
 
             }
             else
@@ -247,7 +252,7 @@ namespace FlightSimulatorApp
             {
                 string message = "get " + propertyPath;
                 _requestGET_ToSim.Enqueue(new RequestsToServer(message, true, propertyPath));
-                _autoResetRequestEvent.Set();
+                _manualResetRequestEvent.Set();
             }
             else
             {
@@ -388,7 +393,7 @@ namespace FlightSimulatorApp
             }
         }
 
-        public bool ToUpdate
+        public bool ToUpdateCenterMap
         { get; set; } = false;
         public bool IsInitialRun
         {
@@ -491,9 +496,9 @@ namespace FlightSimulatorApp
             {
                 if (_location == value) return;
                 _location = value;
-                if (!ToUpdate)// initial loction update after second parameter in given for location 
+                if (!ToUpdateCenterMap)// initial loction update after second parameter in given for location 
                 {
-                    ToUpdate = true;
+                    ToUpdateCenterMap = true;
                     IsInitialRun = true;
                 }
                 else
@@ -543,7 +548,7 @@ namespace FlightSimulatorApp
             set
             {
                 _connectionState["Shutdown"] = value;
-                _autoResetWarningEvent.Set();
+                _manualResetWarningEvent.Set();
             }
         }
 
@@ -626,7 +631,7 @@ namespace FlightSimulatorApp
             string localLat = value;
             if (!IsLatitudeValid(value))
             {
-                AddWarningMessage("ERROR: Plane in flying out of earth's latitude border.");
+                AddWarningMessage("ERROR: Plane is out of earth's latitude border.");
                 try
                 {
                     double dValue = Convert.ToDouble(value);
@@ -651,9 +656,9 @@ namespace FlightSimulatorApp
         private string GetValidLongitude(string value) //border 180
         {
             string localLong = value;
-            if (!IsLatitudeValid(value))
+            if (!IsLongitudeValid(value))
             {
-                AddWarningMessage("ERROR: Plane in flying out of earth's longitude border." +
+                AddWarningMessage("ERROR: Plane is out of earth's longitude border." +
                     " Recalculating valid longitude");
                 try
                 {
@@ -876,12 +881,10 @@ namespace FlightSimulatorApp
                 while (IsConnectedToServer)
                 {
 
-                    if (_requestsSET_ToSim.IsEmpty && _requestGET_ToSim.IsEmpty)
+                    if ((_requestsSET_ToSim.IsEmpty && _requestGET_ToSim.IsEmpty)
+                        || (!_manualResetRequestEvent.WaitOne(100)))
                     {
-                        if (!_autoResetRequestEvent.WaitOne(100))
-                        {
-                            continue;
-                        }
+                        continue;
                     }
 
                     RequestsToServer request;

@@ -62,6 +62,7 @@
             <Viewbox x:Name="UserNavigationViewBox" Grid.Row="1" Stretch="Uniform">
                 <userNavigationControl:UserNavigation x:Name="UserNavigation" />
             </Viewbox>
+            
         </Grid>
 
         <Viewbox x:Name="MapViewBox" Grid.Row="0" Grid.Column="0" Margin="5" Stretch="UniformToFill">
@@ -74,27 +75,43 @@
 
         <Grid Grid.Row="1" Grid.Column="1">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="1" HorizontalAlignment="Left">
+                <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Label x:Name="SimIpLabel" Grid.Column="0" Content="IP:" Margin="0,5" HorizontalAlignment="Left"
-                   VerticalAlignment="Center" />
-            <TextBox x:Name="SimIpTextBox" Grid.Column="1" VerticalAlignment="Center" Text="{Binding VM_simIP}"
-                     IsEnabled="{Binding VM_simConnectEnabled}" TextChanged="SimIPTextBox_TextChanged" Margin="0,5,5,5" />
+                </Grid.ColumnDefinitions>
 
-            <Label x:Name="SimPortLabel" Grid.Column="2" Content="Port:" Margin="0,5" HorizontalAlignment="Left"
+                <Label x:Name="SimIpLabel" Grid.Column="0" Content="IP:" Margin="0,5,0,10" HorizontalAlignment="Left"
                    VerticalAlignment="Center" />
-            <TextBox x:Name="SimPortTextBox" Grid.Column="3" VerticalAlignment="Center" Text="{Binding VM_simPort}"
+                <TextBox x:Name="SimIpTextBox" Grid.Column="1" VerticalAlignment="Center" Text="{Binding VM_simIP}"
+                     IsEnabled="{Binding VM_simConnectEnabled}" TextChanged="SimIPTextBox_TextChanged" Margin="0,5,5,10" />
+
+                <Label x:Name="SimPortLabel" Grid.Column="2" Content="Port:" Margin="0,5,0,10" HorizontalAlignment="Left"
+                   VerticalAlignment="Center" />
+                <TextBox x:Name="SimPortTextBox" Grid.Column="3" VerticalAlignment="Center" Text="{Binding VM_simPort}"
                      IsEnabled="{Binding VM_simConnectEnabled}" TextChanged="SimPortTextBox_TextChanged"
-                     Margin="0,5,5,5" />
+                     Margin="0,5,5,10" />
 
-            <Button x:Name="SimConnectToServerButton" Grid.Column="4" Content="{Binding VM_simConnectButton}"
-                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                <Button x:Name="SimConnectToServerButton" Grid.Column="4" Content="{Binding VM_simConnectButton}"
+                    HorizontalAlignment="Left" VerticalAlignment="Center"
                     Click="SimConnectToServerButton_Click" Cursor="Hand" Style="{StaticResource ButtonStyle}"
-                    Margin="10" Padding="2,2" FontSize="18" FontFamily="Segoe UI Light" />
+                    Margin="5,5,10,10" Padding="2,2" FontSize="13" FontFamily="Segoe UI Light" />
+
+            </Grid>
+            
+            <Button x:Name="ButtonCenterMap" Grid.Column="0" Content="Center Map"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Cursor="Hand" Style="{StaticResource ButtonStyle}"
+                    Margin="5,5,0,10" Padding="2,2" FontSize="13" FontFamily="Segoe UI Light" Click="ButtonCenterMap_Click" />
+            
+           
 
         </Grid>
     </Grid>
