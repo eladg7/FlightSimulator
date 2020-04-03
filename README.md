@@ -16,6 +16,7 @@ In this project, the application handles every edge case:
   - The plane image rotates according to the user's joystick movement.
   - Beautiful design.
   - The user can try to connect to a server (and let it keep trying) until connected to a server.
+  - The user can only put in valid IP and port values to box. There is a red mark when the IP or port are invalid.
   - The appliction sends a lot of data to the server simultaneously, and read from it simultaneously as well.
   - The application displays the plane on [Bing Maps](https://www.bing.com/maps) in order to make the user enjoy using the simulator as much as possible.
   - the user always can re-center the map to the current plane location.
