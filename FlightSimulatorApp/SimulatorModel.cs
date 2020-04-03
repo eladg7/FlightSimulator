@@ -916,21 +916,24 @@ namespace FlightSimulatorApp
                         result = "Unexpected exception";
                     }
 
-                    IsConnectedToServer = sentToServer;
-                    if (!IsConnectedToServer)
+
+                    if (!sentToServer)
                     {
                         while (_warningQueue.TryDequeue(out _)) ;
-                        AddWarningMessage("ERROR: Simulator is not responding.");
+                        AddWarningMessage("ERROR: Simulator is not responding, could not update values.");
                         result = "0";
-                    }
-
-                    if (request.IsUpdate)
-                    {
-                        GetResultCallback(request.Path, result);
                     }
                     else
                     {
-                        SetResultCallback(result);
+
+                        if (request.IsUpdate)
+                        {
+                            GetResultCallback(request.Path, result);
+                        }
+                        else
+                        {
+                            SetResultCallback(result);
+                        }
                     }
                 }
             }).Start();
