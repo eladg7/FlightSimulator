@@ -40,7 +40,7 @@
                         </TableCell>
                         <TableCell>
                             <Paragraph>
-                                <Run Text="{Binding VM_Indicated_heading_deg}" />
+                                <Run Text="{Binding VM_Indicated_heading_deg}"/>
                             </Paragraph>
                         </TableCell>
                     </TableRow>

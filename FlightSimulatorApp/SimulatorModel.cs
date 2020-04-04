@@ -114,13 +114,15 @@ namespace FlightSimulatorApp
         private ConcurrentQueue<string> _warningQueue = new ConcurrentQueue<string>();
 
         private ManualResetEvent _manualResetRequestEvent = new ManualResetEvent(false);
-        private ConcurrentQueue<RequestsToServer> _requestGET_ToSim = new ConcurrentQueue<RequestsToServer>();
+        private ConcurrentQueue<RequestsToServer> _requestsGET_ToSim = new ConcurrentQueue<RequestsToServer>();
         private ConcurrentQueue<RequestsToServer> _requestsSET_ToSim = new ConcurrentQueue<RequestsToServer>();
 
-
+        private ManualResetEvent _manualResetLocationEvent = new ManualResetEvent(false);
 
         private string _warningString = "";
         private Dispatcher _dispatcher = null;
+
+        private bool _isSentSetToServer = true;
         #endregion
 
         public SimulatorModel()
@@ -150,7 +152,6 @@ namespace FlightSimulatorApp
         private void InitializeValues()
         {
             ToUpdateCenterMap = false;
-            UpdatePlaneLocation();
 
             GetFromSimulator(THROTTLE);
             GetFromSimulator(RUDDER);
@@ -183,18 +184,17 @@ namespace FlightSimulatorApp
                     {
                         Warning = "";
                         continue;
-
                     }
+
                     string sWarning;
                     _warningQueue.TryDequeue(out sWarning);
+
                     if (sWarning == null)
                     {
                         sWarning = "";
                     }
                     Warning = sWarning;
                     Thread.Sleep(2000);
-
-
                 }
             }).Start();
         }
@@ -206,13 +206,14 @@ namespace FlightSimulatorApp
                 while (IsConnectedToServer)
                 {
                     UpdateDashBoardAndData();
-                    Thread.Sleep(250);
+                    Thread.Sleep(500);
                 }
             }).Start();
         }
 
         private void UpdateDashBoardAndData()
         {
+            UpdatePlaneLocation();
             GetFromSimulator(HEADING);
             GetFromSimulator(VERTICAL_SPEED);
             GetFromSimulator(GROUND_SPEED);
@@ -230,14 +231,12 @@ namespace FlightSimulatorApp
                 value = "set " + propertyPath + " " + value;
                 _requestsSET_ToSim.Enqueue(new RequestsToServer(value, false, propertyPath));
                 _manualResetRequestEvent.Set();
-
             }
             else
             {
                 Console.WriteLine("Could not send empty value.");
                 AddWarningMessage("ERROR: Requesting value is invalid.");
             }
-
         }
 
         public void GetFromSimulator(string propertyPath)
@@ -245,7 +244,14 @@ namespace FlightSimulatorApp
             if (!string.IsNullOrEmpty(propertyPath))
             {
                 string message = "get " + propertyPath;
-                _requestGET_ToSim.Enqueue(new RequestsToServer(message, true, propertyPath));
+                foreach (RequestsToServer requestsToServer in _requestsGET_ToSim)
+                {
+                    if (requestsToServer.Message == message)
+                    {
+                        return;
+                    }
+                }
+                _requestsGET_ToSim.Enqueue(new RequestsToServer(message, true, propertyPath));
                 _manualResetRequestEvent.Set();
             }
             else
@@ -253,7 +259,6 @@ namespace FlightSimulatorApp
                 Console.WriteLine("Could not get empty value.");
                 AddWarningMessage("ERROR: Requesting value is invalid.");
             }
-
         }
 
 
@@ -420,7 +425,8 @@ namespace FlightSimulatorApp
                 NotifyPropertyChanged("Aileron");
                 NotifyPropertyChanged("Aileron_toString");
                 SetToSimulator(AILERON, value);
-                UpdatePlaneLocation();// update location after change
+                //  update location after change
+                UpdatePlaneLocation();
             }
         }
 
@@ -434,7 +440,8 @@ namespace FlightSimulatorApp
                 NotifyPropertyChanged("Throttle");
                 NotifyPropertyChanged("Throttle_toString");
                 SetToSimulator(THROTTLE, value);
-                UpdatePlaneLocation();// update location after change
+                //  update location after change
+                UpdatePlaneLocation();
             }
         }
 
@@ -447,8 +454,8 @@ namespace FlightSimulatorApp
                 _values["rudder"] = value;
                 SetToSimulator(RUDDER, value);
                 NotifyPropertyChanged("Rudder");
-                UpdatePlaneLocation();// update location after change
-
+                //  update location after change
+                UpdatePlaneLocation();
             }
         }
 
@@ -463,7 +470,8 @@ namespace FlightSimulatorApp
                 _values["elevator"] = tempVal;
                 SetToSimulator(ELEVATOR, tempVal);
                 NotifyPropertyChanged("Elevator");
-                UpdatePlaneLocation();// update location after change
+                //  update location after change
+                UpdatePlaneLocation();
             }
         }
 
@@ -477,9 +485,6 @@ namespace FlightSimulatorApp
                 _values["latitude_x"] = val;
 
                 PlaneLocationByString = val + ", " + Longitude_y;
-
-
-
             }
         }
 
@@ -572,7 +577,6 @@ namespace FlightSimulatorApp
                     while (_warningQueue.TryDequeue(out _)) ; //clear queue
                     AddWarningMessage("To fly, please connect to the simulator.");
                 }
-
 
                 _connectionState["Trying"] = value;
                 NotifyPropertyChanged("simConnectButton");
@@ -858,26 +862,47 @@ namespace FlightSimulatorApp
             }
         }
 
+        private RequestsToServer GetRequestToServer()
+        {
+            RequestsToServer request;
+            if (_isSentSetToServer)
+            {
+                _requestsGET_ToSim.TryDequeue(out request);
+                _isSentSetToServer = false;
+                if (request == null)
+                {
+                    _requestsSET_ToSim.TryDequeue(out request);
+                    _isSentSetToServer = true;
+                }
+            }
+            else
+            {
+                _requestsSET_ToSim.TryDequeue(out request);
+                _isSentSetToServer = true;
+                if (request == null)
+                {
+                    _requestsGET_ToSim.TryDequeue(out request);
+                    _isSentSetToServer = false;
+                }
+            }
+
+            return request;
+        }
+
         public void SendToServerThread()
         {
-
             new Thread(delegate ()
             {
                 while (IsConnectedToServer)
                 {
 
-                    if ((_requestsSET_ToSim.IsEmpty && _requestGET_ToSim.IsEmpty)
+                    if ((_requestsSET_ToSim.IsEmpty && _requestsGET_ToSim.IsEmpty)
                         || (!_manualResetRequestEvent.WaitOne(100)))
                     {
                         continue;
                     }
 
-                    RequestsToServer request;
-                    _requestsSET_ToSim.TryDequeue(out request);
-                    if (request == null)
-                    {
-                        _requestGET_ToSim.TryDequeue(out request);
-                    }
+                    RequestsToServer request = GetRequestToServer();
 
                     string message = request.Message;
                     bool sentToServer = false;
