@@ -852,7 +852,6 @@ namespace FlightSimulatorApp
                     Latitude_x = result;
                     break;
                 case LONGITUDE_Y:
-
                     Longitude_y = result;
 
                     break;
@@ -941,16 +940,14 @@ namespace FlightSimulatorApp
                         result = "Unexpected exception";
                     }
 
-
                     if (!sentToServer)
                     {
                         while (_warningQueue.TryDequeue(out _)) ;
-                        AddWarningMessage("ERROR: Simulator is not responding, could not update values.");
+                        AddWarningMessage("ERROR: Simulator is not responding, could not update values. Please reconnect.");
                         result = "0";
                     }
                     else
                     {
-
                         if (request.IsUpdate)
                         {
                             GetResultCallback(request.Path, result);
