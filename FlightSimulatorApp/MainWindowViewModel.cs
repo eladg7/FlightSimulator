@@ -16,6 +16,7 @@ namespace FlightSimulatorApp
             Model = model;
         }
 
+        #region Properties
         public string VM_WarningColor
         {
             get
@@ -94,6 +95,7 @@ namespace FlightSimulatorApp
             }
             set { }
         }
+        #endregion
     }
 
 

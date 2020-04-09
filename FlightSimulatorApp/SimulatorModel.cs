@@ -20,7 +20,7 @@ namespace FlightSimulatorApp
     public delegate void ThreadExitCallBack(string result);
     class SimulatorModel : ISimulatorModel
     {
-        #region ValuesPath
+        #region Path_Values_And_Consts
         //  Dashboard
         const string HEADING = "/instrumentation/heading-indicator/indicated-heading-deg";
         const string VERTICAL_SPEED = "/instrumentation/gps/indicated-vertical-speed";
@@ -133,6 +133,7 @@ namespace FlightSimulatorApp
             WarningQueueThread();
         }
 
+        // Read setting from app.config
         private static string ReadSetting(string key)
         {
             string result = "Not Found";
@@ -158,7 +159,7 @@ namespace FlightSimulatorApp
             GetFromSimulator(ELEVATOR);
             GetFromSimulator(AILERON);
 
-            UpdateDashboardThread();
+            UpdateDashboardAndDataThread();
         }
 
         private void UpdatePlaneLocation()
@@ -199,7 +200,7 @@ namespace FlightSimulatorApp
             }).Start();
         }
 
-        private void UpdateDashboardThread()
+        private void UpdateDashboardAndDataThread()
         {
             new Thread(delegate ()
             {
@@ -224,6 +225,7 @@ namespace FlightSimulatorApp
             GetFromSimulator(ALTIMETER_ALTITUDE);
         }
 
+        // Sending set request to server via request queue.
         public void SetToSimulator(string propertyPath, string value)
         {
             if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(propertyPath))
@@ -239,6 +241,7 @@ namespace FlightSimulatorApp
             }
         }
 
+        // Sending get request to server via request queue.
         public void GetFromSimulator(string propertyPath)
         {
             if (!string.IsNullOrEmpty(propertyPath))
@@ -609,7 +612,7 @@ namespace FlightSimulatorApp
             try
             {
                 double latitude = Convert.ToDouble(lat);
-                valid = latitude >= -85 && latitude <= 85;
+                valid = latitude >= -89 && latitude <= 89;
             }
             catch (Exception)
             {
@@ -619,11 +622,12 @@ namespace FlightSimulatorApp
             return valid;
         }
 
-        private string GetValidLatitude(string value) // 90 border
+        private string GetValidLatitude(string value) 
         {
             string localLat = value;
             if (!IsLatitudeValid(value))
             {
+                // 90 border
                 AddWarningMessage("ERROR: Plane is out of earth's latitude border.");
                 try
                 {
@@ -646,7 +650,7 @@ namespace FlightSimulatorApp
             return localLat;
         }
 
-        private string GetValidLongitude(string value) //border 180
+        private string GetValidLongitude(string value) 
         {
             string localLong = value;
             if (!IsLongitudeValid(value))
@@ -655,7 +659,7 @@ namespace FlightSimulatorApp
                     " Recalculating valid longitude");
                 try
                 {
-                    // goes to the other side of globe
+                    // Goes to the other side of globe, border 180
                     double dValue = Convert.ToDouble(value);
                     if (dValue < 0)
                     {
@@ -777,12 +781,14 @@ namespace FlightSimulatorApp
             IsConnectedToServer = false;
             AddWarningMessage("Disconnected from simulator.");
         }
-
+        
+        // Get results of SET from sending thread to main thread by dispacher
         private void SetResultCallback(string result)
         {
             _dispatcher.Invoke(() =>
             {
-                result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
+                //  Remove \n
+                result = Regex.Replace(result, @"\t|\n|\r", ""); 
 
                 if (!double.TryParse(result, out double d))
                 {
@@ -790,11 +796,15 @@ namespace FlightSimulatorApp
                 }
             });
         }
+
+        // Get results of GET from sending thread to main thread by dispacher
+
         private void GetResultCallback(string type, string result)
         {
             _dispatcher.Invoke(() =>
             {
-                result = Regex.Replace(result, @"\t|\n|\r", ""); //  Remove \n
+                //  Remove \n
+                result = Regex.Replace(result, @"\t|\n|\r", ""); 
 
                 if (!double.TryParse(result, out double d))
                 {
@@ -803,11 +813,13 @@ namespace FlightSimulatorApp
                 }
                 else
                 {
+                  
                     UpdateTypes(type, result);
                 }
             });
         }
 
+        // Update data properties by path given.
         private void UpdateTypes(string type, string result)
         {
             switch (type)
@@ -861,6 +873,7 @@ namespace FlightSimulatorApp
             }
         }
 
+        // Deciding which request to send to server from both queues.
         private RequestsToServer GetRequestToServer()
         {
             RequestsToServer request;
