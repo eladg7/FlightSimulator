@@ -9,6 +9,7 @@ namespace FlightSimulatorApp.DashboardTableFiles
             Model = model;
         }
 
+        #region properties
         public string VM_Indicated_heading_deg
         {
             get
@@ -88,5 +89,6 @@ namespace FlightSimulatorApp.DashboardTableFiles
             }
             set { }
         }
+        #endregion
     }
 }

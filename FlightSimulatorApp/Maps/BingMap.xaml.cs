@@ -11,18 +11,15 @@ namespace FlightSimulatorApp.Maps
         BingMapViewModel _vm;
         public BingMap()
         {
-            InitializeComponent();
-
-    
-            
-        }
+            InitializeComponent();        }
 
         public void SetViewModel(BingMapViewModel vm)
         {
             _vm = vm;
             DataContext = _vm;
+            //  Focus the camera to the map
             MyMap.Focus();
-            //Set map to Aerial mode with labels
+            //  Set map to Aerial mode with labels
             MyMap.Mode = new AerialMode(true);
         }
 

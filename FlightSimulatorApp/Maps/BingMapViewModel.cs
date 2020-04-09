@@ -21,20 +21,20 @@ namespace FlightSimulatorApp.Maps
             Latitude = 0,
             Longitude = 0
         };
-
-        BitmapImage myBitmapImage = new BitmapImage();
+        BitmapImage _myBitmapImage = new BitmapImage();
         public BingMapViewModel(ISimulatorModel model)
         {
             Model = model;
             CreateBitmap();
         }
 
+        //  Create the airplane image
         private void CreateBitmap()
         {
-            myBitmapImage.BeginInit();
+            _myBitmapImage.BeginInit();
             string path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
 
-            myBitmapImage.UriSource = new Uri(
+            _myBitmapImage.UriSource = new Uri(
             System.IO.Path.Combine(path, "Plane.png"));
             // To save significant application memory, set the DecodePixelWidth or  
             // DecodePixelHeight of the BitmapImage value of the image source to the desired 
@@ -43,13 +43,12 @@ namespace FlightSimulatorApp.Maps
             // the size that is displayed.
             // Note: In order to preserve aspect ratio, set DecodePixelWidth
             // or DecodePixelHeight but not both.
-            //Define the image display properties
-            myBitmapImage.DecodePixelHeight = 150;
-            myBitmapImage.EndInit();
+            // Define the image display properties
+            _myBitmapImage.DecodePixelHeight = 150;
+            _myBitmapImage.EndInit();
         }
 
-        //properties 
-
+        #region properties
         public int VM_AirplaneAngle
         {
             get
@@ -66,7 +65,7 @@ namespace FlightSimulatorApp.Maps
         {
             get
             {
-                return myBitmapImage;
+                return _myBitmapImage;
             }
         }
 
@@ -74,7 +73,8 @@ namespace FlightSimulatorApp.Maps
         {
             get
             {
-                if (Model.IsInitialRun) // initial center map location
+                // Initial center map location
+                if (Model.IsInitialRun)
                 {
                     string[] str = Regex.Split(Model.PlaneLocationByString, ", ");
                     VM_InitialLocation = new Location()
@@ -100,5 +100,6 @@ namespace FlightSimulatorApp.Maps
                 NotifyPropertyChanged("VM_InitialLocation");
             }
         }
+        #endregion
     }
 }
