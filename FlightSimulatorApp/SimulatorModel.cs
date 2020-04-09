@@ -266,6 +266,7 @@ namespace FlightSimulatorApp
 
 
         #region Properties
+        //  Max and min values of the properties are based on https://piazza.com/class/k74sy5nj4xm21c?cid=192_f1
         public string Warning
         {
             get { return _warningString; }
@@ -298,6 +299,15 @@ namespace FlightSimulatorApp
             {
                 if (value != _values["Indicated_heading_deg"])
                 {
+                    double tempVal = Convert.ToDouble(value);
+                    if (tempVal < 0)
+                    {
+                        value = "0";
+                    }
+                    else if (tempVal > 360)
+                    {
+                        value = "360";
+                    }
                     _values["Indicated_heading_deg"] = value;
                     NotifyPropertyChanged("Indicated_heading_deg");
                 }
@@ -311,6 +321,15 @@ namespace FlightSimulatorApp
             {
                 if (_values["GPS_indicated_vertical_speed"] != value)
                 {
+                    double tempVal = Convert.ToDouble(value);
+                    if (tempVal < -5000)
+                    {
+                        value = "-5000";
+                    }
+                    else if (tempVal > 721)
+                    {
+                        value = "721";
+                    }
                     _values["GPS_indicated_vertical_speed"] = value;
                     NotifyPropertyChanged("GPS_indicated_vertical_speed");
                 }
@@ -324,6 +343,15 @@ namespace FlightSimulatorApp
             {
                 if (_values["GPS_indicated_ground_speed_kt"] != value)
                 {
+                    double tempVal = Convert.ToDouble(value);
+                    if (tempVal < -50)
+                    {
+                        value = "-50";
+                    }
+                    else if (tempVal > 302)
+                    {
+                        value = "302";
+                    }
                     _values["GPS_indicated_ground_speed_kt"] = value;
                     NotifyPropertyChanged("GPS_indicated_ground_speed_kt");
                 }
@@ -337,6 +365,15 @@ namespace FlightSimulatorApp
             {
                 if (_values["Airspeed_indicator_indicated_speed_kt"] != value)
                 {
+                    double tempVal = Convert.ToDouble(value);
+                    if (tempVal < -50)
+                    {
+                        value = "-50";
+                    }
+                    else if (tempVal > 1000)
+                    {
+                        value = "1000";
+                    }
                     _values["Airspeed_indicator_indicated_speed_kt"] = value;
                     NotifyPropertyChanged("Airspeed_indicator_indicated_speed_kt");
                 }
@@ -350,6 +387,15 @@ namespace FlightSimulatorApp
             {
                 if (_values["GPS_indicated_altitude_ft"] != value)
                 {
+                    double tempVal = Convert.ToDouble(value);
+                    if (tempVal < 0)
+                    {
+                        value = "0";
+                    }
+                    else if (tempVal > 13500)
+                    {
+                        value = "13500";
+                    }
                     _values["GPS_indicated_altitude_ft"] = value;
                     NotifyPropertyChanged("GPS_indicated_altitude_ft");
                 }
@@ -389,6 +435,15 @@ namespace FlightSimulatorApp
             {
                 if (_values["Altimeter_indicated_altitude_ft"] != value)
                 {
+                    double tempVal = Convert.ToDouble(value);
+                    if (tempVal < 0)
+                    {
+                        value = "0";
+                    }
+                    else if (tempVal > 13500)
+                    {
+                        value = "13500";
+                    }
                     _values["Altimeter_indicated_altitude_ft"] = value;
                     NotifyPropertyChanged("Altimeter_indicated_altitude_ft");
                 }
@@ -622,7 +677,7 @@ namespace FlightSimulatorApp
             return valid;
         }
 
-        private string GetValidLatitude(string value) 
+        private string GetValidLatitude(string value)
         {
             string localLat = value;
             if (!IsLatitudeValid(value))
@@ -650,7 +705,7 @@ namespace FlightSimulatorApp
             return localLat;
         }
 
-        private string GetValidLongitude(string value) 
+        private string GetValidLongitude(string value)
         {
             string localLong = value;
             if (!IsLongitudeValid(value))
@@ -705,10 +760,7 @@ namespace FlightSimulatorApp
                     SendToServerThread();
                     InitializeValues();
                 }
-
             }).Start();
-
-
         }
 
         public bool Connect(string ip, int port)
@@ -753,7 +805,6 @@ namespace FlightSimulatorApp
                     Console.WriteLine("Unexpected exception : {0}", e.ToString());
                 }
             }
-
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
@@ -781,14 +832,14 @@ namespace FlightSimulatorApp
             IsConnectedToServer = false;
             AddWarningMessage("Disconnected from simulator.");
         }
-        
+
         // Get results of SET from sending thread to main thread by dispacher
         private void SetResultCallback(string result)
         {
             _dispatcher.Invoke(() =>
             {
                 //  Remove \n
-                result = Regex.Replace(result, @"\t|\n|\r", ""); 
+                result = Regex.Replace(result, @"\t|\n|\r", "");
 
                 if (!double.TryParse(result, out double d))
                 {
@@ -804,7 +855,7 @@ namespace FlightSimulatorApp
             _dispatcher.Invoke(() =>
             {
                 //  Remove \n
-                result = Regex.Replace(result, @"\t|\n|\r", ""); 
+                result = Regex.Replace(result, @"\t|\n|\r", "");
 
                 if (!double.TryParse(result, out double d))
                 {
@@ -813,7 +864,7 @@ namespace FlightSimulatorApp
                 }
                 else
                 {
-                  
+
                     UpdateTypes(type, result);
                 }
             });

@@ -91,13 +91,14 @@
                 <Label x:Name="SimIpLabel" Grid.Column="0" Content="IP:" Margin="0,5,0,10" HorizontalAlignment="Left"
                    VerticalAlignment="Center" />
                 <TextBox x:Name="SimIpTextBox" Grid.Column="1" VerticalAlignment="Center" Text="{Binding VM_simIP}"
-                     IsEnabled="{Binding VM_simConnectEnabled}" TextChanged="SimIPTextBox_TextChanged" Margin="0,5,5,10" />
+                     IsEnabled="{Binding VM_simConnectEnabled}" TextChanged="SimIPTextBox_TextChanged" Margin="0,5,5,10" 
+                         MaxWidth="60"/>
 
                 <Label x:Name="SimPortLabel" Grid.Column="2" Content="Port:" Margin="0,5,0,10" HorizontalAlignment="Left"
                    VerticalAlignment="Center" />
                 <TextBox x:Name="SimPortTextBox" Grid.Column="3" VerticalAlignment="Center" Text="{Binding VM_simPort}"
                      IsEnabled="{Binding VM_simConnectEnabled}" TextChanged="SimPortTextBox_TextChanged"
-                     Margin="0,5,5,10" />
+                     Margin="0,5,5,10" MaxWidth="55"/>
 
                 <Button x:Name="SimConnectToServerButton" Grid.Column="4" Content="{Binding VM_simConnectButton}"
                     HorizontalAlignment="Left" VerticalAlignment="Center"
