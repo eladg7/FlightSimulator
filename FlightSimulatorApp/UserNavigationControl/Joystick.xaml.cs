@@ -72,13 +72,13 @@ namespace FlightSimulatorApp.UserNavigationControl
                 deg += 360;
             }
 
-            //  our plane points left, so we need to start from there (add 180 degrees)
+            //  Our plane points left, so we need to start from there (add 180 degrees)
             _vm.VM_JoystickAngle = (deg + 180) % 360;
         }
 
         private void UpdateKnobPosition()
         {
-            // calculate distance between two points
+            // Calculate distance between two points
             double radiusBase = _baseHeight / 2;
             Point centerKnob = new Point(_baseHeight / 2, _baseHeight / 2);
             double permitedRange = radiusBase - _knobRadius;
@@ -86,10 +86,10 @@ namespace FlightSimulatorApp.UserNavigationControl
             double distanceSquared = Math.Sqrt(Math.Pow((centerKnob.X - _positionBaseRelative.X), 2)
                                                + Math.Pow((centerKnob.Y - _positionBaseRelative.Y), 2));
 
-            // if the distance of the mouse is bigger than the black base.
+            // If the distance of the mouse is bigger than the black base.
             if (distanceSquared > permitedRange)
             {
-                // math equation for a point between two points.
+                // Math equation for a point between two points.
                 double disMinuspre = distanceSquared - permitedRange;
                 _positionBaseRelative.X = (disMinuspre * centerKnob.X + permitedRange * _positionBaseRelative.X)
                                           / (permitedRange + disMinuspre);
@@ -100,7 +100,7 @@ namespace FlightSimulatorApp.UserNavigationControl
             //UpdateThrottle(distanceSquared, permitedRange); <- update throttle by joystick
             UpdateAirplaneAngle(centerKnob);
 
-            //xaml position transfer
+            //Xaml position transfer
             _positionBaseRelative.X -= _baseWidth / 2;
             _positionBaseRelative.Y -= _baseHeight / 2;
 
@@ -124,6 +124,8 @@ namespace FlightSimulatorApp.UserNavigationControl
             (Knob).ReleaseMouseCapture();
             _isMouseDown = false;
             _knobAnimation.Begin();
+
+            // Initialize all values of joystick
             _vm.VM_knobX = 0;
             _vm.VM_knobY = 0;
         }

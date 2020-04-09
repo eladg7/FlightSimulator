@@ -73,7 +73,7 @@ namespace FlightSimulatorApp
             _model.IsAppShutDown = true;
         }
 
-        #region connectArea
+        #region ConnectAreaButtoms
         private void SimIPTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string tempText = SimIpTextBox.Text;

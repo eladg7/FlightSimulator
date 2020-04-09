@@ -14,7 +14,7 @@ namespace FlightSimulatorApp.UserNavigationControl
             Model = model;
         }
 
-        #region properties
+        #region Properties
 
         public bool VM_SliderEnable
         {
