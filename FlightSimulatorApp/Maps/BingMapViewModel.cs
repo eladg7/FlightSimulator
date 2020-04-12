@@ -31,21 +31,28 @@ namespace FlightSimulatorApp.Maps
         //  Create the airplane image
         private void CreateBitmap()
         {
-            _myBitmapImage.BeginInit();
-            string path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            try
+            {
+                _myBitmapImage.BeginInit();
+                string path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
 
-            _myBitmapImage.UriSource = new Uri(
-            System.IO.Path.Combine(path, "Plane.png"));
-            // To save significant application memory, set the DecodePixelWidth or  
-            // DecodePixelHeight of the BitmapImage value of the image source to the desired 
-            // height or width of the rendered image. If you don't do this, the application will 
-            // cache the image as though it were rendered as its normal size rather then just 
-            // the size that is displayed.
-            // Note: In order to preserve aspect ratio, set DecodePixelWidth
-            // or DecodePixelHeight but not both.
-            // Define the image display properties
-            _myBitmapImage.DecodePixelHeight = 150;
-            _myBitmapImage.EndInit();
+                _myBitmapImage.UriSource = new Uri(
+                System.IO.Path.Combine(path, "Plane.png"));
+                // To save significant application memory, set the DecodePixelWidth or  
+                // DecodePixelHeight of the BitmapImage value of the image source to the desired 
+                // height or width of the rendered image. If you don't do this, the application will 
+                // cache the image as though it were rendered as its normal size rather then just 
+                // the size that is displayed.
+                // Note: In order to preserve aspect ratio, set DecodePixelWidth
+                // or DecodePixelHeight but not both.
+                // Define the image display properties
+                _myBitmapImage.DecodePixelHeight = 150;
+                _myBitmapImage.EndInit();
+            }
+            catch (Exception)
+            {
+                Model.AddWarningMessage("Could not find plane image path.");
+            }
         }
 
         #region properties
