@@ -20,7 +20,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>out\</OutputPath>
+    <OutputPath>..\out\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>3</WarningLevel>
@@ -29,7 +29,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>out\</OutputPath>
+    <OutputPath>..\out\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -145,7 +145,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)\Plane.png" "$(ProjectDir)$(OutDir)" /Y /F
-xcopy "$(ProjectDir)\Lib\*.dll" "$(ProjectDir)$(OutDir)" /Y /F</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)Plane.png" "$(SolutionDir)out" /Y /F
+xcopy "$(ProjectDir)Lib\*.dll" "$(SolutionDir)out" /Y /F</PostBuildEvent>
   </PropertyGroup>
 </Project>
