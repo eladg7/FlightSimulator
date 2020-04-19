@@ -1004,7 +1004,8 @@ namespace FlightSimulatorApp
 
                     if (_requestsSET_ToSim.IsEmpty && _requestsGET_ToSim.IsEmpty)
                     {
-                        if (!_manualResetRequestEvent.WaitOne(400)) // no one woke him
+                        // No one woke him
+                        if (!_manualResetRequestEvent.WaitOne(400))
                         {
                             continue;
                         }
