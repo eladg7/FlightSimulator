@@ -21,6 +21,8 @@ namespace FlightSimulatorApp
     class SimulatorModel : ISimulatorModel
     {
         #region Path_Values_And_Consts
+        const double MIN_CHANGE_VALUE = 0.05;
+
         //  Dashboard
         const string HEADING = "/instrumentation/heading-indicator/indicated-heading-deg";
         const string VERTICAL_SPEED = "/instrumentation/gps/indicated-vertical-speed";
@@ -40,6 +42,7 @@ namespace FlightSimulatorApp
         //  Map
         const string LATITUDE_X = "/position/latitude-deg";
         const string LONGITUDE_Y = "/position/longitude-deg";
+
 
         //  Server
         private int _currentPort = 0;
@@ -78,25 +81,35 @@ namespace FlightSimulatorApp
 
         private bool _IsInitialRun = false;
 
-        private Dictionary<string, string> _values = new Dictionary<string, string>()
-        {
-            ["throttle"] = "0",
-            ["rudder"] = "0",
-            ["elevator"] = "0",
-            ["aileron"] = "0",
+        private Dictionary<string, string> _values =
+            new Dictionary<string, string>()
+            {
+                ["throttle"] = "0",
+                ["rudder"] = "0",
+                ["elevator"] = "0",
+                ["aileron"] = "0",
 
-            ["latitude_x"] = "0",
-            ["longitude_y"] = "0",
+                ["latitude_x"] = "0",
+                ["longitude_y"] = "0",
 
-            ["Indicated_heading_deg"] = "0",
-            ["GPS_indicated_vertical_speed"] = "0",
-            ["GPS_indicated_ground_speed_kt"] = "0",
-            ["Airspeed_indicator_indicated_speed_kt"] = "0",
-            ["GPS_indicated_altitude_ft"] = "0",
-            ["Attitude_indicator_internal_roll_deg"] = "0",
-            ["Attitude_indicator_internal_pitch_deg"] = "0",
-            ["Altimeter_indicated_altitude_ft"] = "0"
-        };
+                ["Indicated_heading_deg"] = "0",
+                ["GPS_indicated_vertical_speed"] = "0",
+                ["GPS_indicated_ground_speed_kt"] = "0",
+                ["Airspeed_indicator_indicated_speed_kt"] = "0",
+                ["GPS_indicated_altitude_ft"] = "0",
+                ["Attitude_indicator_internal_roll_deg"] = "0",
+                ["Attitude_indicator_internal_pitch_deg"] = "0",
+                ["Altimeter_indicated_altitude_ft"] = "0"
+            };
+
+        private Dictionary<string, double> _valuesLastChanged =
+            new Dictionary<string, double>()
+            {
+                ["throttle"] = 0,
+                ["rudder"] = 0,
+                ["elevator"] = 0,
+                ["aileron"] = 0
+            };
 
         private Socket _clientSocket;
         private string _location = "0, 0";
@@ -483,11 +496,16 @@ namespace FlightSimulatorApp
             {
                 if (_values["aileron"] == value) return;
                 _values["aileron"] = value;
-                NotifyPropertyChanged("Aileron");
-                NotifyPropertyChanged("Aileron_toString");
-                SetToSimulator(AILERON, value);
-                //  update location after change
-                UpdatePlaneLocation();
+                double tempVal = Convert.ToDouble(value);
+                if (Math.Abs(tempVal - _valuesLastChanged["aileron"]) > MIN_CHANGE_VALUE)
+                {
+                    _valuesLastChanged["aileron"] = tempVal;
+                    NotifyPropertyChanged("Aileron");
+                    NotifyPropertyChanged("Aileron_toString");
+                    SetToSimulator(AILERON, value);
+                    //  update location after change
+                    UpdatePlaneLocation();
+                }
             }
         }
 
@@ -498,11 +516,17 @@ namespace FlightSimulatorApp
             {
                 if (_values["throttle"] == value) return;
                 _values["throttle"] = value;
-                NotifyPropertyChanged("Throttle");
-                NotifyPropertyChanged("Throttle_toString");
-                SetToSimulator(THROTTLE, value);
-                //  update location after change
-                UpdatePlaneLocation();
+                double tempVal = Convert.ToDouble(value);
+                if (Math.Abs(tempVal - _valuesLastChanged["throttle"]) > MIN_CHANGE_VALUE)
+                {
+                    _valuesLastChanged["throttle"] = tempVal;
+                    NotifyPropertyChanged("Throttle");
+                    NotifyPropertyChanged("Throttle_toString");
+                    SetToSimulator(THROTTLE, value);
+                    //  update location after change
+                    UpdatePlaneLocation();
+                }
+
             }
         }
 
@@ -513,10 +537,15 @@ namespace FlightSimulatorApp
             {
                 if (_values["rudder"] == value) return;
                 _values["rudder"] = value;
-                SetToSimulator(RUDDER, value);
-                NotifyPropertyChanged("Rudder");
-                //  update location after change
-                UpdatePlaneLocation();
+                double tempVal = Convert.ToDouble(value);
+                if (Math.Abs(tempVal - _valuesLastChanged["rudder"]) > MIN_CHANGE_VALUE)
+                {
+                    _valuesLastChanged["rudder"] = tempVal;
+                    SetToSimulator(RUDDER, value);
+                    NotifyPropertyChanged("Rudder");
+                    //  update location after change
+                    UpdatePlaneLocation();
+                }
             }
         }
 
@@ -525,14 +554,20 @@ namespace FlightSimulatorApp
             get => _values["elevator"];
             set
             {
-                string tempVal = (-1 * Convert.ToDouble(value)).ToString();
+                // Gets oppisite values because of y axis
+                string minusValue = (-1 * Convert.ToDouble(value)).ToString();
 
-                if (_values["elevator"] == tempVal) return;
-                _values["elevator"] = tempVal;
-                SetToSimulator(ELEVATOR, tempVal);
-                NotifyPropertyChanged("Elevator");
-                //  update location after change
-                UpdatePlaneLocation();
+                if (_values["elevator"] == minusValue) return;
+                _values["elevator"] = minusValue;
+                double tempVal = Convert.ToDouble(minusValue);
+                if (Math.Abs(tempVal - _valuesLastChanged["elevator"]) > MIN_CHANGE_VALUE)
+                {
+                    _valuesLastChanged["elevator"] = tempVal;
+                    SetToSimulator(ELEVATOR, minusValue);
+                    NotifyPropertyChanged("Elevator");
+                    //  update location after change
+                    UpdatePlaneLocation();
+                }
             }
         }
 
@@ -963,7 +998,7 @@ namespace FlightSimulatorApp
                 while (IsConnectedToServer)
                 {
 
-                    if (_requestsSET_ToSim.IsEmpty && _requestsGET_ToSim.IsEmpty)    
+                    if (_requestsSET_ToSim.IsEmpty && _requestsGET_ToSim.IsEmpty)
                     {
                         if (!_manualResetRequestEvent.WaitOne(400)) // no one woke him
                         {
