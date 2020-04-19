@@ -172,6 +172,7 @@ namespace FlightSimulatorApp
         {
             _warningQueue.Enqueue(message);
             _manualResetWarningEvent.Set();
+            _manualResetWarningEvent.Reset();
         }
 
         private void WarningQueueThread()
@@ -233,6 +234,7 @@ namespace FlightSimulatorApp
                 value = "set " + propertyPath + " " + value;
                 _requestsSET_ToSim.Enqueue(new RequestsToServer(value, false, propertyPath));
                 _manualResetRequestEvent.Set();
+                _manualResetRequestEvent.Reset();
             }
             else
             {
@@ -256,6 +258,7 @@ namespace FlightSimulatorApp
                 }
                 _requestsGET_ToSim.Enqueue(new RequestsToServer(message, true, propertyPath));
                 _manualResetRequestEvent.Set();
+                _manualResetRequestEvent.Reset();
             }
             else
             {
@@ -606,6 +609,7 @@ namespace FlightSimulatorApp
             {
                 _connectionState["Shutdown"] = value;
                 _manualResetWarningEvent.Set();
+                _manualResetWarningEvent.Reset();
             }
         }
 
@@ -959,10 +963,12 @@ namespace FlightSimulatorApp
                 while (IsConnectedToServer)
                 {
 
-                    if ((_requestsSET_ToSim.IsEmpty && _requestsGET_ToSim.IsEmpty)
-                        || (!_manualResetRequestEvent.WaitOne(100)))
+                    if (_requestsSET_ToSim.IsEmpty && _requestsGET_ToSim.IsEmpty)    
                     {
-                        continue;
+                        if (!_manualResetRequestEvent.WaitOne(400)) // no one woke him
+                        {
+                            continue;
+                        }
                     }
 
                     RequestsToServer request = GetRequestToServer();
