@@ -497,6 +497,7 @@ namespace FlightSimulatorApp
                 if (_values["aileron"] == value) return;
                 _values["aileron"] = value;
                 double tempVal = Convert.ToDouble(value);
+                // Change only after specific change in value
                 if (Math.Abs(tempVal - _valuesLastChanged["aileron"]) > MIN_CHANGE_VALUE)
                 {
                     _valuesLastChanged["aileron"] = tempVal;
@@ -517,6 +518,7 @@ namespace FlightSimulatorApp
                 if (_values["throttle"] == value) return;
                 _values["throttle"] = value;
                 double tempVal = Convert.ToDouble(value);
+                // Change only after specific change in value
                 if (Math.Abs(tempVal - _valuesLastChanged["throttle"]) > MIN_CHANGE_VALUE)
                 {
                     _valuesLastChanged["throttle"] = tempVal;
@@ -538,6 +540,7 @@ namespace FlightSimulatorApp
                 if (_values["rudder"] == value) return;
                 _values["rudder"] = value;
                 double tempVal = Convert.ToDouble(value);
+                // Change only after specific change in value
                 if (Math.Abs(tempVal - _valuesLastChanged["rudder"]) > MIN_CHANGE_VALUE)
                 {
                     _valuesLastChanged["rudder"] = tempVal;
@@ -560,6 +563,7 @@ namespace FlightSimulatorApp
                 if (_values["elevator"] == minusValue) return;
                 _values["elevator"] = minusValue;
                 double tempVal = Convert.ToDouble(minusValue);
+                // Change only after specific change in value
                 if (Math.Abs(tempVal - _valuesLastChanged["elevator"]) > MIN_CHANGE_VALUE)
                 {
                     _valuesLastChanged["elevator"] = tempVal;
